@@ -13,10 +13,18 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Community" target="1.5" />
-      <module name="Literature" target="1.5" />
-      <module name="Management" target="1.5" />
-      <module name="Portal" target="1.5" />
+      <module name="Community" target="1.8" />
+      <module name="Literature" target="1.8" />
+      <module name="Management" target="1.8" />
+      <module name="Portal" target="1.8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Community" options="-parameters" />
+      <module name="Literature" options="-parameters" />
+      <module name="Management" options="-parameters" />
+      <module name="Portal" options="-parameters" />
+    </option>
   </component>
 </project>
