@@ -20,9 +20,11 @@ public class CommunityController {
     }
     @GetMapping("/test")
     public Map<String, Object> jpayNum(){
-        demo a = demoRepository.findByNumber(1);
+        int num = 1;
+        demo a = demoRepository.findByTest1(1);
+        System.out.println(a);
         Map<String,Object> map1 = new HashMap<String,Object>();
-        map1.put("findByNumber",a);
+        map1.put("findByTest1",a);
         return map1;
     }
 }

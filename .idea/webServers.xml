@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="0d7ddfb9-c8c1-45cd-9610-80af18a2db3c" name="doorscholar">
+        <fileTransfer rootFolder="/root" accessType="SFTP" host="121.36.60.6" port="22" sshConfigId="fde43045-0c06-4e1f-ba31-50b6be0b8aba" sshConfig="root@121.36.60.6:22 password">
+          <advancedOptions>
+            <advancedOptions controlEncoding="UTF-8" dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

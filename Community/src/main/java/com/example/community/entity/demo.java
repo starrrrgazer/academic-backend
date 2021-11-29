@@ -4,21 +4,33 @@ import javax.persistence.*;
 //仅仅记录一下建表的过程
 // 数据库建表
 @Entity
-@Table(name = "testCreate")
+@Table(name = "test")
 public class demo {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)//自动生成值,次次递增
+//    private int id;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)//自动生成值,次次递增
-    private int id;
+    @Column(name = "id", nullable = false)
+    private Long id;
 
     @Column(name = "test1")
-    private int number;
+    private int test1;
 
-    public int getNumber() {
-        return number;
+    public Long getId() {
+        return id;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public int getTest1() {
+        return test1;
+    }
+
+    public void setTest1(int number) {
+        this.test1 = number;
     }
 
 }
