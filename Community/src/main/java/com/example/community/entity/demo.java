@@ -17,6 +17,28 @@ public class demo {
     @Column(name = "test1")
     private int test1;
 
+    @Column(name = "third")
+    private int third;
+
+    @Column(name = "ttest2")
+    private int ttest2;
+
+    public int getTtest2() {
+        return ttest2;
+    }
+
+    public void setTtest2(int ttest2) {
+        this.ttest2 = ttest2;
+    }
+
+    public int getThird() {
+        return third;
+    }
+
+    public void setThird(int third) {
+        this.third = third;
+    }
+
     public Long getId() {
         return id;
     }
