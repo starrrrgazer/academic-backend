@@ -8,9 +8,8 @@ import javax.persistence.*;
 @Table(name = "User")
 public class User {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)//主键生成策略
     @Column(name = "userID", nullable = false)
-    private int userID;
+    private String userID;
 
     @Column(name = "authorID")
     private String authorID;
@@ -51,11 +50,11 @@ public class User {
     @Column(name = "unblockTime")
     private DateTime unblockTime;
 
-    public int getUserID() {
+    public String getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
+    public void setUserID(String userID) {
         this.userID = userID;
     }
 
