@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DemoRepository extends JpaRepository<demo,Object> {
-    demo findByTest1(int test1);
-
-    demo findByTtest2(int test2);
+    demo findByMyTest(int num);
 
 }

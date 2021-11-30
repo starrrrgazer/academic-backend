@@ -5,18 +5,18 @@ import org.joda.time.DateTime;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "User")
 public class User {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)//主键生成策略
-    @Column(name = "userid", nullable = false)
-    private int userid;
+    @Column(name = "userID", nullable = false)
+    private int userID;
 
-    @Column(name = "authorid")
-    private String authorid;
+    @Column(name = "authorID")
+    private String authorID;
 
-    @Column(name = "useridentity")
-    private int useridentity;
+    @Column(name = "userIdentity")
+    private int userIdentity;
 
     @Column(name = "username")
     private String username;
@@ -24,11 +24,11 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "phonenumber")
-    private String phonenumber;
+    @Column(name = "phoneNumber")
+    private String phoneNumber;
 
-    @Column(name = "emailaddress")
-    private String emailaddress;
+    @Column(name = "emailAddress")
+    private String emailAddress;
 
     @Column(name = "image")
     private String image;
@@ -39,40 +39,40 @@ public class User {
     @Column(name = "introduction")
     private String introduction;
 
-    @Column(name = "realname")
-    private String realname;
+    @Column(name = "realName")
+    private String realName;
 
-    @Column(name = "userposition")
-    private String userposition;
+    @Column(name = "userPosition")
+    private String userPosition;
 
-    @Column(name = "isbanned")
-    private int isbanned;
+    @Column(name = "isBanned")
+    private int isBanned;
 
-    @Column(name = "unblocktime")
-    private DateTime unblocktime;
+    @Column(name = "unblockTime")
+    private DateTime unblockTime;
 
-    public int getUserid() {
-        return userid;
+    public int getUserID() {
+        return userID;
     }
 
-    public void setUserid(int userid) {
-        this.userid = userid;
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
-    public String getAuthorid() {
-        return authorid;
+    public String getAuthorID() {
+        return authorID;
     }
 
-    public void setAuthorid(String authorid) {
-        this.authorid = authorid;
+    public void setAuthorID(String authorID) {
+        this.authorID = authorID;
     }
 
-    public int getUseridentity() {
-        return useridentity;
+    public int getUserIdentity() {
+        return userIdentity;
     }
 
-    public void setUseridentity(int useridentity) {
-        this.useridentity = useridentity;
+    public void setUserIdentity(int userIdentity) {
+        this.userIdentity = userIdentity;
     }
 
     public String getUsername() {
@@ -91,20 +91,20 @@ public class User {
         this.password = password;
     }
 
-    public String getPhonenumber() {
-        return phonenumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhonenumber(String phonenumber) {
-        this.phonenumber = phonenumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getEmailaddress() {
-        return emailaddress;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public void setEmailaddress(String emailaddress) {
-        this.emailaddress = emailaddress;
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
     public String getImage() {
@@ -131,37 +131,35 @@ public class User {
         this.introduction = introduction;
     }
 
-    public String getRealname() {
-        return realname;
+    public String getRealName() {
+        return realName;
     }
 
-    public void setRealname(String realname) {
-        this.realname = realname;
+    public void setRealName(String realName) {
+        this.realName = realName;
     }
 
-    public String getUserposition() {
-        return userposition;
+    public String getUserPosition() {
+        return userPosition;
     }
 
-    public void setUserposition(String userposition) {
-        this.userposition = userposition;
+    public void setUserPosition(String userPosition) {
+        this.userPosition = userPosition;
     }
 
-    public int getIsbanned() {
-        return isbanned;
+    public int getIsBanned() {
+        return isBanned;
     }
 
-    public void setIsbanned(int isbanned) {
-        this.isbanned = isbanned;
+    public void setIsBanned(int isBanned) {
+        this.isBanned = isBanned;
     }
 
-    public DateTime getUnblocktime() {
-        return unblocktime;
+    public DateTime getUnblockTime() {
+        return unblockTime;
     }
 
-    public void setUnblocktime(DateTime unblocktime) {
-        this.unblocktime = unblocktime;
+    public void setUnblockTime(DateTime unblockTime) {
+        this.unblockTime = unblockTime;
     }
-
-
 }

@@ -25,7 +25,7 @@ public class CommunityController {
     @GetMapping("/test1")
     public Map<String, Object> jpayNum(){
         int num = 1;
-        demo a = demoRepository.findByTtest2(1);
+        demo a = demoRepository.findByMyTest(1);
         System.out.println(a);
         Map<String,Object> map1 = new HashMap<String,Object>();
         map1.put("findByTest1",a);
@@ -36,7 +36,7 @@ public class CommunityController {
     public Map<String, Object> getUserByID(){
         int num = 1;
 //        if(userRepository)
-        User user = userRepository.findByUserid(1);
+        User user = userRepository.findByUserID(1);
         User user1 =userRepository.findByUsername("test1");
         System.out.println(user);
         System.out.println(user1);
