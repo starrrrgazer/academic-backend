@@ -23,11 +23,55 @@ public class Question {
     @Column(name = "userID")
     private String userID;
 
-    @Column(name = "tags")
-    private String tags;
+    @Column(name = "tagsID")
+    private int tagsID;
 
     @Column(name = "questionTime")
     private DateTime questionTime;
+
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "avatar")
+    private String avatar;
+
+    @Column(name = "questionTitle")
+    private String questionTitle;
+
+    @Column(name = "answerAmount")
+    private int answerAmount;
+
+    public int getAnswerAmount() {
+        return answerAmount;
+    }
+
+    public void setAnswerAmount(int answerAmount) {
+        this.answerAmount = answerAmount;
+    }
+
+    public String getQuestionTitle() {
+        return questionTitle;
+    }
+
+    public void setQuestionTitle(String questionTitle) {
+        this.questionTitle = questionTitle;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public int getQuestionID() {
         return questionID;
@@ -61,12 +105,12 @@ public class Question {
         this.userID = userID;
     }
 
-    public String getTags() {
-        return tags;
+    public int getTagsID() {
+        return tagsID;
     }
 
-    public void setTags(String tags) {
-        this.tags = tags;
+    public void setTagsID(int tagsID) {
+        this.tagsID = tagsID;
     }
 
     public DateTime getQuestionTime() {
