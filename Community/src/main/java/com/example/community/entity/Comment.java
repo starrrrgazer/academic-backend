@@ -29,6 +29,17 @@ public class Comment {
     @Column(name = "commentTime")
     private DateTime commentTime;
 
+    @Column(name = "commentTitle")
+    private String commentTitle;
+
+    public String getCommentTitle() {
+        return commentTitle;
+    }
+
+    public void setCommentTitle(String commentTitle) {
+        this.commentTitle = commentTitle;
+    }
+
     public String getCommentID() {
         return commentID;
     }
