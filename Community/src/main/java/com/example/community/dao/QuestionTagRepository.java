@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface QuestionTagRepository extends JpaRepository<QuestionTag,Object> {
     List<QuestionTag> findAllByQuestionID(int questionID);
+    List<QuestionTag> findAllByTagsID(int tagID);
 }

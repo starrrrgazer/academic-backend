@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface QuestionFollowRepository extends JpaRepository<QuestionFollow,Object> {
     List<QuestionFollow> findAllByUserID(String userID);
+    QuestionFollow findByQuestionIDAndUserID(int questionID,String userID);
 }

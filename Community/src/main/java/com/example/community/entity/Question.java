@@ -1,17 +1,17 @@
 package com.example.community.entity;
 
-import org.joda.time.DateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Question")
 public class Question {
     @Id
     @Column(name = "questionID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int questionID;
 
     @Column(name = "referenceDocID")
@@ -27,7 +27,7 @@ public class Question {
     private int tagsID;
 
     @Column(name = "questionTime")
-    private DateTime questionTime;
+    private Timestamp questionTime;
 
     @Column(name = "username")
     private String username;
@@ -113,11 +113,11 @@ public class Question {
         this.tagsID = tagsID;
     }
 
-    public DateTime getQuestionTime() {
+    public Timestamp getQuestionTime() {
         return questionTime;
     }
 
-    public void setQuestionTime(DateTime questionTime) {
+    public void setQuestionTime(Timestamp questionTime) {
         this.questionTime = questionTime;
     }
 }
