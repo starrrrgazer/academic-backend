@@ -11,5 +11,6 @@ public interface QuestionRepository extends JpaRepository<Question,Object> {
     List<Question> findAll();
     List<Question> findAllByTagsID(int tagsID);
     List<Question> findAllByUserID(String userID);
+    Question findByQuestionIDAndUserIDNot(int questionID, String userID);
     Question findByQuestionID(int questionID);
 }
