@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
 @RestController
 public class LoginController {
 //    @Autowired
@@ -20,7 +21,7 @@ public class LoginController {
     @Autowired
     UserRepository userRepository;
 
-    @CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true",maxAge = 3600)
+//    @CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true",maxAge = 3600)
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, Object> loginMap) {
 
@@ -70,7 +71,7 @@ public class LoginController {
         return map;
     }
 
-    @CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true",maxAge = 3600)
+
     @PostMapping("/show_info")
     public Map<String, Object> showInfo() {
         System.out.println("showinfo");
