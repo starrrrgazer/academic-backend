@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface UserTagRepository extends JpaRepository<UserTags,Object> {
     List<UserTags> findAllByUserID(String userID);
+    int deleteAllByUserID(String userID);
 }

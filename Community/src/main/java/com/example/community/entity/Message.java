@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Message")
@@ -30,7 +31,7 @@ public class Message {
     private int type;
 
     @Column(name = "sendTime")
-    private DateTime sendTime;
+    private Timestamp sendTime;
 
     public int getMessageID() {
         return messageID;
@@ -80,11 +81,11 @@ public class Message {
         this.type = type;
     }
 
-    public DateTime getSendTime() {
+    public Timestamp getSendTime() {
         return sendTime;
     }
 
-    public void setSendTime(DateTime sendTime) {
+    public void setSendTime(Timestamp sendTime) {
         this.sendTime = sendTime;
     }
 }
