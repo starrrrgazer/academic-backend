@@ -116,6 +116,7 @@ public class MessageController {
                     messageList.add(putMessageMap(m));
                 }
                 User user = userRepository.findByUserID(contactID);
+                personMap.put("personId",user.getUserID());
                 personMap.put("personName",user.getUsername());
                 personMap.put("avatar",user.getImage());
                 personMap.put("isRead",isRead);
@@ -124,6 +125,27 @@ public class MessageController {
             }
 
             response.put("personList",personList);
+            response.put("status",1);
+            return response;
+        }catch (Exception e){
+            e.printStackTrace();
+            response.put("status",2);
+            return response;
+        }
+    }
+
+    @PostMapping("/readMessage")
+    public Map<String, Object> readMessage(@RequestBody Map<String,Object> req){
+        System.out.println("request body is:" + req);
+        Map<String,Object> response = new HashMap<>();
+        try {
+            String userID = (String) req.get("userID");
+            String contactID = (String) req.get("personId");
+            List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+            for(Message message : messageContactList){
+                message.setViewed(true);
+                messageRepository.save(message);
+            }
             response.put("status",1);
             return response;
         }catch (Exception e){

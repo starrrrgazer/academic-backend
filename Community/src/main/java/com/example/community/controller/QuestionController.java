@@ -129,24 +129,6 @@ public class QuestionController {
         return questions;
     }
 
-//    @Autowired
-//    private HttpSession session;
-//    public String getUserIDFromSession(){
-//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-//        session = request.getSession();
-//
-//        if(session.getAttribute("userID") == null){
-//            System.out.println("用户未登录！");
-//            return null;
-//        }
-//        else{
-//            String username = (String) session.getAttribute("username");
-//            String password = (String) session.getAttribute("password");
-//            String userID = (String) session.getAttribute("userID");
-//            return userID;
-//        }
-//    }
-
     @PostMapping("/getRecommendedQuestions")
     public Map<String,Object> getRecommendedQuestions(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
