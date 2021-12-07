@@ -16,43 +16,32 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
 @RestController
 public class LoginController {
-//    @Autowired
-//    HttpSession session;
     @Autowired
     UserRepository userRepository;
 
-//    @CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true",maxAge = 3600)
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, Object> loginMap) {
 
         System.out.println("someone try to login");
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-//        if(requestAttributes != null){
         HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
-//        }
-//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-//        session = request.getSession();
         System.out.println(session.getId());
         Map<String, Object> map = new HashMap<>();
-        if(session.getAttribute("username") != null){
+        if(session.getAttribute("userID") != null){
             map.put("message", "用户已登录！");
         }
         else{
             String username = (String) loginMap.get("username");
             String password = (String) loginMap.get("password");
-            System.out.println(username);
-            System.out.println(password);
             try {
                 User user = userRepository.findByUsername(username);
-//                System.out.println(user.getUserID());
                 if (user != null) {
                     if(user.getPassword().equals(password)){
-                        System.out.println(session.getAttribute("username"));
+                        session.setAttribute("userID", user.getUserID());
                         session.setAttribute("username", username);
                         session.setAttribute("password", password);
-                        System.out.println(session.getAttribute("username"));
-
+                        session.setAttribute("isBanned",user.getIsBanned());
                         map.put("success", true);
                         map.put("message", "用户登录成功！");
                     }
@@ -67,19 +56,15 @@ public class LoginController {
                 map.put("message", "用户登录失败！");
             }
         }
-
         return map;
     }
 
 
     @PostMapping("/show_info")
     public Map<String, Object> showInfo() {
-        System.out.println("showinfo");
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-//        if(requestAttributes != null){
         HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
-
         Map<String, Object> map = new HashMap<>();
         if(session.getAttribute("username")
                 == null){
