@@ -2,10 +2,7 @@ package com.example.community.entity;
 
 import org.joda.time.DateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
@@ -13,6 +10,7 @@ import java.sql.Timestamp;
 public class Message {
     @Id
     @Column(name = "messageID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int messageID;
 
     @Column(name = "senderID")

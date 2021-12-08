@@ -4,6 +4,7 @@ import com.example.community.dao.*;
 import com.example.community.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import java.util.*;
 *
 * */
 
+@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
 @RestController
 public class QuestionController {
     @Autowired
@@ -38,6 +40,7 @@ public class QuestionController {
     public Map<String, Object> getSocietyInformation(@RequestBody Map<String,Object> req){
         Map<String,Object> response = new HashMap<>();
         try {
+            response.put("status",1);
             response.putAll(getAnsweredQuestions(req));
             checkResponseMap(response);
             response.putAll(getAskedQuestions(req));
@@ -46,6 +49,7 @@ public class QuestionController {
             checkResponseMap(response);
             response.putAll(getRecommendedQuestions(req));
             checkResponseMap(response);
+
             return response;
         }catch (Exception e){
             e.printStackTrace();

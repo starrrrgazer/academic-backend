@@ -1,15 +1,14 @@
 package com.example.community.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Report")
 public class Report {
     @Id
     @Column(name = "reportID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reportID;
 
     @Column(name = "type")
@@ -28,7 +27,18 @@ public class Report {
     private String reporteeID12;
 
     @Column(name = "reporteeID34")
-    private String reporteeID34;
+    private int reporteeID34;
+
+    @Column(name = "reportTime")
+    private Timestamp reportTime;
+
+    public Timestamp getReportTime() {
+        return reportTime;
+    }
+
+    public void setReportTime(Timestamp reportTime) {
+        this.reportTime = reportTime;
+    }
 
     public int getReportID() {
         return reportID;
@@ -78,11 +88,11 @@ public class Report {
         this.reporteeID12 = reporteeID12;
     }
 
-    public String getReporteeID34() {
+    public int getReporteeID34() {
         return reporteeID34;
     }
 
-    public void setReporteeID34(String reporteeID34) {
+    public void setReporteeID34(int reporteeID34) {
         this.reporteeID34 = reporteeID34;
     }
 }

@@ -7,6 +7,7 @@ import com.example.community.entity.Question;
 import com.example.community.entity.QuestionFollow;
 import com.example.community.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
 @RestController
 public class MessageController {
     @Autowired
