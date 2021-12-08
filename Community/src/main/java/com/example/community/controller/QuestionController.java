@@ -550,6 +550,7 @@ public class QuestionController {
         }
     }
 
+    @Transactional
     @PostMapping("/deleteAnswer")
     public Map<String, Object> deleteAnswer(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
@@ -570,6 +571,7 @@ public class QuestionController {
         }
     }
 
+    @Transactional
     @PostMapping("/deleteQuestion")
     public Map<String, Object> deleteQuestion(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
@@ -606,6 +608,8 @@ public class QuestionController {
         }
     }
 
+
+    @Transactional
     @PostMapping("/deleteFollowQuestion")
     public Map<String, Object> deleteFollowQuestion(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
