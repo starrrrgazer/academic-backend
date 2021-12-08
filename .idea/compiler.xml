@@ -12,7 +12,7 @@
         <module name="Community" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8">
       <module name="Community" target="1.8" />
       <module name="Literature" target="1.8" />
       <module name="Management" target="1.8" />
