@@ -23,5 +23,10 @@
         from Paper
         where id = #{id}
     </delete>
+
+    <select id="getArticleList" resultType="Paper">
+        select *
+        from Paper
+    </select>
     
 </mapper>
