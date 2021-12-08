@@ -3,12 +3,15 @@ package com.example.literature.controller;
 import com.example.literature.dao.PaperRepository;
 import com.example.literature.entity.AuthorList;
 import com.example.literature.entity.Paper;
+import com.example.literature.entity.Venue;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -34,41 +37,193 @@ public class LiteratureController {
 
     @GetMapping("/searchPaper")
     public Map<String, Object> searchPaper(@RequestParam Map<String,Object> params){
+        System.out.println(params);
         Map<String,Object> map = new HashMap<String,Object>();
-        //map.put();
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
-        String startdate_init = (String)params.get("startdate");
-        int startdate = Integer.parseInt(startdate_init.substring(0,4));
-        String enddate_init = (String)params.get("enddate");
-        int enddate = Integer.parseInt(enddate_init.substring(0,4));
+        String[] date_init = (String[])params.get("date");
+        int startdate = Integer.parseInt(date_init[0]);
+        int enddate = Integer.parseInt(date_init[1]);
         @SuppressWarnings("unchecked")
         List<Map<String,Object>> conditionlist = (List<Map<String,Object>>) params.get("conditionList");
-        int conditionNum = conditionlist.size();
-        List<Paper> searchedPaper = new ArrayList<Paper>();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        //建空查询
+        SearchRequest searchRequest = new SearchRequest("paper");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         for (Map<String,Object> condition:conditionlist) {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
             boolean isCurrent = (boolean) condition.get("isCurrent");
-            if(type == 0){
+            if (type == 0) {//全部检索
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
+                        boolQueryBuilder.should(QueryBuilders.termQuery("abstracts", context));
+                        boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("abstracts", context));
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));
+                    }
 
-            }
-            else if(type == 1){
+                } else if (type == 1) {//题目检索
+                    if (relationship == 1) {//与
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.must(QueryBuilders.termQuery("title", context));
+                        } else {//模糊
+                            boolQueryBuilder.must(QueryBuilders.fuzzyQuery("title", context));
+                        }
+                    } else if (relationship == 2) {//或
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+                        } else {//模糊
+                            boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
+                        }
+                    } else if (relationship == 3) {//非
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.mustNot(QueryBuilders.termQuery("title", context));
+                        } else {//模糊
+                            boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("title", context));
+                        }
+                    }
+                } else if (type == 2) {//作者检索
+                    if (relationship == 1) {//与
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.must(QueryBuilders.termQuery("authors.name", context));
+                        } else {//模糊
+                            boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.name", context));
+                        }
+                    } else if (relationship == 2) {//或
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
+                        } else {//模糊
+                            boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
+                        }
+                    } else if (relationship == 3) {//非
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.name", context));
+                        } else {//模糊
+                            boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.name", context));
+                        }
+                    }
+                } else if (type == 3) {//作者单位检索
+                    if (relationship == 1) {//与
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.must(QueryBuilders.termQuery("authors.org", context));
+                        } else {//模糊
+                            boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.org", context));
+                        }
+                    } else if (relationship == 2) {//或
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
+                        } else {//模糊
+                            boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
+                        }
+                    } else if (relationship == 3) {//非
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.org", context));
+                        } else {//模糊
+                            boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.org", context));
+                        }
+                    }
+                } else if (type == 4) {//关键词检索
+                    if (relationship == 1) {//与
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.must(QueryBuilders.termQuery("keywords", context));
+                        } else {//模糊
+                            boolQueryBuilder.must(QueryBuilders.fuzzyQuery("keywords", context));
+                        }
+                    } else if (relationship == 2) {//或
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));
+                        } else {//模糊
+                            boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));
+                        }
+                    } else if (relationship == 3) {//非
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.mustNot(QueryBuilders.termQuery("keywords", context));
+                        } else {//模糊
+                            boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("keywords", context));
+                        }
+                    }
+                } else if (type == 5) {//摘要检索
+                    if (relationship == 1) {//与
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.must(QueryBuilders.termQuery("abstracts", context));
+                        } else {//模糊
+                            boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                        }
+                    } else if (relationship == 2) {//或
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.should(QueryBuilders.termQuery("abstracts", context));
+                        } else {//模糊
+                            boolQueryBuilder.should(QueryBuilders.fuzzyQuery("abstracts", context));
+                        }
+                    } else if (relationship == 3) {//非
+                        if (isCurrent) {//精确
+                            boolQueryBuilder.mustNot(QueryBuilders.termQuery("abstracts", context));
+                        } else {//模糊
+                            boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("abstracts", context));
+                        }
+                    }
+                }
+        }
 
-            }
-            else if(type == 2){
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.size(10000);
+        searchRequest.source(searchSourceBuilder);
 
+        try{
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchHit[] Hits = searchHits.getHits();
+            int num = Hits.length;
+            int page_number;
+            if (num >0) {
+                int flag = num % pageSize;
+                if (flag == 0) {
+                    page_number = num/pageSize;
+                }
+                else{
+                    page_number = num/pageSize+1;
+                }
+                map.put("status",200);
+                map.put("paperNum",num);
+                map.put("pageAllNum",page_number);
+                List<Map<String,Object>> paperList = new ArrayList<Map<String,Object>>();
+                List<String> yearSortList = new ArrayList<String>();
+                List<String> languageSortList = new ArrayList<String>();
+                List<String> authorSortList = new ArrayList<String>();
+                List<String> organizationSortList = new ArrayList<String>();
+                yearSortList.add("1999(100)");
+                yearSortList.add("2000(100)");
+                authorSortList.add("john(10)");
+                authorSortList.add("jack(32)");
+                organizationSortList.add("buaa(3)");
+                languageSortList.add("English("+String.valueOf(num)+")");
+                for (SearchHit hit:Hits) {
+                    Map<String,Object> map1 = new HashMap<>();
+                    map1.put("title",hit.getSourceAsMap().get("title"));
+                    map1.put("abstract",hit.getSourceAsMap().get("abstracts"));
+                    map1.put("keyWords",hit.getSourceAsMap().get("keywords"));
+                    map1.put("author",hit.getSourceAsMap().get("authors"));
+                    map1.put("venue",((Venue)hit.getSourceAsMap().get("venue")).getRaw());
+                    map1.put("id",hit.getSourceAsMap().get("id"));
+                    map1.put("year",hit.getSourceAsMap().get("year"));
+                    paperList.add(map1);
+                }
+                map.put("paperList",paperList);
             }
-            else if(type == 3){
-
+            else{
+                map.put("status",441);
             }
-            else if(type == 4){
-
-            }
-            else if(type == 5){
-
-            }
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
         }
         return map;
     }
@@ -84,6 +239,7 @@ public class LiteratureController {
 
     @GetMapping("/getPaperdetail")
     public Map<String, Object> getPaperdetail(@RequestParam Map<String,Object> params) {
+        System.out.println(params);
         Map<String,Object> map = new HashMap<String,Object>();
         String id = (String) params.get("id");
 
@@ -101,32 +257,28 @@ public class LiteratureController {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             SearchHits searchHits = searchResponse.getHits();
             SearchHit[] Hits = searchHits.getHits();
-            SearchHit searchHit = Hits[0];
-            (String) searchHit.getSourceAsMap().get("title");
-
+            if(Hits.length>0) {
+                SearchHit searchHit = Hits[0];
+                map.put("language", "english");
+                map.put("title", searchHit.getSourceAsMap().get("title"));
+                map.put("citiation", (int) searchHit.getSourceAsMap().get("n_citation"));
+                map.put("issn", searchHit.getSourceAsMap().get("issn"));
+                map.put("doi", searchHit.getSourceAsMap().get("doi"));
+                map.put("abstract", searchHit.getSourceAsMap().get("abstracts"));
+                map.put("venue", ((Venue) searchHit.getSourceAsMap().get("venue")).getRaw());
+                map.put("year", (int) searchHit.getSourceAsMap().get("year"));
+                map.put("pdf", searchHit.getSourceAsMap().get("pdf"));
+                map.put("authors", searchHit.getSourceAsMap().get("authors"));
+                map.put("keyWords", searchHit.getSourceAsMap().get("keywords"));
+                map.put("urls", searchHit.getSourceAsMap().get("url"));
+                map.put("relevantScholars", searchHit.getSourceAsMap().get("authors"));
+                map.put("status",200);
+            }
+            else
+                map.put("status",441);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        /*Paper paper_by_id = paperRepository.findById(id);
-        map.put("title",paper_by_id.getTitle());
-        map.put("citiation",paper_by_id.getN_citation());
-        map.put("issn",paper_by_id.getIssn());
-        map.put("doi",paper_by_id.getDoi());
-        map.put("abstract",paper_by_id.getAbstracts());
-        map.put("venue",paper_by_id.getVenues().getRaw());
-        map.put("year",paper_by_id.getYear());
-        map.put("pdf",paper_by_id.getPdf());
-        ArrayList<Map<String,Object>> authorlist = new ArrayList();
-        for (AuthorList author:paper_by_id.getAuthors()) {
-            Map<String,Object> map1 = new HashMap<String,Object>();
-            map1.put("authorName",author.getName());
-            map1.put("authorId",author.getId());
-            map1.put("authorOrg",author.getOrgs());
-            authorlist.add(map1);
-        }
-        map.put("authors",authorlist);
-        map.put("keyWords",paper_by_id.getKeywords());
-        map.put("urls",paper_by_id.getId());*/
         return map;
     }
 
@@ -143,7 +295,7 @@ public class LiteratureController {
         //建空查询
         SearchRequest searchRequest = new SearchRequest("paper");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("title", "trans"));
+        boolQueryBuilder.must(QueryBuilders.termQuery("authors.name", "john"));
         //增加查询条件
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -157,14 +309,11 @@ public class LiteratureController {
                 String name = (String) searchHit.getSourceAsMap().get("title");
                 Integer birth = (Integer) searchHit.getSourceAsMap().get("year");
                 String interest = (String) searchHit.getSourceAsMap().get("abstract");
-                List<String> keywords = (List<String>) searchHit.getSourceAsMap().get("keywords");
-                List<AuthorList> authors = (List<AuthorList>)searchHit.getSourceAsMap().get("authors");
                 System.out.println("-------------" + (++i) + "------------");
                 System.out.println(name);
                 System.out.println(birth);
                 System.out.println(interest);
-                System.out.println(keywords);
-                System.out.println(authors);
+                System.out.println(searchHit.getSourceAsMap().get("keywords"));
                 if(i>5)
                     break;
             }
