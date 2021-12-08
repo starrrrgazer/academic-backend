@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -21,7 +23,7 @@ public class UserService {
     public Map<String,Object> blockUser(Map<String,Object> map){
         Map<String,Object> returnObject = new HashMap<>();
         try{//userid
-            String userID = (String) map.get("userID");
+            String userID = (String) map.get("id");
             User a = userMapper.getUserByuserId(userID);
             if (a == null) {
                 returnObject.put("status", "403");
@@ -47,7 +49,7 @@ public class UserService {
         Map<String,Object> returnObject = new HashMap<>();
 
         try{
-            String userID = (String) map.get("userID");
+            String userID = (String) map.get("id");
             User a = userMapper.getUserByuserId(userID);
             if (a == null) {
                 returnObject.put("status", "403");
@@ -65,6 +67,27 @@ public class UserService {
         }
         returnObject.put("status","200");
         returnObject.put("result","解封成功");
+        return returnObject;
+    }
+
+    public Map<String,Object> getResearcherList(){
+        //不会ES
+        Map<String,Object> returnObject = new HashMap<>();
+//        List<Map<String,Object>> researcherList = new ArrayList<>();
+//        try{
+//            List<User> tmpReseacherList = userMapper.getResearcherList();
+//            for (User user : tmpReseacherList){
+//                Map<String,Object> tmp = new HashMap<>();
+//                tmp.put("id",user.getUserID());
+//
+//            }
+//        } catch (Exception e) {
+//            returnObject.put("status","401");
+//            returnObject.put("result","未知错误");
+//            return returnObject;
+//        }
+        returnObject.put("status","200");
+        returnObject.put("result","成功");
         return returnObject;
     }
 }

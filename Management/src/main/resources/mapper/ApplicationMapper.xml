@@ -8,4 +8,24 @@
         from Application
         where authorID = #{authorId}
     </select>
+    <select id="getApplyList" resultType="Application">
+        select * from Application
+    </select>
+
+    <update id="acceptApply" parameterType="java.lang.String">
+        update Application
+        set status = 1
+    </update>
+
+    <update id="rejectApply" parameterType="java.lang.String">
+        update Application
+        set status = 2
+    </update>
+
+    <select id="getApplicationByID" parameterType="java.lang.String" resultType="Application">
+        select *
+        from Application
+        where applicationID = #{applicationID}
+    </select>
+
 </mapper>
