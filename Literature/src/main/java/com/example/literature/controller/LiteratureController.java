@@ -16,10 +16,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,15 +32,15 @@ public class LiteratureController {
     RestHighLevelClient restHighLevelClient;
 
 
-    @GetMapping("/searchPaper")
-    public Map<String, Object> searchPaper(@RequestParam Map<String,Object> params){
+    @PostMapping("/searchPaper")
+    public Map<String, Object> searchPaper(@RequestBody Map<String,Object> params){
         System.out.println(params);
         Map<String,Object> map = new HashMap<String,Object>();
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
-        String[] date_init = (String[])params.get("date");
+        /*String[] date_init = (String[])params.get("date");
         int startdate = Integer.parseInt(date_init[0]);
-        int enddate = Integer.parseInt(date_init[1]);
+        int enddate = Integer.parseInt(date_init[1]);*/
         @SuppressWarnings("unchecked")
         List<Map<String,Object>> conditionlist = (List<Map<String,Object>>) params.get("conditionList");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -204,19 +201,32 @@ public class LiteratureController {
                 authorSortList.add("john(10)");
                 authorSortList.add("jack(32)");
                 organizationSortList.add("buaa(3)");
-                languageSortList.add("English("+String.valueOf(num)+")");
-                for (SearchHit hit:Hits) {
+                languageSortList.add("English(10)");
+                int control = pageNum*pageSize;
+                while (control< pageNum*pageSize+pageSize) {
+                    SearchHit hit = Hits[control++];
                     Map<String,Object> map1 = new HashMap<>();
                     map1.put("title",hit.getSourceAsMap().get("title"));
-                    map1.put("abstract",hit.getSourceAsMap().get("abstracts"));
+                    String str = (String) hit.getSourceAsMap().get("abstract");
+                    map1.put("abstract",str.substring(0,50)+"....");
                     map1.put("keyWords",hit.getSourceAsMap().get("keywords"));
-                    map1.put("author",hit.getSourceAsMap().get("authors"));
-                    map1.put("venue",((Venue)hit.getSourceAsMap().get("venue")).getRaw());
+                    List<Map<String,Object>> list= (List<Map<String,Object>>)hit.getSourceAsMap().get("authors");
+                    List<Map<String,Object>> list1 = new ArrayList<>();
+                    if(list.size()>=3){
+                        list1 = list.subList(0,3);
+                    }
+                    map1.put("author",list1);
+                    map1.put("venue",hit.getSourceAsMap().get("venue"));
                     map1.put("id",hit.getSourceAsMap().get("id"));
                     map1.put("year",hit.getSourceAsMap().get("year"));
                     paperList.add(map1);
                 }
                 map.put("paperList",paperList);
+                map.put("yearSortList",yearSortList);
+                map.put("languageSortList",languageSortList);
+                map.put("authorSortList",authorSortList);
+                map.put("organizationSortList",organizationSortList);
+
             }
             else{
                 map.put("status",441);
@@ -229,16 +239,16 @@ public class LiteratureController {
     }
 
 
-    @GetMapping("/recommendPaper")
-    public Map<String, Object> recommendPaper(@RequestParam Map<String,Object> params) {
+    @PostMapping("/recommendPaper")
+    public Map<String, Object> recommendPaper(@RequestBody Map<String,Object> params) {
         Map<String,Object> map = new HashMap<String,Object>();
         return map;
     }
 
 
 
-    @GetMapping("/getPaperdetail")
-    public Map<String, Object> getPaperdetail(@RequestParam Map<String,Object> params) {
+    @PostMapping("/getPaperdetail")
+    public Map<String, Object> getPaperdetail(@RequestBody Map<String,Object> params) {
         System.out.println(params);
         Map<String,Object> map = new HashMap<String,Object>();
         String id = (String) params.get("id");
@@ -261,16 +271,19 @@ public class LiteratureController {
                 SearchHit searchHit = Hits[0];
                 map.put("language", "english");
                 map.put("title", searchHit.getSourceAsMap().get("title"));
-                map.put("citiation", (int) searchHit.getSourceAsMap().get("n_citation"));
+                map.put("citiation",  searchHit.getSourceAsMap().get("n_citation"));
                 map.put("issn", searchHit.getSourceAsMap().get("issn"));
                 map.put("doi", searchHit.getSourceAsMap().get("doi"));
-                map.put("abstract", searchHit.getSourceAsMap().get("abstracts"));
-                map.put("venue", ((Venue) searchHit.getSourceAsMap().get("venue")).getRaw());
-                map.put("year", (int) searchHit.getSourceAsMap().get("year"));
+                System.out.println(2);
+                map.put("abstract", searchHit.getSourceAsMap().get("abstract"));
+                map.put("venue", searchHit.getSourceAsMap().get("venue"));
+                map.put("year", searchHit.getSourceAsMap().get("year"));
                 map.put("pdf", searchHit.getSourceAsMap().get("pdf"));
+                System.out.println(3);
                 map.put("authors", searchHit.getSourceAsMap().get("authors"));
                 map.put("keyWords", searchHit.getSourceAsMap().get("keywords"));
                 map.put("urls", searchHit.getSourceAsMap().get("url"));
+                System.out.println(4);
                 map.put("relevantScholars", searchHit.getSourceAsMap().get("authors"));
                 map.put("status",200);
             }
@@ -279,18 +292,20 @@ public class LiteratureController {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+        System.out.println(5);
         return map;
     }
 
 
-    @GetMapping("/classificationPaper")
-    public Map<String, Object> classificationPaper(@RequestParam Map<String,Object> params) {
+    @PostMapping("/classificationPaper")
+    public Map<String, Object> classificationPaper(@RequestBody Map<String,Object> params) {
         Map<String,Object> map = new HashMap<String,Object>();
 
         return map;
     }
-    @GetMapping("/test")
-    public void test() {
+    @PostMapping("/test")
+    public Map<String, Object> test() {
+        Map<String,Object> map = new HashMap<String,Object>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         //建空查询
         SearchRequest searchRequest = new SearchRequest("paper");
@@ -317,8 +332,13 @@ public class LiteratureController {
                 if(i>5)
                     break;
             }
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("test_",1);
+            map.put("test",map1);
+
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+        return map;
     }
 }
