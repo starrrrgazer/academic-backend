@@ -23,12 +23,18 @@ public class ReportController {
     public Map<String, Object> report(@RequestBody Map<String,Object> req){
         Map<String,Object> response = new HashMap<>();
         try {
+            String userID = (String) req.get("userID");
             int reporteeID = (int)req.get("reporteeID");
             int type = (int) req.get("type");
             String content = (String) req.get("content");
             Report report = new Report();
+            report.setUserID(userID);
             report.setType(type);
-            report.setReporteeID34(reporteeID);
+            if(type == 5 || type == 4)
+                report.setReporteeID34(reporteeID);
+            else {
+                throw new Exception("type is not 4 or 5");
+            }
             report.setReportTime(new Timestamp(System.currentTimeMillis()));
             reportRepository.save(report);
             response.put("status",1);
