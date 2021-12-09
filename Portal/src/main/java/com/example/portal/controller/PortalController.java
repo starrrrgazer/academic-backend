@@ -1,11 +1,7 @@
 package com.example.portal.controller;
 
-import com.example.portal.dao.AuthorListRepository;
 import com.example.portal.dao.AuthorRepository;
-import com.example.portal.dao.PaperRepository;
 import com.example.portal.entity.Author;
-import com.example.portal.entity.AuthorList;
-import com.example.portal.entity.Paper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.elasticsearch.action.search.SearchRequest;
@@ -30,12 +26,6 @@ import java.util.*;
 public class PortalController {
     @Autowired
     AuthorRepository authorRepository;
-
-    @Autowired
-    AuthorListRepository authorListRepository;
-
-    @Autowired
-    PaperRepository paperRepository;
 
     @Autowired
     RestHighLevelClient restHighLevelClient;
