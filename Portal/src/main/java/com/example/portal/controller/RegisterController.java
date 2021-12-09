@@ -7,6 +7,8 @@ import com.example.portal.service.MailServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -27,59 +29,87 @@ public class RegisterController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    MailServiceImpl mailService;
+
     @PostMapping("/getCode")
-    public Map<String, String> sendCode(HttpServletRequest request) {
-        String emailAddress = request.getParameter("emailAddress");
-        String username = request.getParameter("username");
+    public Map<String, String> sendCode(@RequestBody Map<String, String> arg) {
+        String emailAddress = arg.get("emailAddress");
+        String username = arg.get("username");
         Map<String, String> ret = new HashMap<>();
+        System.out.println("email: " + emailAddress);
+        System.out.println("username: " + username);
         if(userRepository.findByUsername(username) != null) {
             ret.put("success", "false");
-            ret.put("msg", "用户名已注册");
+            ret.put("msg", "用户名已被注册");
+            return ret;
+        }
+        else if(userRepository.findByEmailAddress(emailAddress) != null) {
+            ret.put("success", "false");
+            ret.put("msg", "邮箱已被注册");
             return ret;
         }
         String vc = generateVC();
-        request.getSession().setAttribute("verification_code", vc);
-        MailServiceImpl mailService = new MailServiceImpl();
+        System.out.println(vc);
+
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        session.setAttribute("verification_code", vc);
+
         mailService.sendMail(emailAddress, "Verification", vc);
         ret.put("success","true");
         ret.put("msg","邮件发送成功");
         return ret;
     }
 
-    @GetMapping("/submitForm")
-    public Map<String, String> registerNewUser(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String emailAddress = request.getParameter("emailAddress");
-        String vc = session.getAttribute("verification_code").toString();
+    @PostMapping("/regist")
+    public Map<String, String> registerNewUser(@RequestBody Map<String, String> arg) {
+        String username = arg.get("username");
+        String password = arg.get("password");
+        String emailAddress = arg.get("emailAddress");
+
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String vc = (String) session.getAttribute("verification_code");
+
+        System.out.println(vc);
 
         Map<String, String> ret = new HashMap<>();
 
         if(userRepository.findByUsername(username) == null) {
-            if(vc.equals(request.getParameter("verification_code"))) {
-                UUID uuid = UUID.randomUUID();
+            if(vc.equals(arg.get("verification_code"))) {
                 User newUser = new User();
                 newUser.setUsername(username);
                 newUser.setPassword(password);
                 newUser.setEmailAddress(emailAddress);
-                newUser.setUserID(uuid);
-                newUser.setPhoneNumber(request.getParameter("phoneNumber"));
-                newUser.setRealName(request.getParameter("realName"));
-                newUser.setAuthorID(request.getParameter("authorID"));
-                newUser.setIntroduction(request.getParameter("introduction"));
-                newUser.setOrganization(request.getParameter("organization"));
+                newUser.setUserID(UUID.randomUUID().toString().replaceAll("-",""));
+                if(arg.get("phoneNumber") != null)
+                    newUser.setPhoneNumber(arg.get("phoneNumber"));
+                if(arg.get("realName") != null)
+                    newUser.setRealName(arg.get("realName"));
+                if(arg.get("authorID") != null)
+                    newUser.setAuthorID(arg.get("authorID"));
+                if(arg.get("introduction") != null)
+                    newUser.setIntroduction(arg.get("introduction"));
+                if(arg.get("organization") != null)
+                    newUser.setOrganization(arg.get("organization"));
                 newUser.setIsBanned(0);
                 newUser.setUnblockTime(null);
-                newUser.setUserPosition(request.getParameter("userPosition"));
+                if(arg.get("userPosition") != null)
+                    newUser.setUserPosition(arg.get("userPosition"));
                 newUser.setUserIdentity(1);
                 newUser.setImage("/static/image/" + username + ".jpg");
 
                 userRepository.save(newUser);
+
+                ret.put("success", "true");
+                ret.put("msg", "注册成功，即将转到登陆页面");
             }
             else {
-                ret.put("success", "true");
-                ret.put("msg", "注册成功");
+                ret.put("success", "false");
+                ret.put("msg", "验证码错误");
             }
         }
         else {
@@ -88,7 +118,7 @@ public class RegisterController {
         }
         return ret;
     }
-
+/*
     @Transactional
     @PutMapping("/uploading")
     public Map<String, String> update( MultipartFile image, String username, HttpServletRequest request) throws IOException{
@@ -115,7 +145,7 @@ public class RegisterController {
         BufferedImage img = ImageIO.read(new FileInputStream(file));
         ImageIO.write(img, "jpg", file);
     }
-
+*/
     private String generateVC() {
         char[] dic = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
         char[] vc = new char[6];
