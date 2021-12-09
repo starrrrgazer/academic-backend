@@ -10,6 +10,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.Id;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -20,16 +21,31 @@ public class Author {
     @Id
     private String id;
 
+    @Field(name = "h_index", type = FieldType.Long)
     private int h_index;
-    private String orgs;
-    private int n_citation;
-    private int n_pubs;
-    private String name;
-    private String position;
-    private Pubs pubs;
-    private Tags tags;
 
-    private void parseCompound(Map<String, Object> map) {
+    @Field(name = "org", type = FieldType.Keyword)
+    private String org;
+
+    @Field(name = "n_citation", type = FieldType.Long)
+    private int n_citation;
+
+    @Field(name = "n_pubs", type = FieldType.Long)
+    private int n_pubs;
+
+    @Field(name = "name", type = FieldType.Keyword)
+    private String name;
+
+    @Field(name = "position", type = FieldType.Keyword)
+    private String position;
+
+    @Field(name = "pubs", type = FieldType.Nested)
+    private Map<?,?> pubs;
+
+    @Field(name = "tags", type = FieldType.Nested)
+    private Map<?,?> tags;
+
+    /*private void parseCompound(Map<String, Object> map) {
         Map<String, Object> map_pubs = (Map<String, Object>) map.get("pubs");
         Map<String, Object> map_tags = (Map<String, Object>) map.get("tags");
         pubs = new Pubs(map_pubs);
@@ -58,11 +74,12 @@ public class Author {
         name = (String) map.get("name");
         position = (String) map.get("position");
     }
+    */
 
-    public String getPubs_i() {return pubs.i;}
-    public int getPubs_r() {return pubs.r;}
-    public String getTags_t() {return tags.t;}
-    public int getTags_w() {return tags.w;}
+    public String getPubs_i() {return (String) pubs.get("i");}
+    public int getPubs_r() {return (Integer) pubs.get("r");}
+    public String getTags_t() {return (String) tags.get("t");}
+    public int getTags_w() {return (Integer) tags.get("w");}
 
 
 }
