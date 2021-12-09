@@ -4,8 +4,7 @@ import com.example.portal.dao.UserRepository;
 import com.example.portal.entity.User;
 import com.example.portal.service.MailServiceImpl;
 
-import com.sun.imageio.plugins.common.ImageUtil;
-import jdk.tools.jlink.plugin.Plugin;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +18,6 @@ import java.io.*;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge =

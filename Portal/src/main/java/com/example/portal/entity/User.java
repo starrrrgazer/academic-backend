@@ -1,11 +1,12 @@
 package com.example.portal.entity;
 
-import org.springframework.data.annotation.Id;
 
-import javax.persistence.Column;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.UUID;
 
+@Entity
 public class User {
     public UUID getUserID() {
         return userID;

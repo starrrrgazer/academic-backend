@@ -6,17 +6,12 @@ import com.example.portal.dao.PaperRepository;
 import com.example.portal.entity.Author;
 import com.example.portal.entity.AuthorList;
 import com.example.portal.entity.Paper;
-import com.mysql.cj.xdevapi.JsonArray;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge =
@@ -34,22 +29,22 @@ public class PortalController {
 
 
     @PostMapping("/getUserInfo")
-    public Map<String, Object> getUserInfo(HttpServletRequest request) {
-        Map<String, Object> ret = new HashMap<>();
-        String id = request.getParameter("userID");
+    public <T extends Object> Map<String, T> getUserInfo(@RequestBody Map<String, String> remap) {
+        Map<String, T> ret = new HashMap<>();
+        String id = remap.get("userID");
         Optional<Author> query = authorRepository.findById(id);
         if(query.isPresent()) {
             Author author = query.get();
-            ret.put("success", "true");
-            ret.put("citeEssayNum", "" + author.getN_citation());
-            ret.put("coreEaasyNum", "" + author.getN_pubs());
-            ret.put("avgciteEssayNum", "" + author.getN_citation()/author.getN_pubs());
-            ret.put("userName", author.getName());
-            ret.put("unit", Arrays.asList(author.getOrgs().split(",")));
+            ret.put("success", (T) "true");
+            ret.put("citeEssayNum", (T) ("" + author.getN_citation()));
+            ret.put("coreEaasyNum", (T) ("" + author.getN_pubs()));
+            ret.put("avgciteEssayNum", (T) ("" + author.getN_citation()/author.getN_pubs()));
+            ret.put("userName", (T) author.getName());
+            ret.put("unit", (T) Arrays.asList(author.getOrgs().split(",")));
 
             String aid = author.getId();
-            AuthorList al = authorListRepository.findById(aid);
-            List<Paper> paperList = paperRepository.findByAuthorListOrderByN_citationDesc(al);
+            AuthorList al = authorListRepository.findById(aid).get();
+            List<Paper> paperList = paperRepository.findAllByAuthorsOrderByNCitationDesc(al);
             List<Essay> essayList = new LinkedList<>();
             for(Paper p : paperList) {
                 List<AuthorList> all = p.getAuthors();
@@ -58,23 +53,23 @@ public class PortalController {
                     authors.add(cur.getName());
                 essayList.add(new Essay(p.getTitle(), authors, p.getAbstracts(), p.getYear(), p.getVenues().getRaw(), p.getKeywords()));
             }
-            ret.put("essayList", essayList);
+            ret.put("essayList", (T) essayList);
 
         }
         else {
-            ret.put("success", "false");
-            ret.put("msg", "找不到该作者");
+            ret.put("success", (T) "false");
+            ret.put("msg", (T) "找不到该作者");
         }
         return ret;
     }
 
     @PostMapping("/getHighCiteList/{aid}")
-    public Map<String, Object> getHighCiteList(HttpServletRequest request, @PathVariable("aid") String aid) {
-        Map<String, Object> ret = new HashMap<>();
-        AuthorList al = authorListRepository.findById(aid);
+    public <T extends Object> Map<String, T> getHighCiteList(HttpServletRequest request, @PathVariable("aid") String aid) {
+        Map<String, T> ret = new HashMap<>();
+        AuthorList al = authorListRepository.findById(aid).get();
         if(al != null) {
-            ret.put("success", "true");
-            List<Paper> paperList = paperRepository.findByAuthorListOrderByN_citationDesc(al);
+            ret.put("success", (T) "true");
+            List<Paper> paperList = paperRepository.findAllByAuthorsOrderByNCitationDesc(al);
             List<Essay> essayList = new LinkedList<>();
             for(Paper p : paperList) {
                 List<AuthorList> all = p.getAuthors();
@@ -83,22 +78,22 @@ public class PortalController {
                     authors.add(cur.getName());
                 essayList.add(new Essay(p.getTitle(), authors, p.getAbstracts(), p.getYear(), p.getVenues().getRaw(), p.getKeywords()));
             }
-            ret.put("essayList", essayList);
+            ret.put("essayList", (T) essayList);
         }
         else {
-            ret.put("success", "false");
-            ret.put("msg", "找不到该作者");
+            ret.put("success", (T) "false");
+            ret.put("msg", (T) "找不到该作者");
         }
         return ret;
     }
 
     @PostMapping("/getNewPostList/{aid}")
-    public Map<String, Object> getNewPostList(HttpServletRequest request, @PathVariable("aid") String aid) {
-        Map<String, Object> ret = new HashMap<>();
-        AuthorList al = authorListRepository.findById(aid);
+    public <T extends Object> Map<String, T> getNewPostList(HttpServletRequest request, @PathVariable("aid") String aid) {
+        Map<String, T> ret = new HashMap<>();
+        AuthorList al = authorListRepository.findById(aid).get();
         if(al != null) {
-            ret.put("success", "true");
-            List<Paper> paperList = paperRepository.finfByAuthorListOrderByYearDesc(al);
+            ret.put("success", (T) "true");
+            List<Paper> paperList = paperRepository.findAllByAuthorsOrderByYearDesc(al);
             List<Essay> essayList = new LinkedList<>();
             for(Paper p : paperList) {
                 List<AuthorList> all = p.getAuthors();
@@ -107,11 +102,11 @@ public class PortalController {
                     authors.add(cur.getName());
                 essayList.add(new Essay(p.getTitle(), authors, p.getAbstracts(), p.getYear(), p.getVenues().getRaw(), p.getKeywords()));
             }
-            ret.put("essayList", essayList);
+            ret.put("essayList", (T) essayList);
         }
         else {
-            ret.put("success", "false");
-            ret.put("msg", "找不到该作者");
+            ret.put("success", (T) "false");
+            ret.put("msg", (T) "找不到该作者");
         }
         return ret;
     }
