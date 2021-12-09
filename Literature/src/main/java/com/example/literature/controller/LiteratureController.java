@@ -1,9 +1,10 @@
 package com.example.literature.controller;
 // 接受前端请求去处理，用于前后端交互，第一层，之后调用服务层service实现后端的逻辑
+import com.example.literature.dao.CommentRepository;
 import com.example.literature.dao.PaperRepository;
-import com.example.literature.entity.AuthorList;
-import com.example.literature.entity.Paper;
-import com.example.literature.entity.Venue;
+import com.example.literature.dao.ReportRepository;
+import com.example.literature.dao.UserRepository;
+import com.example.literature.entity.*;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -15,10 +16,12 @@ import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
@@ -28,7 +31,12 @@ public class LiteratureController {
     PaperRepository paperRepository;
     @Autowired
     RestHighLevelClient restHighLevelClient;
-
+    @Autowired
+    CommentRepository commentRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    ReportRepository reportRepository;
 
     @PostMapping("/searchPaper")
     public Map<String, Object> searchPaper(@RequestBody Map<String, Object> params) {
@@ -47,7 +55,14 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
+
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -318,6 +333,19 @@ public class LiteratureController {
                 map.put("urls", searchHit.getSourceAsMap().get("url"));
                 System.out.println(4);
                 map.put("relevantScholars", searchHit.getSourceAsMap().get("authors"));
+
+                List<Comment> commentList = commentRepository.findAllByToID(id);
+                List<Map<String,Object>> list = new ArrayList<>();
+                for (Comment com:commentList) {
+                    Map<String,Object> map1 = new HashMap<>();
+                    map1.put("context",com.getContent());
+                    map1.put("time",com.getCommentTime());
+                    map1.put("id",com.getCommentID());
+                    map1.put("name",(userRepository.findByUserID(com.getUserID())).getUsername());
+                    list.add(map1);
+                }
+                map.put("commentList",list);
+                map.put("id",id);
                 map.put("status", 200);
             } else
                 map.put("status", 441);
@@ -344,7 +372,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -637,7 +671,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -836,13 +876,34 @@ public class LiteratureController {
     @PostMapping("/getInform")
     public Map<String, Object> getInform(@RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
+
+        String context = (String) params.get("context");
+        int type = (int) params.get("type");
+        String id = (String) params.get("id");
+        Report rep = new Report();
+        rep.setContent(context);
+        rep.setType(type);
+        rep.setReporteeID12(id);
+        rep.setReportTime(new Timestamp (new Date().getTime()));
         map.put("status", 200);
+        reportRepository.save(rep);
         return map;
     }
 
     @PostMapping("/writeComment")
     public Map<String, Object> writeComment(@RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
+
+        String context = (String) params.get("context");
+        String userid = (String) params.get("userid");
+        String paperid = (String) params.get("paperid");
+        Comment comment = new Comment();
+        comment.setCommentTime(new DateTime(new Date().getTime()));
+        comment.setContent(context);
+        comment.setUserID(userid);
+        comment.setToID(paperid);
+        commentRepository.save(comment);
+
         map.put("status", 200);
         return map;
     }
@@ -863,7 +924,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
