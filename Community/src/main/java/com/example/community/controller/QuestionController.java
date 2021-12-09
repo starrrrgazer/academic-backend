@@ -441,6 +441,7 @@ public class QuestionController {
             System.out.println("deleteNum is : " + deleteNum);
             for (int tagsID : skillList){
                 UserTags userTags = new UserTags();
+
                 userTags.setTagsID(tagsID);
                 userTags.setUserID(userID);
                 userTagRepository.save(userTags);
