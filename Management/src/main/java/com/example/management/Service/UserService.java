@@ -73,7 +73,24 @@ public class UserService {
     public Map<String,Object> getResearcherList(){
         //不会ES
         Map<String,Object> returnObject = new HashMap<>();
-//        List<Map<String,Object>> researcherList = new ArrayList<>();
+        List<Map<String,Object>> researcherList = new ArrayList<>();
+        for (int i = 0;i < 5;i++){
+            Map<String,Object> tmp = new HashMap<>();
+            tmp.put("id","123423");
+            tmp.put("h_index",123414);
+            tmp.put("n_citation",3323);
+            tmp.put("n_pubs",23);
+            tmp.put("name","aaa");
+            tmp.put("position","bbb");
+            Map<String,Object> sadsad= new HashMap<>();
+            sadsad.put("i","2433");sadsad.put("r","sda");
+            tmp.put("pubs",sadsad);
+            tmp.put("pubsI","efqw");
+            tmp.put("pubsR",22);
+            Map<String,Object> sadsad1= new HashMap<>();
+            sadsad.put("tagsT","2va");sadsad.put("tagsW","sda");
+            tmp.put("tags",sadsad1);
+        }
 //        try{
 //            List<User> tmpReseacherList = userMapper.getResearcherList();
 //            for (User user : tmpReseacherList){
@@ -86,8 +103,10 @@ public class UserService {
 //            returnObject.put("result","未知错误");
 //            return returnObject;
 //        }
+
         returnObject.put("status","200");
         returnObject.put("result","成功");
+        returnObject.put("researcherList",researcherList);
         return returnObject;
     }
 }
