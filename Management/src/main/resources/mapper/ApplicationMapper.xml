@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.management.mapper.ApplicationMapper">
+    <select id="getApplicationByAuthorID" parameterType="java.lang.String" resultType="Application">
+        select *
+        from Application
+        where authorID = #{authorId}
+    </select>
+    <select id="getApplyList" resultType="Application">
+        select * from Application
+    </select>
+
+    <update id="acceptApply" parameterType="java.lang.String">
+        update Application
+        set status = 1
+    </update>
+
+    <update id="rejectApply" parameterType="java.lang.String">
+        update Application
+        set status = 2
+    </update>
+
+    <select id="getApplicationByID" parameterType="java.lang.String" resultType="Application">
+        select *
+        from Application
+        where applicationID = #{applicationID}
+    </select>
+
+</mapper>

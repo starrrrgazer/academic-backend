@@ -1,15 +1,14 @@
 package com.example.community.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Report")
 public class Report {
     @Id
     @Column(name = "reportID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reportID;
 
     @Column(name = "type")
@@ -21,14 +20,55 @@ public class Report {
     @Column(name = "status")
     private int status;
 
-    @Column(name = "reporterID")
-    private String reporterID;
+    @Column(name = "processerID")
+    private String processerID;
 
     @Column(name = "reporteeID12")
     private String reporteeID12;
 
     @Column(name = "reporteeID34")
-    private String reporteeID34;
+    private int reporteeID34;
+
+    @Column(name = "reportTime")
+    private Timestamp reportTime;
+
+    @Column(name = "result")
+    private String result;
+
+    @Column(name = "userID")
+    private String userID;
+
+    public String getProcesserID() {
+        return processerID;
+    }
+
+    public void setProcesserID(String processerID) {
+        this.processerID = processerID;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public Timestamp getReportTime() {
+        return reportTime;
+    }
+
+    public void setReportTime(Timestamp reportTime) {
+        this.reportTime = reportTime;
+    }
 
     public int getReportID() {
         return reportID;
@@ -62,13 +102,6 @@ public class Report {
         this.status = status;
     }
 
-    public String getReporterID() {
-        return reporterID;
-    }
-
-    public void setReporterID(String reporterID) {
-        this.reporterID = reporterID;
-    }
 
     public String getReporteeID12() {
         return reporteeID12;
@@ -78,11 +111,11 @@ public class Report {
         this.reporteeID12 = reporteeID12;
     }
 
-    public String getReporteeID34() {
+    public int getReporteeID34() {
         return reporteeID34;
     }
 
-    public void setReporteeID34(String reporteeID34) {
+    public void setReporteeID34(int reporteeID34) {
         this.reporteeID34 = reporteeID34;
     }
 }
