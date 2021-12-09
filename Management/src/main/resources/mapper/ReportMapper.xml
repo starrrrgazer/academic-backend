@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.management.mapper.ReportMapper">
+    <select id="getReportList" resultType="report">
+        select *
+        from Report;
+    </select>
+    
+    <update id="acceptReport" parameterType="java.lang.String">
+        update Report
+        set result = #{result} and status = 1
+        where reportID = #{reportId} ;
+    </update>
+
+    <update id="rejectReport" parameterType="java.lang.String">
+        update Report
+        set result = #{result} and status = 2
+        where reportID = #{reportId} ;
+    </update>
+
+    <select id="getReportById" parameterType="java.lang.String" resultType="Report">
+        select *
+        from Report
+        where reportID = #{reportId} ;
+    </select>
+</mapper>
