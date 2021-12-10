@@ -701,7 +701,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            Boolean isCurrent = (Boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -815,6 +821,99 @@ public class LiteratureController {
                         boolQueryBuilder.mustNot(QueryBuilders.termQuery("abstracts", context));
                     } else {//模糊
                         boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("abstracts", context));
+                    }
+                }
+            } else if (type == 6) {//年份检索
+                if (relationship == 1) {//与
+                    boolQueryBuilder.must(QueryBuilders.termQuery("year", context));
+
+                } else if (relationship == 2) {//或
+                    boolQueryBuilder.should(QueryBuilders.termQuery("year", context));
+                } else if (relationship == 3) {//非
+                    boolQueryBuilder.mustNot(QueryBuilders.termQuery("year", context));
+                }
+            } else if (type == 7) {
+
+            } else if (type == 8) {//作者检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                }
+            } else if (type == 9) {//作者机构检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                }
+            } else if (type == 10) {//作者检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                }
+            } else if (type == 11) {//第一作者检索
+
+            } else if (type == 12) {//作者机构检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.org", context));
                     }
                 }
             }

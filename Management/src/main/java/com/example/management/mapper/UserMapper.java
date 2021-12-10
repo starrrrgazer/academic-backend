@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.joda.time.DateTime;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.Map;
 
 @Mapper
@@ -14,4 +15,5 @@ public interface UserMapper {
     int blockUser(String userID, Date unblockDate);
     int unblockUser(String userID,Date nowDate);
     User getUserByAuthorID(String authorId);
+//    List<User> getResearcherList();
 }

@@ -9,13 +9,14 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>Community</artifactId>
+    <artifactId>Management</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Community</name>
+    <name>Management</name>
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,6 +65,11 @@
             <version>2.1.4</version>
         </dependency>
         <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.23.1-GA</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -84,5 +90,23 @@
             </plugin>
         </plugins>
     </build>
+<!--    <resources>-->
+<!--        <resource>-->
+<!--            <directory>src/main/java</directory>-->
+<!--            <includes>-->
+<!--                <include>**/*.properties</include>-->
+<!--                <include>**/*.xml</include>-->
+<!--            </includes>-->
+<!--            <filtering>false</filtering>-->
+<!--        </resource>-->
+<!--        <resource>-->
+<!--            <directory>src/main/resources</directory>-->
+<!--            <includes>-->
+<!--                <include>**/*.properties</include>-->
+<!--                <include>**/*.xml</include>-->
+<!--            </includes>-->
+<!--            <filtering>false</filtering>-->
+<!--        </resource>-->
+<!--    </resources>-->
 
 </project>

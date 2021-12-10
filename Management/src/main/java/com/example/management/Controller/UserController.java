@@ -4,6 +4,7 @@ import com.example.management.Service.UserService;
 import com.example.management.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -15,13 +16,18 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/blockUser")
-    public Map<String,Object> blockUser(Map<String,Object> map){
+    @PostMapping("/block")
+    public Map<String,Object> blockUser(@RequestBody Map<String,Object> map){
         return userService.blockUser(map);
     }
 
-    @PostMapping("/unblockUser")
-    public Map<String,Object> unblockUser(Map<String,Object> map){
+    @PostMapping("/unblock")
+    public Map<String,Object> unblockUser(@RequestBody Map<String,Object> map){
         return userService.unblockUser(map);
+    }
+
+    @PostMapping("/getResearcherList")
+    public Map<String,Object> getResearcherList(@RequestBody Map<String,Object> map){
+        return userService.getResearcherList(map);
     }
 }
