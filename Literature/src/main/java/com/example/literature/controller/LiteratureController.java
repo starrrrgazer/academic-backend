@@ -221,8 +221,16 @@ public class LiteratureController {
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
                     String str = (String) hit.getSourceAsMap().get("abstract");
-                    map1.put("abstract", str.substring(0, 50) + "....");
-                    map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
+                    if (str.length()>200)
+                        map1.put("abstract", str.substring(0, 200) + "....");
+                    else
+                        map1.put("abstract", str);
+                    List<String> keyWords = (List<String>) hit.getSourceAsMap().get("keywords");
+                    if(keyWords.size()>10){
+                        map1.put("keyWords", keyWords.subList(0,10));
+                    }
+                    else
+                        map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
                     List<Map<String, Object>> list = (List<Map<String, Object>>) hit.getSourceAsMap().get("authors");
                     List<Map<String, Object>> list1 = new ArrayList<>();
                     if (list.size() >= 3) {
@@ -279,13 +287,25 @@ public class LiteratureController {
             Map<String, Object> map2 = new HashMap<>();
             Map<String, Object> map3 = new HashMap<>();
             map1.put("title", hit1.getSourceAsMap().get("title"));
-            map1.put("abstract", hit1.getSourceAsMap().get("abstract"));
+            String str1 = (String) hit1.getSourceAsMap().get("abstract");
+            if (str1.length()>200)
+                map1.put("abstract", str1.substring(0, 200) + "....");
+            else
+                map1.put("abstract", str1);
             map1.put("id", hit1.getSourceAsMap().get("id"));
             map2.put("title", hit2.getSourceAsMap().get("title"));
-            map2.put("abstract", hit2.getSourceAsMap().get("abstract"));
+            String str2 = (String) hit2.getSourceAsMap().get("abstract");
+            if (str2.length()>200)
+                map2.put("abstract", str2.substring(0, 200) + "....");
+            else
+                map2.put("abstract", str2);
             map2.put("id", hit2.getSourceAsMap().get("id"));
             map3.put("title", hit3.getSourceAsMap().get("title"));
-            map3.put("abstract", hit3.getSourceAsMap().get("abstract"));
+            String str3 = (String) hit3.getSourceAsMap().get("abstract");
+            if (str3.length()>200)
+                map3.put("abstract", str3.substring(0, 200) + "....");
+            else
+                map3.put("abstract", str3);
             map3.put("id", hit3.getSourceAsMap().get("id"));
             paperList.add(map1);
             paperList.add(map2);
@@ -656,8 +676,16 @@ public class LiteratureController {
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
                     String str = (String) hit.getSourceAsMap().get("abstract");
-                    map1.put("abstract", str.substring(0, 50) + "....");
-                    map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
+                    if (str.length()>200)
+                        map1.put("abstract", str.substring(0, 200) + "....");
+                    else
+                        map1.put("abstract", str);
+                    List<String> keyWords = (List<String>) hit.getSourceAsMap().get("keywords");
+                    if(keyWords.size()>10){
+                        map1.put("keyWords", keyWords.subList(0,10));
+                    }
+                    else
+                        map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
                     List<Map<String, Object>> list = (List<Map<String, Object>>) hit.getSourceAsMap().get("authors");
                     List<Map<String, Object>> list1 = new ArrayList<>();
                     if (list.size() >= 3) {
@@ -961,8 +989,16 @@ public class LiteratureController {
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
                     String str = (String) hit.getSourceAsMap().get("abstract");
-                    map1.put("abstract", str.substring(0, 50) + "....");
-                    map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
+                    if (str.length()>200)
+                        map1.put("abstract", str.substring(0, 200) + "....");
+                    else
+                        map1.put("abstract", str);
+                    List<String> keyWords = (List<String>) hit.getSourceAsMap().get("keywords");
+                    if(keyWords.size()>10){
+                        map1.put("keyWords", keyWords.subList(0,10));
+                    }
+                    else
+                        map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
                     List<Map<String, Object>> list = (List<Map<String, Object>>) hit.getSourceAsMap().get("authors");
                     List<Map<String, Object>> list1 = new ArrayList<>();
                     if (list.size() >= 3) {
@@ -1294,8 +1330,16 @@ public class LiteratureController {
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
                     String str = (String) hit.getSourceAsMap().get("abstract");
-                    map1.put("abstract", str.substring(0, 50) + "....");
-                    map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
+                    if (str.length()>200)
+                        map1.put("abstract", str.substring(0, 200) + "....");
+                    else
+                        map1.put("abstract", str);
+                    List<String> keyWords = (List<String>) hit.getSourceAsMap().get("keywords");
+                    if(keyWords.size()>10){
+                        map1.put("keyWords", keyWords.subList(0,10));
+                    }
+                    else
+                        map1.put("keyWords", hit.getSourceAsMap().get("keywords"));
                     List<Map<String, Object>> list = (List<Map<String, Object>>) hit.getSourceAsMap().get("authors");
                     List<Map<String, Object>> list1 = new ArrayList<>();
                     if (list.size() >= 3) {
