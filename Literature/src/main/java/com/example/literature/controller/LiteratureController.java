@@ -1,9 +1,10 @@
 package com.example.literature.controller;
 // 接受前端请求去处理，用于前后端交互，第一层，之后调用服务层service实现后端的逻辑
+import com.example.literature.dao.CommentRepository;
 import com.example.literature.dao.PaperRepository;
-import com.example.literature.entity.AuthorList;
-import com.example.literature.entity.Paper;
-import com.example.literature.entity.Venue;
+import com.example.literature.dao.ReportRepository;
+import com.example.literature.dao.UserRepository;
+import com.example.literature.entity.*;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -15,10 +16,15 @@ import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.hibernate.Session;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
@@ -28,7 +34,12 @@ public class LiteratureController {
     PaperRepository paperRepository;
     @Autowired
     RestHighLevelClient restHighLevelClient;
-
+    @Autowired
+    CommentRepository commentRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    ReportRepository reportRepository;
 
     @PostMapping("/searchPaper")
     public Map<String, Object> searchPaper(@RequestBody Map<String, Object> params) {
@@ -47,7 +58,14 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
+
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -276,6 +294,7 @@ public class LiteratureController {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+        System.out.println(map.get("paperList"));
         return map;
     }
 
@@ -307,24 +326,63 @@ public class LiteratureController {
                 map.put("citiation", searchHit.getSourceAsMap().get("n_citation"));
                 map.put("issn", searchHit.getSourceAsMap().get("issn"));
                 map.put("doi", searchHit.getSourceAsMap().get("doi"));
-                System.out.println(2);
                 map.put("abstract", searchHit.getSourceAsMap().get("abstract"));
                 map.put("venue", searchHit.getSourceAsMap().get("venue"));
                 map.put("year", searchHit.getSourceAsMap().get("year"));
                 map.put("pdf", searchHit.getSourceAsMap().get("pdf"));
-                System.out.println(3);
                 map.put("authors", searchHit.getSourceAsMap().get("authors"));
                 map.put("keyWords", searchHit.getSourceAsMap().get("keywords"));
                 map.put("urls", searchHit.getSourceAsMap().get("url"));
-                System.out.println(4);
-                map.put("relevantScholars", searchHit.getSourceAsMap().get("authors"));
+                List<Map<String,Object>> authors = (List<Map<String,Object>>)searchHit.getSourceAsMap().get("authors");
+                String org = (String) authors.get(0).get("org");
+                //TODO 获取对应的相关学者
+                List<Map<String,Object>> related_authors= new ArrayList<>();
+
+                BoolQueryBuilder boolQueryBuilder1 = QueryBuilders.boolQuery();
+                //建空查询
+                SearchRequest searchRequest1 = new SearchRequest("author");
+                SearchSourceBuilder searchSourceBuilder1 = new SearchSourceBuilder();
+                boolQueryBuilder1.must(QueryBuilders.termQuery("org", org));
+                //增加查询条件
+                searchSourceBuilder1.query(boolQueryBuilder1);
+                searchSourceBuilder1.size(10);
+                searchRequest1.source(searchSourceBuilder1);
+                try {
+                    SearchResponse searchResponse1 = restHighLevelClient.search(searchRequest1, RequestOptions.DEFAULT);
+                    SearchHits searchHits1 = searchResponse1.getHits();
+                    SearchHit[] Hits1 = searchHits1.getHits();
+                    int i = 0;
+                    for(SearchHit hit :Hits1){
+                        Map<String,Object> map1 = new HashMap<>();
+                        map1.put("id",hit.getSourceAsMap().get("id"));
+                        map1.put("name",hit.getSourceAsMap().get("name"));
+                        map1.put("org",hit.getSourceAsMap().get("org"));
+                        related_authors.add(map1);
+                        if(i++>5){
+                            break;
+                        }
+                    }
+                }
+                catch (Exception e){}
+                map.put("relevantSchoolars",related_authors);
+                List<Comment> commentList = commentRepository.findAllByToID(id);
+                List<Map<String,Object>> list = new ArrayList<>();
+                for (Comment com:commentList) {
+                    Map<String,Object> map1 = new HashMap<>();
+                    map1.put("context",com.getContent());
+                    map1.put("time",com.getCommentTime());
+                    map1.put("id",com.getCommentID());
+                    map1.put("name",(userRepository.findByUserID(com.getUserID())).getUsername());
+                    list.add(map1);
+                }
+                map.put("commentList",list);
+                map.put("id",id);
                 map.put("status", 200);
             } else
                 map.put("status", 441);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        System.out.println(5);
         return map;
     }
 
@@ -344,7 +402,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -637,7 +701,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -753,6 +823,99 @@ public class LiteratureController {
                         boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("abstracts", context));
                     }
                 }
+            } else if (type == 6) {//年份检索
+                if (relationship == 1) {//与
+                    boolQueryBuilder.must(QueryBuilders.termQuery("year", context));
+
+                } else if (relationship == 2) {//或
+                    boolQueryBuilder.should(QueryBuilders.termQuery("year", context));
+                } else if (relationship == 3) {//非
+                    boolQueryBuilder.mustNot(QueryBuilders.termQuery("year", context));
+                }
+            } else if (type == 7) {
+
+            } else if (type == 8) {//作者检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                }
+            } else if (type == 9) {//作者机构检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                }
+            } else if (type == 10) {//作者检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.name", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.name", context));
+                    }
+                }
+            } else if (type == 11) {//第一作者检索
+
+            } else if (type == 12) {//作者机构检索
+                if (relationship == 1) {//与
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.must(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 2) {//或
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                } else if (relationship == 3) {//非
+                    if (isCurrent) {//精确
+                        boolQueryBuilder.mustNot(QueryBuilders.termQuery("authors.org", context));
+                    } else {//模糊
+                        boolQueryBuilder.mustNot(QueryBuilders.fuzzyQuery("authors.org", context));
+                    }
+                }
             }
         }
         searchSourceBuilder.query(boolQueryBuilder);
@@ -765,16 +928,9 @@ public class LiteratureController {
             SearchHit[] Hits = searchHits.getHits();
             //对Hits进行排序
             if (rankWay == 2) {//发表时间
-                Arrays.sort(Hits, (o1, o2) -> {
-                    if ((int) (o1.getSourceAsMap().get("year")) > (int) (o2.getSourceAsMap().get("year"))) return 1;
-                    else return -1;
-                });
+                Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("year"))));
             } else if (rankWay == 3) {//被引量
-                Arrays.sort(Hits, (o1, o2) -> {
-                    if ((int) (o1.getSourceAsMap().get("n_citiation")) > (int) (o2.getSourceAsMap().get("n_citiation")))
-                        return 1;
-                    else return -1;
-                });
+                Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("n_citiation"))));
             }
             int num = Hits.length;
             int page_number;
@@ -836,13 +992,34 @@ public class LiteratureController {
     @PostMapping("/getInform")
     public Map<String, Object> getInform(@RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
+
+        String context = (String) params.get("context");
+        int type = (int) params.get("type");
+        String id = (String) params.get("id");
+        Report rep = new Report();
+        rep.setContent(context);
+        rep.setType(type);
+        rep.setReporteeID12(id);
+        rep.setReportTime(new Timestamp (new Date().getTime()));
         map.put("status", 200);
+        reportRepository.save(rep);
         return map;
     }
 
     @PostMapping("/writeComment")
-    public Map<String, Object> writeComment(@RequestBody Map<String, Object> params) {
+    public Map<String, Object> writeComment(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
+        HttpSession session = request.getSession();
+        String context = (String) params.get("context");
+        String userid = (String) session.getAttribute("id");
+        String paperid = (String) params.get("paperid");
+        Comment comment = new Comment();
+        comment.setCommentTime(new DateTime(new Date().getTime()));
+        comment.setContent(context);
+        comment.setUserID(userid);
+        comment.setToID(paperid);
+        commentRepository.save(comment);
+
         map.put("status", 200);
         return map;
     }
@@ -863,7 +1040,13 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            boolean isCurrent = (boolean) condition.get("isCurrent");
+            Boolean isCurrent ;
+            if((int) condition.get("isCurrent")==1){
+                isCurrent =true;
+            }
+            else {
+                isCurrent = false;
+            }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
