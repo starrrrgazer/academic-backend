@@ -83,40 +83,32 @@ public class UserService {
     }
 
     public Map<String,Object> getResearcherList(Map<String,Object> map){
-      String id = (String) map.get("id");
+        String id = (String) map.get("id");
         Map<String,Object> returnObject = new HashMap<>();
-        List<Map<String,Object>> researcherList = new ArrayList<>();
-       BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        SearchRequest searchRequest = new SearchRequest("author");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        boolQueryBuilder.must(QueryBuilders.matchPhraseQuery("id", id));
-        searchSourceBuilder.query(boolQueryBuilder);
-        searchSourceBuilder.size(10000);
-        searchRequest.source(searchSourceBuilder);
+        Map<String,Object> researcher = new HashMap<>();
         try {
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            SearchHits searchHits = searchResponse.getHits();
-            SearchHit[] Hits = searchHits.getHits();
-            SearchHit hit = Hits[0];
-            Map<String,Object> tmp = new HashMap<>();
-            tmp.put("id",id);
-            tmp.put("h_index", hit.getSourceAsMap().get("h_index"));
-            List<Map<String, Object>> list = (List<Map<String, Object>>) hit.getSourceAsMap().get("pubs");
-            tmp.put("pubs",list);
-            List<Map<String, Object>> list1 = (List<Map<String, Object>>) hit.getSourceAsMap().get("tags");
-            tmp.put("tags",list1);
-            tmp.put("n_citation", hit.getSourceAsMap().get("n_citation"));
-            tmp.put("n_pubs", hit.getSourceAsMap().get("n_pubs"));
-            tmp.put("name", hit.getSourceAsMap().get("name"));
-            tmp.put("position",hit.getSourceAsMap().get("position"));
-            researcherList.add(tmp);
+            User user = userMapper.getUserByuserId(id);
+            researcher.put("userID",user.getUserID());
+            researcher.put("authorID",user.getAuthorID());
+            researcher.put("userIdentity",user.getUserIdentity());
+            researcher.put("username",user.getUsername());
+            researcher.put("password",user.getPassword());
+            researcher.put("phoneNumber",user.getPhoneNumber());
+            researcher.put("emailAddress",user.getEmailAddress());
+            researcher.put("image",user.getImage());
+            researcher.put("organization",user.getOrganization());
+            researcher.put("introduction",user.getIntroduction());
+            researcher.put("realName",user.getRealName());
+            researcher.put("userPosition",user.getUserPosition());
+            researcher.put("isBanned",user.getIsBanned());
+            researcher.put("unblockTime",user.getUnblockTime());
         } catch (Exception e) {
             returnObject.put("status","403");
             returnObject.put("result","未知错误");
         }
         returnObject.put("status","200");
         returnObject.put("result","成功");
-        returnObject.put("researcherList",researcherList);
+        returnObject.put("researcherList",researcher);
         return returnObject;
     }
 }
