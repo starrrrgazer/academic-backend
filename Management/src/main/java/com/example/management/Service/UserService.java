@@ -45,8 +45,8 @@ public class UserService {
             //unblockDate
             String df = "yyyy-MM-dd HH:mm";
             SimpleDateFormat sdf = new SimpleDateFormat(df);
-            Date unblockDate = Date.valueOf(sdf.format(map.get("unblockDate")));
-            userMapper.blockUser(userID, unblockDate);
+            Date unblockDate = Date.valueOf(sdf.format(map.get("time")));
+            userMapper.blockUser(userID, unblockDate, (String) map.get("kind"));
         }catch (Exception e){
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
