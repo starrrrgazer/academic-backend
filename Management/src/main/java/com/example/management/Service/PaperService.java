@@ -3,7 +3,6 @@ package com.example.management.Service;
 import com.example.management.Entity.AuthorList;
 import com.example.management.Entity.Paper;
 import com.example.management.Entity.Venue;
-import com.example.management.mapper.PaperMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -29,8 +28,6 @@ import java.util.*;
 @Service
 public class PaperService {
 
-    @Autowired
-    private PaperMapper paperMapper;
 
     @Autowired
     private RestHighLevelClient restHighLevelClient;
@@ -45,12 +42,12 @@ public class PaperService {
         try{
             //id
             String id = (String) map.get("id");
-            Paper a = paperMapper.getPaperById(id);
-            if (a!=null){
-                returnObject.put("status","402");
-                returnObject.put("result","文章已存在");
-                return returnObject;
-            }
+//            Paper a = paperMapper.getPaperById(id);
+//            if (a!=null){
+//                returnObject.put("status","402");
+//                returnObject.put("result","文章已存在");
+//                return returnObject;
+//            }
             newPaperMap.put("id",id);
             //authors
             List<Map<String, Object>> authors = Collections.singletonList((Map<String, Object>) map.get("authors"));

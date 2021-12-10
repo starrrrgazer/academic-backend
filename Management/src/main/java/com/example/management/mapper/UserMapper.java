@@ -15,5 +15,5 @@ public interface UserMapper {
     int blockUser(String userID, Date unblockDate);
     int unblockUser(String userID,Date nowDate);
     User getUserByAuthorID(String authorId);
-    List<User> getResearcherList();
+//    List<User> getResearcherList();
 }

@@ -9,17 +9,18 @@
         where authorID = #{authorId}
     </select>
     <select id="getApplyList" resultType="Application">
-        select * from Application
+        select *
+        from Application
     </select>
 
     <update id="acceptApply" parameterType="java.lang.String">
         update Application
-        set status = 1
+        set status = 1 where applicationID=#{applyId}
     </update>
 
     <update id="rejectApply" parameterType="java.lang.String">
         update Application
-        set status = 2
+        set status = 2 where applicationID=#{applyId}
     </update>
 
     <select id="getApplicationByID" parameterType="java.lang.String" resultType="Application">
