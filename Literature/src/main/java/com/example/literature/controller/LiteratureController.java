@@ -16,10 +16,13 @@ import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -291,6 +294,7 @@ public class LiteratureController {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+        System.out.println(map.get("paperList"));
         return map;
     }
 
@@ -322,18 +326,45 @@ public class LiteratureController {
                 map.put("citiation", searchHit.getSourceAsMap().get("n_citation"));
                 map.put("issn", searchHit.getSourceAsMap().get("issn"));
                 map.put("doi", searchHit.getSourceAsMap().get("doi"));
-                System.out.println(2);
                 map.put("abstract", searchHit.getSourceAsMap().get("abstract"));
                 map.put("venue", searchHit.getSourceAsMap().get("venue"));
                 map.put("year", searchHit.getSourceAsMap().get("year"));
                 map.put("pdf", searchHit.getSourceAsMap().get("pdf"));
-                System.out.println(3);
                 map.put("authors", searchHit.getSourceAsMap().get("authors"));
                 map.put("keyWords", searchHit.getSourceAsMap().get("keywords"));
                 map.put("urls", searchHit.getSourceAsMap().get("url"));
-                System.out.println(4);
-                map.put("relevantScholars", searchHit.getSourceAsMap().get("authors"));
+                List<Map<String,Object>> authors = (List<Map<String,Object>>)searchHit.getSourceAsMap().get("authors");
+                String org = (String) authors.get(0).get("org");
+                //TODO 获取对应的相关学者
+                List<Map<String,Object>> related_authors= new ArrayList<>();
 
+                BoolQueryBuilder boolQueryBuilder1 = QueryBuilders.boolQuery();
+                //建空查询
+                SearchRequest searchRequest1 = new SearchRequest("author");
+                SearchSourceBuilder searchSourceBuilder1 = new SearchSourceBuilder();
+                boolQueryBuilder1.must(QueryBuilders.termQuery("org", org));
+                //增加查询条件
+                searchSourceBuilder1.query(boolQueryBuilder1);
+                searchSourceBuilder1.size(10);
+                searchRequest1.source(searchSourceBuilder1);
+                try {
+                    SearchResponse searchResponse1 = restHighLevelClient.search(searchRequest1, RequestOptions.DEFAULT);
+                    SearchHits searchHits1 = searchResponse1.getHits();
+                    SearchHit[] Hits1 = searchHits1.getHits();
+                    int i = 0;
+                    for(SearchHit hit :Hits1){
+                        Map<String,Object> map1 = new HashMap<>();
+                        map1.put("id",hit.getSourceAsMap().get("id"));
+                        map1.put("name",hit.getSourceAsMap().get("name"));
+                        map1.put("org",hit.getSourceAsMap().get("org"));
+                        related_authors.add(map1);
+                        if(i++>5){
+                            break;
+                        }
+                    }
+                }
+                catch (Exception e){}
+                map.put("relevantSchoolars",related_authors);
                 List<Comment> commentList = commentRepository.findAllByToID(id);
                 List<Map<String,Object>> list = new ArrayList<>();
                 for (Comment com:commentList) {
@@ -352,7 +383,6 @@ public class LiteratureController {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        System.out.println(5);
         return map;
     }
 
@@ -671,13 +701,7 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            Boolean isCurrent ;
-            if((int) condition.get("isCurrent")==1){
-                isCurrent =true;
-            }
-            else {
-                isCurrent = false;
-            }
+            Boolean isCurrent = (Boolean) condition.get("isCurrent");
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
                     boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
@@ -805,16 +829,9 @@ public class LiteratureController {
             SearchHit[] Hits = searchHits.getHits();
             //对Hits进行排序
             if (rankWay == 2) {//发表时间
-                Arrays.sort(Hits, (o1, o2) -> {
-                    if ((int) (o1.getSourceAsMap().get("year")) > (int) (o2.getSourceAsMap().get("year"))) return 1;
-                    else return -1;
-                });
+                Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("year"))));
             } else if (rankWay == 3) {//被引量
-                Arrays.sort(Hits, (o1, o2) -> {
-                    if ((int) (o1.getSourceAsMap().get("n_citiation")) > (int) (o2.getSourceAsMap().get("n_citiation")))
-                        return 1;
-                    else return -1;
-                });
+                Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("n_citiation"))));
             }
             int num = Hits.length;
             int page_number;
@@ -891,11 +908,11 @@ public class LiteratureController {
     }
 
     @PostMapping("/writeComment")
-    public Map<String, Object> writeComment(@RequestBody Map<String, Object> params) {
+    public Map<String, Object> writeComment(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
-
+        HttpSession session = request.getSession();
         String context = (String) params.get("context");
-        String userid = (String) params.get("userid");
+        String userid = (String) session.getAttribute("id");
         String paperid = (String) params.get("paperid");
         Comment comment = new Comment();
         comment.setCommentTime(new DateTime(new Date().getTime()));
