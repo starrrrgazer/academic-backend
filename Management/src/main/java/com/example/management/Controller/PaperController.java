@@ -5,6 +5,7 @@ import com.example.management.Service.PaperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,5 +30,5 @@ public class PaperController {
     }
 
     @PostMapping("/getArticleList")
-    public Map<String, Object> getArticleList(){ return paperService.getArticleList();}
+    public Map<String, Object> getArticleList(@RequestBody Map<String,Object> map){ return paperService.getArticleList(map);}
 }

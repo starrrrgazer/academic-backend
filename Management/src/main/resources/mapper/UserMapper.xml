@@ -26,9 +26,9 @@
         where authorID = #{authorId}
     </select>
     
-    <select id="getResearcherList" resultType="User">
-        select *
-        from User
-        where userIdentity = 1 or userIdentity = 2
-    </select>
+<!--    <select id="getResearcherList" resultType="User">-->
+<!--        select *-->
+<!--        from User-->
+<!--        where userIdentity = 1 or userIdentity = 2-->
+<!--    </select>-->
 </mapper>

@@ -25,4 +25,9 @@ public class UserController {
     public Map<String,Object> unblockUser(@RequestBody Map<String,Object> map){
         return userService.unblockUser(map);
     }
+
+    @PostMapping("/getResearcherList")
+    public Map<String,Object> getResearcherList(@RequestBody Map<String,Object> map){
+        return userService.getResearcherList(map);
+    }
 }

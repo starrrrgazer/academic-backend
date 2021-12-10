@@ -104,7 +104,7 @@ public class Paper {
         return abstracts;
     }
 
-    private void parseVenue(Map<String, Object> map) {
+    public void parseVenue(Map<String, Object> map) {
         Map<String, Object> mapve = (Map<String, Object>) map.get("venue");
         if (mapve != null) {
             venue = new Venue();
@@ -113,7 +113,7 @@ public class Paper {
         }
     }
 
-    private void parseAuthors(Map<String, Object> map) {
+    public void parseAuthors(Map<String, Object> map) {
         this.authors = new ArrayList<>();
         ArrayList<Map<String, Object>> ls = (ArrayList<Map<String, Object>>) map.get("authors");
         if (ls != null) {

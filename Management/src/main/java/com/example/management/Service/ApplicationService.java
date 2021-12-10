@@ -77,6 +77,7 @@ public class ApplicationService {
                 applications.add(tmp);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;

@@ -31,7 +31,7 @@ public class ApplicationController {
 
     @PostMapping("/rejectApply")
     public Map<String,Object> rejectApply(@RequestBody Map<String,Object> map){
-        return applicationService.acceptApply(map);
+        return applicationService.rejectApply(map);
     }
 
 }

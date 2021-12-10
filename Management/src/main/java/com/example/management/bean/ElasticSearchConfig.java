@@ -1,4 +1,4 @@
-package bean;
+package com.example.management.bean;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
