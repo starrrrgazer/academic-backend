@@ -105,6 +105,7 @@ public class PaperService {
 //            paperMapper.addPaper(newPaper);
             String paperJson = mapper.writeValueAsString(newPaper);
             request.source(paperJson, XContentType.JSON);
+            restHighLevelClient.index(request,RequestOptions.DEFAULT);
 
         } catch (Exception e) {
             e.printStackTrace();
