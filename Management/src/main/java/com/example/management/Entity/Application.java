@@ -28,7 +28,7 @@ public class Application {
     private String content;
 
     @Column(name = "status")
-    private int statusD;
+    private int status;
 
     @Column(name = "reason")
     private String reason;
@@ -103,11 +103,11 @@ public class Application {
     }
 
     public int getStatusD() {
-        return statusD;
+        return status;
     }
 
-    public void setStatusD(int statusD) {
-        this.statusD = statusD;
+    public void setStatusD(int status) {
+        this.status = status;
     }
 
     public String getReason() {

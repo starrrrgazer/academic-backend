@@ -62,10 +62,10 @@ public class ApplicationService {
                 tmp.put("applicationID",tmpApplication.getApplicationID());
                 tmp.put("userID",tmpApplication.getUserID());
                 tmp.put("applicationTime",tmpApplication.getApplicationTime());
-                tmp.put("type",tmpApplication.getType());
+                tmp.put("type",String.valueOf(tmpApplication.getType()));
                 tmp.put("emailAddress",tmpApplication.getEmailAddress());
                 tmp.put("content",tmpApplication.getContent());
-                tmp.put("status",tmpApplication.getStatusD());
+                tmp.put("status",String.valueOf(tmpApplication.getStatusD()));
                 tmp.put("reason",tmpApplication.getReason());
                 tmp.put("title",tmpApplication.getTitle());
                 tmp.put("url",tmpApplication.getUrl());
