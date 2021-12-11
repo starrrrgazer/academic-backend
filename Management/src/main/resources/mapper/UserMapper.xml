@@ -10,13 +10,13 @@
 
     <update id="blockUser">
         update User
-        set isBanned = #{kind} and unblockTime = #{unblockDate}
+        set isBanned = #{kind} , unblockTime = #{unblockDate}
         where userID = #{userID}
     </update>
 
     <update id="unblockUser">
         update User
-        set isBanned = 0 and unblockTime = #{nowDate}
+        set isBanned = 0 , unblockTime = #{nowDate}
         where userID = #{userID}
     </update>
 

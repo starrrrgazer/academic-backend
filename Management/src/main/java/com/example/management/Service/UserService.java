@@ -46,7 +46,7 @@ public class UserService {
             String df = "yyyy-MM-dd HH:mm";
             SimpleDateFormat sdf = new SimpleDateFormat(df);
             Date unblockDate = new Date(sdf.parse((String) map.get("time")).getTime());
-            userMapper.blockUser(userID, unblockDate, (String) map.get("kind"));
+            userMapper.blockUser(userID, unblockDate, Integer.parseInt((String) map.get("kind")));
         }catch (Exception e){
             e.printStackTrace();
             returnObject.put("status","401");
@@ -71,9 +71,10 @@ public class UserService {
             }
             String df = "yyyy-MM-dd HH:mm";
             SimpleDateFormat sdf = new SimpleDateFormat(df);
-            Date date = Date.valueOf(sdf.format(new java.util.Date()));
+            Date date = new Date(new java.util.Date().getTime());
             userMapper.unblockUser(userID,date);
         } catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;

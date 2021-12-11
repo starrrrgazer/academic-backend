@@ -12,7 +12,7 @@ import java.util.Map;
 @Mapper
 public interface UserMapper {
     User getUserByuserId(String userID);
-    int blockUser(String userID, Date unblockDate,String kind);
+    int blockUser(String userID, Date unblockDate,int kind);
     int unblockUser(String userID,Date nowDate);
     User getUserByAuthorID(String authorId);
 }
