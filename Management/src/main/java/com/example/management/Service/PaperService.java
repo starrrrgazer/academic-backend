@@ -122,12 +122,10 @@ public class PaperService {
     public Map<String,Object> deletePaper(Map<String,Object> map){
         String id = (String) map.get("id");
         Map<String,Object> returnObject = new HashMap<>();
-
         DeleteRequest deleteRequest = new DeleteRequest();
         deleteRequest.index("paper").id(id);
         try {
-            DeleteResponse response = restHighLevelClient.delete(deleteRequest,RequestOptions.DEFAULT);
-            System.out.println(response);
+            restHighLevelClient.delete(deleteRequest,RequestOptions.DEFAULT);
         } catch (IOException e) {
             returnObject.put("status","401");
             returnObject.put("result","删除失败");
