@@ -33,10 +33,10 @@ public class RegisterController {
     MailServiceImpl mailService;
 
     @PostMapping("/getCode")
-    public Map<String, String> sendCode(@RequestBody Map<String, String> arg) {
+    public Map<String, Object> sendCode(@RequestBody Map<String, String> arg) {
         String emailAddress = arg.get("emailAddress");
         String username = arg.get("username");
-        Map<String, String> ret = new HashMap<>();
+        Map<String, Object> ret = new HashMap<>();
         System.out.println("email: " + emailAddress);
         System.out.println("username: " + username);
         if(userRepository.findByUsername(username) != null) {
@@ -64,7 +64,7 @@ public class RegisterController {
     }
 
     @PostMapping("/regist")
-    public Map<String, String> registerNewUser(@RequestBody Map<String, String> arg) {
+    public Map<String, Object> registerNewUser(@RequestBody Map<String, String> arg) {
         String username = arg.get("username");
         String password = arg.get("password");
         String emailAddress = arg.get("emailAddress");
@@ -76,36 +76,42 @@ public class RegisterController {
 
         System.out.println(vc);
 
-        Map<String, String> ret = new HashMap<>();
+        Map<String, Object> ret = new HashMap<>();
 
         if(userRepository.findByUsername(username) == null) {
-            if(vc.equals(arg.get("verification_code"))) {
-                User newUser = new User();
-                newUser.setUsername(username);
-                newUser.setPassword(password);
-                newUser.setEmailAddress(emailAddress);
-                newUser.setUserID(UUID.randomUUID().toString().replaceAll("-",""));
-                if(arg.get("phoneNumber") != null)
-                    newUser.setPhoneNumber(arg.get("phoneNumber"));
-                if(arg.get("realName") != null)
-                    newUser.setRealName(arg.get("realName"));
-                if(arg.get("authorID") != null)
-                    newUser.setAuthorID(arg.get("authorID"));
-                if(arg.get("introduction") != null)
-                    newUser.setIntroduction(arg.get("introduction"));
-                if(arg.get("organization") != null)
-                    newUser.setOrganization(arg.get("organization"));
-                newUser.setIsBanned(0);
-                newUser.setUnblockTime(null);
-                if(arg.get("userPosition") != null)
-                    newUser.setUserPosition(arg.get("userPosition"));
-                newUser.setUserIdentity(1);
-                newUser.setImage("/static/image/" + username + ".jpg");
+            if(userRepository.findByEmailAddress(emailAddress) == null) {
+                if(vc.equals(arg.get("verification_code"))) {
+                    User newUser = new User();
+                    newUser.setUsername(username);
+                    newUser.setPassword(password);
+                    newUser.setEmailAddress(emailAddress);
+                    newUser.setUserID(UUID.randomUUID().toString().replaceAll("-",""));
+                    if(arg.get("phoneNumber") != null)
+                        newUser.setPhoneNumber(arg.get("phoneNumber"));
+                    if(arg.get("realName") != null)
+                        newUser.setRealName(arg.get("realName"));
+                    if(arg.get("authorID") != null)
+                        newUser.setAuthorID(arg.get("authorID"));
+                    if(arg.get("introduction") != null)
+                        newUser.setIntroduction(arg.get("introduction"));
+                    if(arg.get("organization") != null)
+                        newUser.setOrganization(arg.get("organization"));
+                    newUser.setIsBanned(0);
+                    newUser.setUnblockTime(null);
+                    if(arg.get("userPosition") != null)
+                        newUser.setUserPosition(arg.get("userPosition"));
+                    newUser.setUserIdentity(1);
+                    newUser.setImage("./static/image/" + newUser.getUserID() + ".jpg");
 
-                userRepository.save(newUser);
+                    userRepository.save(newUser);
 
-                ret.put("success", "true");
-                ret.put("msg", "注册成功，即将转到登陆页面");
+                    ret.put("success", "true");
+                    ret.put("msg", "注册成功，即将转到登陆页面");
+                }
+                else {
+                    ret.put("success", "false");
+                    ret.put("msg", "邮箱重复");
+                }
             }
             else {
                 ret.put("success", "false");
