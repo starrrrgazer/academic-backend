@@ -10,13 +10,13 @@
 
     <update id="blockUser">
         update User
-        set isBanned = 1 and unblockTime = #{unblockDate}
+        set isBanned = #{kind} , unblockTime = #{unblockDate}
         where userID = #{userID}
     </update>
 
     <update id="unblockUser">
         update User
-        set isBanned = 0 and unblockTime = #{nowDate}
+        set isBanned = 0 , unblockTime = #{nowDate}
         where userID = #{userID}
     </update>
 
@@ -24,11 +24,5 @@
         select *
         from User
         where authorID = #{authorId}
-    </select>
-    
-    <select id="getResearcherList" resultType="User">
-        select *
-        from User
-        where userIdentity = 1 or userIdentity = 2
     </select>
 </mapper>

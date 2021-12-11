@@ -3,6 +3,16 @@ package com.example.management.Service;
 import com.example.management.Entity.User;
 import com.example.management.mapper.UserMapper;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
@@ -19,6 +29,8 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private RestHighLevelClient restHighLevelClient;
 
     public Map<String,Object> blockUser(Map<String,Object> map){
         Map<String,Object> returnObject = new HashMap<>();
@@ -33,9 +45,10 @@ public class UserService {
             //unblockDate
             String df = "yyyy-MM-dd HH:mm";
             SimpleDateFormat sdf = new SimpleDateFormat(df);
-            Date unblockDate = Date.valueOf(sdf.format(map.get("unblockDate")));
-            userMapper.blockUser(userID, unblockDate);
+            Date unblockDate = new Date(sdf.parse((String) map.get("time")).getTime());
+            userMapper.blockUser(userID, unblockDate, Integer.parseInt((String) map.get("kind")));
         }catch (Exception e){
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
@@ -58,9 +71,10 @@ public class UserService {
             }
             String df = "yyyy-MM-dd HH:mm";
             SimpleDateFormat sdf = new SimpleDateFormat(df);
-            Date date = Date.valueOf(sdf.format(new java.util.Date()));
+            Date date = new Date(new java.util.Date().getTime());
             userMapper.unblockUser(userID,date);
         } catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
@@ -70,43 +84,33 @@ public class UserService {
         return returnObject;
     }
 
-    public Map<String,Object> getResearcherList(){
-        //不会ES
+    public Map<String,Object> getResearcherList(Map<String,Object> map){
+        String id = (String) map.get("id");
         Map<String,Object> returnObject = new HashMap<>();
-        List<Map<String,Object>> researcherList = new ArrayList<>();
-        for (int i = 0;i < 5;i++){
-            Map<String,Object> tmp = new HashMap<>();
-            tmp.put("id","123423");
-            tmp.put("h_index",123414);
-            tmp.put("n_citation",3323);
-            tmp.put("n_pubs",23);
-            tmp.put("name","aaa");
-            tmp.put("position","bbb");
-            Map<String,Object> sadsad= new HashMap<>();
-            sadsad.put("i","2433");sadsad.put("r","sda");
-            tmp.put("pubs",sadsad);
-            tmp.put("pubsI","efqw");
-            tmp.put("pubsR",22);
-            Map<String,Object> sadsad1= new HashMap<>();
-            sadsad.put("tagsT","2va");sadsad.put("tagsW","sda");
-            tmp.put("tags",sadsad1);
+        Map<String,Object> researcher = new HashMap<>();
+        try {
+            User user = userMapper.getUserByuserId(id);
+            researcher.put("userID",user.getUserID());
+            researcher.put("authorID",user.getAuthorID());
+            researcher.put("userIdentity",user.getUserIdentity());
+            researcher.put("username",user.getUsername());
+            researcher.put("password",user.getPassword());
+            researcher.put("phoneNumber",user.getPhoneNumber());
+            researcher.put("emailAddress",user.getEmailAddress());
+            researcher.put("image",user.getImage());
+            researcher.put("organization",user.getOrganization());
+            researcher.put("introduction",user.getIntroduction());
+            researcher.put("realName",user.getRealName());
+            researcher.put("userPosition",user.getUserPosition());
+            researcher.put("isBanned",user.getIsBanned());
+            researcher.put("unblockTime",user.getUnblockTime());
+        } catch (Exception e) {
+            returnObject.put("status","403");
+            returnObject.put("result","未知错误");
         }
-//        try{
-//            List<User> tmpReseacherList = userMapper.getResearcherList();
-//            for (User user : tmpReseacherList){
-//                Map<String,Object> tmp = new HashMap<>();
-//                tmp.put("id",user.getUserID());
-//
-//            }
-//        } catch (Exception e) {
-//            returnObject.put("status","401");
-//            returnObject.put("result","未知错误");
-//            return returnObject;
-//        }
-
         returnObject.put("status","200");
         returnObject.put("result","成功");
-        returnObject.put("researcherList",researcherList);
+        returnObject.put("researcherList",researcher);
         return returnObject;
     }
 }

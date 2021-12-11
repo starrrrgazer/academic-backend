@@ -1,0 +1,5 @@
+#mybatis:
+#  mapper-locations: Management/src/main/resources/mapper*.xml
+#  type-aliases-package: com.example.management.Entity
+#  configuration:
+#    map-underscore-to-camel-case: true
