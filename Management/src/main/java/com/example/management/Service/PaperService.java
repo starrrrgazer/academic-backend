@@ -48,28 +48,28 @@ public class PaperService {
 //            }
             newPaperMap.put("id",id);
             //authors
-            List<Map<String, Object>> authors = Collections.singletonList((Map<String, Object>) map.get("authors"));
-            List<AuthorList> authorList = new ArrayList<>();
-            for (int i = 0; i < authors.size(); i++) {
-                AuthorList tmp = new AuthorList(authors.get(i));
-                authorList.add(tmp);
-            }
-            newPaperMap.put("authors",authorList);
+            List<Map<String, Object>> authors = (List<Map<String, Object>>) map.get("authors");
+//            List<AuthorList> authorList = new ArrayList<>();
+//            for (int i = 0; i < authors.size(); i++) {
+//                AuthorList tmp = new AuthorList(authors.get(i));
+//                authorList.add(tmp);
+//            }
+            newPaperMap.put("authors",authors);
 //            newPaper.setAuthors(authorList);
             //title
             String title = (String) map.get("title");
             newPaperMap.put("title",title);
 //            newPaper.setTitle(title);
             //year
-            int year = (int) map.get("year");
+            int year = Integer.parseInt((String) map.get("year"));
             newPaperMap.put("year",year);
 //            newPaper.setYear(year);
             //n_citation
-            int n_citation = (int) map.get("n_citation");
+            int n_citation =  Integer.parseInt((String) map.get("n_citation"));
 //            newPaper.setN_citation(n_citation);
             newPaperMap.put("n_citation",n_citation);
             //url
-            List<String> getUrls = Collections.singletonList((String) map.get("url"));
+            List<String> getUrls = (List<String>) map.get("url");
 //            newPaper.setUrl();
             newPaperMap.put("url",getUrls);
             //doi
@@ -97,8 +97,9 @@ public class PaperService {
             newPaperMap.put("keywords",keywords);
             //venue
             Map<String, Object> getVenue = (Map<String, Object>) map.get("venue");
-                Venue venue = new Venue((String) getVenue.get("id"), (String) getVenue.get("raw"));
-            newPaperMap.put("venue",venue);
+//                Map<String,Object> venue = new HashMap<>();
+//                        venue.put("id",(String) getVenue.get("id"));venue.put( (String) getVenue.get("raw")));
+            newPaperMap.put("venue",getVenue);
 
             Paper newPaper = new Paper(newPaperMap);
 //            paperMapper.addPaper(newPaper);
@@ -106,6 +107,7 @@ public class PaperService {
             request.source(paperJson, XContentType.JSON);
 
         } catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
