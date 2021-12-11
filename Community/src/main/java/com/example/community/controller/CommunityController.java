@@ -7,13 +7,26 @@ import com.example.community.dao.UserRepository;
 import com.example.community.entity.Paper;
 import com.example.community.entity.User;
 import com.example.community.entity.demo;
+import org.elasticsearch.action.delete.DeleteAction;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.ingest.DeletePipelineAction;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.client.ElasticsearchClient;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +103,18 @@ public class CommunityController {
             ioException.printStackTrace();
         }
 
+    }
+
+    @PostMapping("/deletePaper")
+    public void deletePaper(@RequestBody Map<String, Object> req){
+        try {
+            DeleteByQueryRequest request =new DeleteByQueryRequest("paper");
+            request.setQuery(new TermQueryBuilder("id", "1"));
+            request.setRefresh(true);
+            BulkByScrollResponse bulkResponse = restHighLevelClient.deleteByQuery(request, RequestOptions.DEFAULT);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
     }
 
 
