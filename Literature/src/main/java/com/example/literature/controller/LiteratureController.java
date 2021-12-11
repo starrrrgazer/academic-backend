@@ -183,6 +183,7 @@ public class LiteratureController {
                 }
             }
         }
+        if(date.get(0)!=null)
         boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -259,7 +260,7 @@ public class LiteratureController {
 
 
     @PostMapping("/recommendPaper")
-    public Map<String, Object> recommendPaper(@RequestBody Map<String, Object> params) {
+    public Map<String, Object> recommendPaper() {
         Map<String, Object> map = new HashMap<String, Object>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         //建空查询
@@ -329,7 +330,7 @@ public class LiteratureController {
         //建空查询
         SearchRequest searchRequest = new SearchRequest("paper");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        boolQueryBuilder.must(QueryBuilders.fuzzyQuery("id", id));
+        boolQueryBuilder.must(QueryBuilders.termQuery("id", id));
         //增加查询条件
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -343,7 +344,7 @@ public class LiteratureController {
                 SearchHit searchHit = Hits[0];
                 map.put("language", "english");
                 map.put("title", searchHit.getSourceAsMap().get("title"));
-                map.put("citiation", searchHit.getSourceAsMap().get("n_citation"));
+                map.put("citation", searchHit.getSourceAsMap().get("n_citation"));
                 map.put("issn", searchHit.getSourceAsMap().get("issn"));
                 map.put("doi", searchHit.getSourceAsMap().get("doi"));
                 map.put("abstract", searchHit.getSourceAsMap().get("abstract"));
@@ -353,38 +354,40 @@ public class LiteratureController {
                 map.put("authors", searchHit.getSourceAsMap().get("authors"));
                 map.put("keyWords", searchHit.getSourceAsMap().get("keywords"));
                 map.put("urls", searchHit.getSourceAsMap().get("url"));
+
                 List<Map<String,Object>> authors = (List<Map<String,Object>>)searchHit.getSourceAsMap().get("authors");
                 String org = (String) authors.get(0).get("org");
                 //TODO 获取对应的相关学者
+                System.out.println(org);
+
                 List<Map<String,Object>> related_authors= new ArrayList<>();
 
                 BoolQueryBuilder boolQueryBuilder1 = QueryBuilders.boolQuery();
                 //建空查询
                 SearchRequest searchRequest1 = new SearchRequest("author");
                 SearchSourceBuilder searchSourceBuilder1 = new SearchSourceBuilder();
-                boolQueryBuilder1.must(QueryBuilders.termQuery("org", org));
+                boolQueryBuilder1.should(QueryBuilders.fuzzyQuery("org", "school"));
                 //增加查询条件
                 searchSourceBuilder1.query(boolQueryBuilder1);
-                searchSourceBuilder1.size(10);
+                searchSourceBuilder1.size(1000);
                 searchRequest1.source(searchSourceBuilder1);
-                try {
-                    SearchResponse searchResponse1 = restHighLevelClient.search(searchRequest1, RequestOptions.DEFAULT);
-                    SearchHits searchHits1 = searchResponse1.getHits();
-                    SearchHit[] Hits1 = searchHits1.getHits();
-                    int i = 0;
-                    for(SearchHit hit :Hits1){
-                        Map<String,Object> map1 = new HashMap<>();
-                        map1.put("id",hit.getSourceAsMap().get("id"));
-                        map1.put("name",hit.getSourceAsMap().get("name"));
-                        map1.put("org",hit.getSourceAsMap().get("org"));
-                        related_authors.add(map1);
-                        if(i++>5){
-                            break;
-                        }
+                SearchResponse searchResponse1 = restHighLevelClient.search(searchRequest1, RequestOptions.DEFAULT);
+                SearchHits searchHits1 = searchResponse1.getHits();
+                SearchHit[] Hits1 = searchHits1.getHits();
+                System.out.println(Hits1.length);
+                int i = 0;
+                for(SearchHit hit :Hits1){
+                    Map<String,Object> map1 = new HashMap<>();
+                    map1.put("id",hit.getSourceAsMap().get("id"));
+                    map1.put("name",hit.getSourceAsMap().get("name"));
+                    map1.put("org",hit.getSourceAsMap().get("org"));
+                    related_authors.add(map1);
+                    if(i++>5){
+                        break;
                     }
                 }
-                catch (Exception e){}
                 map.put("relevantSchoolars",related_authors);
+
                 List<Comment> commentList = commentRepository.findAllByToID(id);
                 List<Map<String,Object>> list = new ArrayList<>();
                 for (Comment com:commentList) {
@@ -410,6 +413,7 @@ public class LiteratureController {
     public Map<String, Object> classificationPaper(@RequestBody Map<String, Object> params) {
         System.out.println(params);
         Map<String, Object> map = new HashMap<String, Object>();
+        ArrayList date = (ArrayList) params.get("date");
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
         @SuppressWarnings("unchecked")
@@ -639,6 +643,8 @@ public class LiteratureController {
                 }
             }
         }
+        if(date.get(0)!=null)
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
         searchRequest.source(searchSourceBuilder);
@@ -719,6 +725,7 @@ public class LiteratureController {
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
         int rankWay = (int) params.get("rankWay");
+        ArrayList date = (ArrayList) params.get("date");
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> conditionlist = (List<Map<String, Object>>) params.get("conditionList");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -946,6 +953,8 @@ public class LiteratureController {
                 }
             }
         }
+        if(date.get(0)!=null)
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
         searchRequest.source(searchSourceBuilder);
@@ -958,7 +967,7 @@ public class LiteratureController {
             if (rankWay == 2) {//发表时间
                 Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("year"))));
             } else if (rankWay == 3) {//被引量
-                Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("n_citiation"))));
+                Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("n_citation"))));
             }
             int num = Hits.length;
             int page_number;
@@ -1066,6 +1075,7 @@ public class LiteratureController {
         Map<String, Object> map = new HashMap<String, Object>();
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
+        ArrayList date = (ArrayList) params.get("date");
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> conditionlist = (List<Map<String, Object>>) params.get("conditionList");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -1293,6 +1303,8 @@ public class LiteratureController {
                 }
             }
         }
+        if(date.get(0)!=null)
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
         searchRequest.source(searchSourceBuilder);
