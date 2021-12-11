@@ -130,7 +130,7 @@ public class PaperService {
             System.out.println(response);
         } catch (IOException e) {
             returnObject.put("status","401");
-            returnObject.put("result","删除成功");
+            returnObject.put("result","删除失败");
         }
         returnObject.put("status","200");
         returnObject.put("result","删除成功");

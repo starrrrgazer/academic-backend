@@ -45,9 +45,10 @@ public class UserService {
             //unblockDate
             String df = "yyyy-MM-dd HH:mm";
             SimpleDateFormat sdf = new SimpleDateFormat(df);
-            Date unblockDate = Date.valueOf(sdf.format(map.get("time")));
+            Date unblockDate = new Date(sdf.parse((String) map.get("time")).getTime());
             userMapper.blockUser(userID, unblockDate, (String) map.get("kind"));
         }catch (Exception e){
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
