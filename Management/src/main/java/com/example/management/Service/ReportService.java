@@ -51,7 +51,7 @@ public class ReportService {
     public Map<String,Object> acceptReport(Map<String,Object> map){
         Map<String,Object> returnObject = new HashMap<>();
         try {
-            String reportId = (String) map.get("reportId");
+            String reportId = map.get("reportId").toString();
             String result = (String) map.get("result");
             Report r = reportMapper.getReportById(reportId);
             if (r==null){
@@ -61,6 +61,7 @@ public class ReportService {
             }
             reportMapper.acceptReport(reportId,result);
         }catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
