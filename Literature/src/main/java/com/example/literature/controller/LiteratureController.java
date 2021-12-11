@@ -183,7 +183,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.get(0)!=null)
+        if(date.size()!=0)
         boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -643,7 +643,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.get(0)!=null)
+        if(date.size()!=0)
             boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -953,7 +953,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.get(0)!=null)
+        if(date.size()!=0)
             boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -969,7 +969,13 @@ public class LiteratureController {
             } else if (rankWay == 3) {//被引量
                 Arrays.sort(Hits, Comparator.comparingInt(o -> (int) (o.getSourceAsMap().get("n_citation"))));
             }
+
             int num = Hits.length;
+            for(int i=0;i<(int)(num/2);i++){
+                SearchHit temp = Hits[i];
+                Hits[i]= Hits[num-i-1];
+                Hits[num-i-1] = temp;
+            }
             int page_number;
             if (num > 0) {
                 int flag = num % pageSize;
@@ -1303,7 +1309,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.get(0)!=null)
+        if(date.size()!=0)
             boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
