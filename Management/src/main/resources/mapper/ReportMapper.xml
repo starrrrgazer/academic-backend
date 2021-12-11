@@ -10,13 +10,13 @@
     
     <update id="acceptReport" parameterType="java.lang.String">
         update Report
-        set result = #{result} and status = 1
+        set result = #{result} , status = 1
         where reportID = #{reportId} ;
     </update>
 
     <update id="rejectReport" parameterType="java.lang.String">
         update Report
-        set result = #{result} and status = 2
+        set result = #{result} , status = 2
         where reportID = #{reportId} ;
     </update>
 
