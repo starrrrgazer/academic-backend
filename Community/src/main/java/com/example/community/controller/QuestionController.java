@@ -36,6 +36,8 @@ public class QuestionController {
     QuestionFollowRepository questionFollowRepository;
     @Autowired
     UserRepository userRepository;
+
+
     @PostMapping("/getSocietyInformation")
     public Map<String, Object> getSocietyInformation(@RequestBody Map<String,Object> req){
         Map<String,Object> response = new HashMap<>();
@@ -94,6 +96,7 @@ public class QuestionController {
     }
 
     /*这个函数是往返回的json里面加除了问题列表以外的有关用户信息的数据，如username*/
+
     public Map<String,Object> putUserInfoToResponseMap(Map<String,Object> response, String userID){
         try {
             User user = userRepository.findByUserID(userID);
