@@ -12,10 +12,11 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "User")
 public class User {
     @Id
     @Column(name = "userID")
-    private UUID userID;
+    private String userID;
 
     @Column(name = "authorID")
     private String authorID;
