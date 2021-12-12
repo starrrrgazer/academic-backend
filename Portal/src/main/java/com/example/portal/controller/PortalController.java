@@ -45,7 +45,6 @@ public class PortalController {
             ret.put("userName", (T) author.getName());
             ret.put("unit", (T) new ArrayList<String>(Arrays.asList(author.getOrg().split(",\\s+"))));
 
-            System.out.println(1);
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             SearchRequest searchRequest = new SearchRequest("paper");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -53,13 +52,11 @@ public class PortalController {
             searchSourceBuilder.query(boolQueryBuilder);
             searchSourceBuilder.size(10000);
             searchRequest.source(searchSourceBuilder);
-            System.out.println(2);
             try {
                 SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
                 SearchHits searchHits = searchResponse.getHits();
                 long totalhits = searchHits.getTotalHits().value;
                 System.out.println(totalhits);
-                System.out.println(3);
                 List<Essay> essayList = new LinkedList<>();
                 for(SearchHit sh : searchHits) {
                     Map<?,?> elem = sh.getSourceAsMap();
@@ -70,7 +67,6 @@ public class PortalController {
                     essayList.add(new Essay((String)elem.get("title"), author_, (String)elem.get("abstract"),
                             (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
                 }
-                System.out.println(4);
                 essayList.sort(new Comparator<Essay>() {
                     @Override
                     public int compare(Essay o1, Essay o2) {
@@ -78,7 +74,7 @@ public class PortalController {
                     }
                 });
                 ret.put("essayList", (T) essayList);
-                System.out.println(5);
+                ret.put("relevantAuthor", (T) essayList.get(0).author);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }

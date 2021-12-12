@@ -43,6 +43,8 @@ public class RegisterController {
         HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
 
+        assert session != null;
+
         if("regist".equals(method)) {
             emailAddress = (String) arg.get("emailAddress");
             String username = (String) arg.get("username");
@@ -57,68 +59,20 @@ public class RegisterController {
                 return ret;
             }
         }
-        /*else if("edit".equals(method)) {
-            String origin_username = (String) session.getAttribute("username");
-            String username = (String) arg.get("username");
-            String phoneNumber = (String) arg.get("phoneNum");
-            User user = userRepository.findByUsername(origin_username);
-            if(user != null) {
-                if(username.length() > 0 || phoneNumber.length() > 0) {
-                    if(!username.equals(origin_username)) {
-                        if(!phoneNumber.equals(user.getPhoneNumber())) {
-                            if(username.length() == 0 || userRepository.findByUsername(username) == null) {
-                                if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null)
-                                    emailAddress = user.getEmailAddress();
-                                else {
-                                    ret.put("success", "false");
-                                    ret.put("msg", "手机号已被注册");
-                                    return ret;
-                                }
-                            }
-                            else {
-                                ret.put("success", "false");
-                                ret.put("msg", "用户名重复");
-                                return ret;
-                            }
-                        }
-                        else {
-                            ret.put("success", "warning");
-                            ret.put("msg", "确定将手机号修改为原来的手机号？");
-                            return ret;
-                        }
-                    }
-                    else {
-                        ret.put("success", "warning");
-                        ret.put("msg", "确定将用户名修改为原来的用户名？");
-                        return ret;
-                    }
-                }
-                else {
-                    ret.put("success", "warning");
-                    ret.put("msg", "用户未修改任何信息");
-                    return ret;
-                }
-            }
-            else {
-                ret.put("success", "false");
-                ret.put("msg", "发生未知错误，找不到当前用户");
-                return ret;
-            }
-        }*/
         else if("edit".equals(method)) {
             String origin_username = (String) session.getAttribute("username");
             String username = (String) arg.get("username");
             String phoneNumber = (String) arg.get("phoneNum");
             User user = userRepository.findByUsername(origin_username);
             if(user != null) {
-                if(username.length() == 0 || userRepository.findByUsername(username) == null || username.equals(user.getUsername())) {
-                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null || phoneNumber.equals(user.getPhoneNumber())) {
-                        if(username.length() > 0 || phoneNumber.length() > 0) {
-                            if(username.length() > 0 && username.equals(user.getUsername())) {
+                if(user == null || username.length() == 0 || userRepository.findByUsername(username) == null || username.equals(user.getUsername())) {
+                    if(phoneNumber == null || phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null || phoneNumber.equals(user.getPhoneNumber())) {
+                        if(username != null && username.length() > 0 || phoneNumber != null && phoneNumber.length() > 0) {
+                            if(username != null && username.equals(user.getUsername())) {
                                 ret.put("success", "warning");
                                 ret.put("msg", "确定将用户名修改为原来的用户名？");
                             }
-                            if(phoneNumber.length() > 0 && phoneNumber.equals(user.getPhoneNumber())) {
+                            if(phoneNumber != null && phoneNumber.equals(user.getPhoneNumber())) {
                                 ret.put("success", "warning");
                                 if(ret.get("msg") != null)
                                     ret.put("msg", ret.get("msg") + " 确定将手机号修改为原来的手机号？");
