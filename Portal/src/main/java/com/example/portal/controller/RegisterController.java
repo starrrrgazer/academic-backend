@@ -33,31 +33,124 @@ public class RegisterController {
     MailServiceImpl mailService;
 
     @PostMapping("/getCode")
-    public Map<String, Object> sendCode(@RequestBody Map<String, String> arg) {
-        String emailAddress = arg.get("emailAddress");
-        String username = arg.get("username");
+    public Map<String, Object> sendCode(@RequestParam(value = "move", defaultValue = "regist") String method,
+                                        @RequestBody Map<String, Object> arg) {
         Map<String, Object> ret = new HashMap<>();
-        System.out.println("email: " + emailAddress);
-        System.out.println("username: " + username);
-        if(userRepository.findByUsername(username) != null) {
-            ret.put("success", "false");
-            ret.put("msg", "用户名已被注册");
-            return ret;
-        }
-        else if(userRepository.findByEmailAddress(emailAddress) != null) {
-            ret.put("success", "false");
-            ret.put("msg", "邮箱已被注册");
-            return ret;
-        }
-        String vc = generateVC();
-        System.out.println(vc);
+
+        String emailAddress = null;
 
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+
+        if("regist".equals(method)) {
+            emailAddress = (String) arg.get("emailAddress");
+            String username = (String) arg.get("username");
+            if(userRepository.findByUsername(username) != null) {
+                ret.put("success", "false");
+                ret.put("msg", "用户名已被注册");
+                return ret;
+            }
+            else if(userRepository.findByEmailAddress(emailAddress) != null) {
+                ret.put("success", "false");
+                ret.put("msg", "邮箱已被注册");
+                return ret;
+            }
+        }
+        else if("edit".equals(method)) {
+            String origin_username = (String) session.getAttribute("username");
+            String username = (String) arg.get("username");
+            String phoneNumber = (String) arg.get("phoneNum");
+            User user = userRepository.findByUsername(origin_username);
+            if(user != null) {
+                if(username != null || phoneNumber != null) {
+                    if(username != origin_username) {
+                        if(phoneNumber != user.getPhoneNumber()) {
+                            if(username == null || userRepository.findByUsername(username) == null) {
+                                if(phoneNumber == null || userRepository.findByPhoneNumber(phoneNumber) != null)
+                                    emailAddress = user.getEmailAddress();
+                                else {
+                                    ret.put("success", "false");
+                                    ret.put("msg", "手机号已被注册");
+                                    return ret;
+                                }
+                            }
+                            else {
+                                ret.put("success", "false");
+                                ret.put("msg", "用户名重复");
+                                return ret;
+                            }
+                        }
+                        else {
+                            ret.put("success", "warning");
+                            ret.put("msg", "确定将手机号修改为原来的手机号？");
+                            return ret;
+                        }
+                    }
+                    else {
+                        ret.put("success", "warning");
+                        ret.put("msg", "确定将用户名修改为原来的用户名？");
+                        return ret;
+                    }
+                }
+                else {
+                    ret.put("success", "warning");
+                    ret.put("msg", "用户未修改任何信息");
+                    return ret;
+                }
+            }
+            else {
+                ret.put("success", "false");
+                ret.put("msg", "发生未知错误，找不到当前用户");
+                return ret;
+            }
+        }
+        else if("reset".equals(method)) {
+            emailAddress = (String) arg.get("email");
+            String pwd = (String) arg.get("pwd");
+            String pwd2 = (String) arg.get("confirmPwd");
+            User user = userRepository.findByEmailAddress(emailAddress);
+            if(user != null) {
+                if(pwd.equals(pwd2)) {
+                    if(pwd.equals(user.getPassword())) {
+                        ret.put("success", "warning");
+                        ret.put("msg", "您尝试修改的密码与原密码相同");
+                        return ret;
+                    }
+                }
+                else {
+                    ret.put("success", "false");
+                    ret.put("msg", "两次密码输入不一致");
+                    return ret;
+                }
+            }
+            else {
+                ret.put("success", "false");
+                ret.put("msg", "发生未知错误");
+                return ret;
+            }
+        }
+        else {
+            ret.put("success", "false");
+            ret.put("msg", "发生未知错误，在未知过程中尝试发送验证码");
+            return ret;
+        }
+
+        // Sending Email - all situations are indifferent
+        String vc = generateVC();
+        //System.out.println(vc);
+
         session.setAttribute("verification_code", vc);
 
-        mailService.sendMail(emailAddress, "Verification", vc);
+        String subject = null;
+        if(method.equals("regist"))
+            subject = "VERIFICATION: You Are Signing Up, Welcome!";
+        else if(method.equals("edit"))
+            subject = "VERIFICATION: You Are Editing Your Personal Info...";
+        else if(method.equals("reset"))
+            subject = "VERIFICATION: You Are Resetting Your Password...";
+
+        mailService.sendMail(emailAddress, subject, vc);
         ret.put("success","true");
         ret.put("msg","邮件发送成功");
         return ret;
