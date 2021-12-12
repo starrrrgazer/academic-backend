@@ -14,6 +14,9 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -122,10 +125,11 @@ public class PaperService {
     public Map<String,Object> deletePaper(Map<String,Object> map){
         String id = (String) map.get("id");
         Map<String,Object> returnObject = new HashMap<>();
-        DeleteRequest deleteRequest = new DeleteRequest();
-        deleteRequest.index("paper").id(id);
+        DeleteByQueryRequest delete = new DeleteByQueryRequest("paper");
+        delete.setQuery(new TermQueryBuilder("id", id));
         try {
-            restHighLevelClient.delete(deleteRequest,RequestOptions.DEFAULT);
+            delete.setRefresh(true);
+            BulkByScrollResponse bulkResponse = restHighLevelClient.deleteByQuery(delete, RequestOptions.DEFAULT);
         } catch (IOException e) {
             returnObject.put("status","401");
             returnObject.put("result","删除失败");
