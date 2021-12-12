@@ -85,14 +85,14 @@ public class PersonalCenterController {
         User user = userRepository.findByUsername(origin_username);
         if(user != null) {
             if(vc.equals(tc)) {
-                if(username == null || userRepository.findByUsername(username) == null) {
-                    if(phoneNumber == null || userRepository.findByPhoneNumber(phoneNumber) == null) {
-                        if(username != null || phoneNumber != null) {
-                            if(phoneNumber != null) {
+                if(username.length() == 0 || userRepository.findByUsername(username) == null) {
+                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null) {
+                        if(username.length() > 0 || phoneNumber.length() > 0) {
+                            if(phoneNumber.length() > 0) {
                                 userRepository.updatePhoneNumber(origin_username, phoneNumber);
                                 ret.put("msg", " 手机号修改成功");
                             }
-                            if(username != null) {
+                            if(username.length() > 0) {
                                 userRepository.updateUsername(origin_username, username);
                                 session.setAttribute("username", username);
                                 ret.put("msg", ret.get("msg") + " 用户名修改成功");
@@ -151,9 +151,8 @@ public class PersonalCenterController {
             File avatarPath = new File(StringUtils.substringBeforeLast(user.getImage(), "/"));
             if(!avatarPath.exists())
                 avatarPath.mkdirs();
-            if(avatar.exists())
-                while(!avatar.delete());
-            avatar.createNewFile();
+            if(!avatar.exists())
+                avatar.createNewFile();
             FileOutputStream  out = new FileOutputStream(avatar);
             out.write(imageBuf);
             out.flush();

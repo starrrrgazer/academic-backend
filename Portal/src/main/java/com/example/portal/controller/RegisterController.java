@@ -63,11 +63,11 @@ public class RegisterController {
             String phoneNumber = (String) arg.get("phoneNum");
             User user = userRepository.findByUsername(origin_username);
             if(user != null) {
-                if(username != null || phoneNumber != null) {
-                    if(username != origin_username) {
-                        if(phoneNumber != user.getPhoneNumber()) {
-                            if(username == null || userRepository.findByUsername(username) == null) {
-                                if(phoneNumber == null || userRepository.findByPhoneNumber(phoneNumber) != null)
+                if(username.length() > 0 || phoneNumber.length() > 0) {
+                    if(!username.equals(origin_username)) {
+                        if(!phoneNumber.equals(user.getPhoneNumber())) {
+                            if(username.length() == 0 || userRepository.findByUsername(username) == null) {
+                                if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) != null)
                                     emailAddress = user.getEmailAddress();
                                 else {
                                     ret.put("success", "false");
