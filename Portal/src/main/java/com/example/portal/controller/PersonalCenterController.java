@@ -85,8 +85,8 @@ public class PersonalCenterController {
         User user = userRepository.findByUsername(origin_username);
         if(user != null) {
             if(vc.equals(tc)) {
-                if(username.length() == 0 || userRepository.findByUsername(username) == null) {
-                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null) {
+                if(username.length() == 0 || userRepository.findByUsername(username) == null || username.equals(user.getUsername())) {
+                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null || phoneNumber.equals(user.getPhoneNumber())) {
                         if(username.length() > 0 || phoneNumber.length() > 0) {
                             if(phoneNumber.length() > 0) {
                                 userRepository.updatePhoneNumber(origin_username, phoneNumber);
@@ -95,7 +95,10 @@ public class PersonalCenterController {
                             if(username.length() > 0) {
                                 userRepository.updateUsername(origin_username, username);
                                 session.setAttribute("username", username);
-                                ret.put("msg", ret.get("msg") + " 用户名修改成功");
+                                if(ret.get("msg") != null)
+                                    ret.put("msg", ret.get("msg") + " 用户名修改成功");
+                                else
+                                    ret.put("msg", "用户名修改成功");
                             }
                             ret.put("status", "success");
                         }

@@ -111,8 +111,8 @@ public class RegisterController {
             String phoneNumber = (String) arg.get("phoneNum");
             User user = userRepository.findByUsername(origin_username);
             if(user != null) {
-                if(username.length() == 0 || userRepository.findByUsername(username) == null) {
-                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null) {
+                if(username.length() == 0 || userRepository.findByUsername(username) == null || username.equals(user.getUsername())) {
+                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null || phoneNumber.equals(user.getPhoneNumber())) {
                         if(username.length() > 0 || phoneNumber.length() > 0) {
                             if(username.length() > 0 && username.equals(user.getUsername())) {
                                 ret.put("success", "warning");
@@ -122,6 +122,8 @@ public class RegisterController {
                                 ret.put("success", "warning");
                                 if(ret.get("msg") != null)
                                     ret.put("msg", ret.get("msg") + " 确定将手机号修改为原来的手机号？");
+                                else
+                                    ret.put("msg", " 确定将手机号修改为原来的手机号？");
                             }
                             emailAddress = user.getEmailAddress();
                         }
@@ -261,34 +263,7 @@ public class RegisterController {
         }
         return ret;
     }
-/*
-    @Transactional
-    @PutMapping("/uploading")
-    public Map<String, String> update( MultipartFile image, String username, HttpServletRequest request) throws IOException{
-        Map<String, String> ret = new HashMap<>();
-        if( image!=null ) {
-            saveOrUpdateImageFile(image, username, request);
-            ret.put("success", "true");
-            ret.put("msg", "图像上传成功");
-        }
-        else {
-            ret.put("success", "false");
-            ret.put("msg", "图片上传失败");
-        }
-        return ret;
-    }
 
-    public void saveOrUpdateImageFile(MultipartFile image, String username, HttpServletRequest request)
-            throws IOException {
-        File imageFolder= new File(request.getServletContext().getRealPath("static/image"));
-        File file = new File(imageFolder,username +".jpg");
-        if(!file.getParentFile().exists())
-            file.getParentFile().mkdirs();
-        image.transferTo(file);
-        BufferedImage img = ImageIO.read(new FileInputStream(file));
-        ImageIO.write(img, "jpg", file);
-    }
-*/
     private String generateVC() {
         char[] dic = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
         char[] vc = new char[6];
