@@ -57,7 +57,7 @@ public class RegisterController {
                 return ret;
             }
         }
-        else if("edit".equals(method)) {
+        /*else if("edit".equals(method)) {
             String origin_username = (String) session.getAttribute("username");
             String username = (String) arg.get("username");
             String phoneNumber = (String) arg.get("phoneNum");
@@ -67,7 +67,7 @@ public class RegisterController {
                     if(!username.equals(origin_username)) {
                         if(!phoneNumber.equals(user.getPhoneNumber())) {
                             if(username.length() == 0 || userRepository.findByUsername(username) == null) {
-                                if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) != null)
+                                if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null)
                                     emailAddress = user.getEmailAddress();
                                 else {
                                     ret.put("success", "false");
@@ -96,6 +96,49 @@ public class RegisterController {
                 else {
                     ret.put("success", "warning");
                     ret.put("msg", "用户未修改任何信息");
+                    return ret;
+                }
+            }
+            else {
+                ret.put("success", "false");
+                ret.put("msg", "发生未知错误，找不到当前用户");
+                return ret;
+            }
+        }*/
+        else if("edit".equals(method)) {
+            String origin_username = (String) session.getAttribute("username");
+            String username = (String) arg.get("username");
+            String phoneNumber = (String) arg.get("phoneNum");
+            User user = userRepository.findByUsername(origin_username);
+            if(user != null) {
+                if(username.length() == 0 || userRepository.findByUsername(username) == null) {
+                    if(phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null) {
+                        if(username.length() > 0 || phoneNumber.length() > 0) {
+                            if(username.length() > 0 && username.equals(user.getUsername())) {
+                                ret.put("success", "warning");
+                                ret.put("msg", "确定将用户名修改为原来的用户名？");
+                            }
+                            if(phoneNumber.length() > 0 && phoneNumber.equals(user.getPhoneNumber())) {
+                                ret.put("success", "warning");
+                                if(ret.get("msg") != null)
+                                    ret.put("msg", ret.get("msg") + " 确定将手机号修改为原来的手机号？");
+                            }
+                            emailAddress = user.getEmailAddress();
+                        }
+                        else {
+                            ret.put("success", "warning");
+                            ret.put("msg", "用户未修改任何信息");
+                        }
+                    }
+                    else {
+                        ret.put("success", "false");
+                        ret.put("msg", "手机号已经被注册过");
+                        return ret;
+                    }
+                }
+                else {
+                    ret.put("success", "false");
+                    ret.put("msg", "用户名重复");
                     return ret;
                 }
             }
@@ -151,7 +194,8 @@ public class RegisterController {
             subject = "VERIFICATION: You Are Resetting Your Password...";
 
         mailService.sendMail(emailAddress, subject, vc);
-        ret.put("success","true");
+        if(ret.get("success") == null)
+            ret.put("success","true");
         ret.put("msg","邮件发送成功");
         return ret;
     }
