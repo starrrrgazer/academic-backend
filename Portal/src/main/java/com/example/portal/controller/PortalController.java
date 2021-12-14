@@ -4,6 +4,7 @@ import com.example.portal.dao.AuthorRepository;
 import com.example.portal.entity.Author;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.tomcat.util.collections.ManagedConcurrentWeakHashMap;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -14,6 +15,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.DelegatingServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,21 +60,35 @@ public class PortalController {
                 long totalhits = searchHits.getTotalHits().value;
                 System.out.println(totalhits);
                 List<Essay> essayList = new LinkedList<>();
+                Map<String, Integer> hype = new LinkedHashMap<>();
                 for(SearchHit sh : searchHits) {
                     Map<?,?> elem = sh.getSourceAsMap();
-                    List<String> author_ = new ArrayList<>();
+                    List<Map<String, String>> author_ = new ArrayList<>();
+                    List<String> keywords = (List<String>) elem.get("keywords");
+                    for(String k : keywords) {
+                        if(null != hype.get(k))
+                            hype.replace(k, hype.get(k) + 1);
+                        else
+                            hype.put(k, 1);
+                    }
                     List<Map<?,?>> authors = (List<Map<?,?>>) elem.get("authors");
-                    for(Map<?,?> m : authors)
-                        author_.add((String) m.get("name"));
-                    essayList.add(new Essay((String)elem.get("title"), author_, (String)elem.get("abstract"),
+                    for(Map<?,?> m : authors) {
+                        Map<String, String> temp = new HashMap<>();
+                        temp.put("name", (String) m.get("name"));
+                        temp.put("id", (String) m.get("id"));
+                        author_.add(temp);
+                    }
+                    essayList.add(new Essay((String)elem.get("id") ,(String)elem.get("title"), author_, (String)elem.get("abstract"),
                             (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
                 }
-                essayList.sort(new Comparator<Essay>() {
-                    @Override
-                    public int compare(Essay o1, Essay o2) {
-                        return o2.getYear() - o1.getYear();
-                    }
+                essayList.sort((o1, o2) -> o2.getYear() - o1.getYear());
+                List<String> fields = new LinkedList<>(hype.keySet());
+                fields.sort((o1, o2) -> {
+                    int i1 = hype.get(o1);
+                    int i2 = hype.get(o2);
+                    return i2 - i1;
                 });
+                ret.put("fields", (T) fields.subList(0, (5 > fields.size()? fields.size() : 5)));
                 ret.put("essayList", (T) essayList);
                 ret.put("relevantAuthor", (T) essayList.get(0).author);
             } catch (IOException ioException) {
@@ -117,13 +133,25 @@ public class PortalController {
             long totalhits = searchHits.getTotalHits().value;
             System.out.println(totalhits);
             List<Essay> essayList = new LinkedList<>();
+            Map<String, Integer> hype = new LinkedHashMap<>();
             for(SearchHit sh : searchHits) {
                 Map<?,?> elem = sh.getSourceAsMap();
-                List<String> author = new ArrayList<>();
+                List<Map<String, String>> author = new ArrayList<>();
                 List<Map<?,?>> authors = (List<Map<?,?>>) elem.get("authors");
-                for(Map<?,?> m : authors)
-                    author.add((String) m.get("name"));
-                essayList.add(new Essay((String)elem.get("title"), author, (String)elem.get("abstract"),
+                List<String> keywords = (List<String>) elem.get("keywords");
+                for(String k : keywords) {
+                    if(null != hype.get(k))
+                        hype.replace(k, hype.get(k) + 1);
+                    else
+                        hype.put(k, 1);
+                }
+                for(Map<?,?> m : authors) {
+                    Map<String, String> temp = new HashMap<>();
+                    temp.put("name", (String) m.get("name"));
+                    temp.put("id", (String) m.get("id"));
+                    author.add(temp);
+                }
+                essayList.add(new Essay((String)elem.get("id") ,(String)elem.get("title"), author, (String)elem.get("abstract"),
                         (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
             }
             essayList.sort(new Comparator<Essay>() {
@@ -132,7 +160,15 @@ public class PortalController {
                     return o2.getNc() - o1.getNc();
                 }
             });
+            List<String> fields = new LinkedList<>(hype.keySet());
+            fields.sort((o1, o2) -> {
+                int i1 = hype.get(o1);
+                int i2 = hype.get(o2);
+                return i2 - i1;
+            });
+            ret.put("fields", (T) fields.subList(0, (5 > fields.size()? fields.size() : 5)));
             ret.put("essayList", (T) essayList);
+            ret.put("relevantAuthor", (T) essayList.get(0).author);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -156,24 +192,49 @@ public class PortalController {
             long totalhits = searchHits.getTotalHits().value;
             System.out.println(totalhits);
             List<Essay> essayList = new LinkedList<>();
+            Map<String, Integer> hype = new LinkedHashMap<>();
             for(SearchHit sh : searchHits) {
                 Map<?,?> elem = sh.getSourceAsMap();
-                List<String> author = new ArrayList<>();
+                List<Map<String, String>> author = new ArrayList<>();
                 List<Map<?,?>> authors = (List<Map<?,?>>) elem.get("authors");
-                for(Map<?,?> m : authors)
-                    author.add((String) m.get("name"));
-                essayList.add(new Essay((String)elem.get("title"), author, (String)elem.get("abstract"),
+                List<String> keywords = (List<String>) elem.get("keywords");
+                for(String k : keywords) {
+                    if(null != hype.get(k))
+                        hype.replace(k, hype.get(k) + 1);
+                    else
+                        hype.put(k, 1);
+                }
+                for(Map<?,?> m : authors) {
+                    Map<String, String> temp = new HashMap<>();
+                    temp.put("name", (String) m.get("name"));
+                    temp.put("id", (String) m.get("id"));
+                    author.add(temp);
+                }
+                essayList.add(new Essay((String)elem.get("id"), (String)elem.get("title"), author, (String)elem.get("abstract"),
                         (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
             }
-            System.out.println(2);
             essayList.sort(new Comparator<Essay>() {
                 @Override
                 public int compare(Essay o1, Essay o2) {
                     return o2.getYear() - o1.getYear();
                 }
             });
-            System.out.println(3);
+            List<String> fields = new LinkedList<>(hype.keySet());
+            fields.sort((o1, o2) -> {
+                int i1 = hype.get(o1);
+                int i2 = hype.get(o2);
+                return i2 - i1;
+            });
+            ret.put("fields", (T) fields.subList(0, (5 > fields.size()? fields.size() : 5)));
             ret.put("essayList", (T) essayList);
+            Iterator<Essay> iter = essayList.listIterator();
+            Essay target = iter.next();
+            while(iter.hasNext()) {
+                Essay temp = iter.next();
+                if(temp.getNc() > target.getNc())
+                    target = temp;
+            }
+            ret.put("relevantAuthor", (T) target.getAuthor());
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -185,8 +246,9 @@ public class PortalController {
 @Data
 @AllArgsConstructor
 class Essay {
+    String id;
     String title;
-    List<String> author;
+    List<Map<String, String>> author;
     String abstract_;
     int year;
     String source;

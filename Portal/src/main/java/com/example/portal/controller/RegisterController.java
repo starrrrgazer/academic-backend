@@ -60,7 +60,57 @@ public class RegisterController {
             }
         }
         else if("edit".equals(method)) {
+//            String origin_username = (String) session.getAttribute("username");
+//            String username = (String) arg.get("username");
+//            String phoneNumber = (String) arg.get("phoneNum");
+//            User user = userRepository.findByUsername(origin_username);
+//            if(user != null) {
+//                if(user == null || username.length() == 0 || userRepository.findByUsername(username) == null || username.equals(user.getUsername())) {
+//                    if(phoneNumber == null || phoneNumber.length() == 0 || userRepository.findByPhoneNumber(phoneNumber) == null || phoneNumber.equals(user.getPhoneNumber())) {
+//                        if(username != null && username.length() > 0 || phoneNumber != null && phoneNumber.length() > 0) {
+//                            if(username != null && username.equals(user.getUsername())) {
+//                                ret.put("success", "warning");
+//                                ret.put("msg", "确定将用户名修改为原来的用户名？");
+//                            }
+//                            if(phoneNumber != null && phoneNumber.equals(user.getPhoneNumber())) {
+//                                ret.put("success", "warning");
+//                                if(ret.get("msg") != null)
+//                                    ret.put("msg", ret.get("msg") + " 确定将手机号修改为原来的手机号？");
+//                                else
+//                                    ret.put("msg", " 确定将手机号修改为原来的手机号？");
+//                            }
+//                            emailAddress = user.getEmailAddress();
+//                        }
+//                        else {
+//                            ret.put("success", "warning");
+//                            ret.put("msg", "用户未修改任何信息");
+//                        }
+//                    }
+//                    else {
+//                        ret.put("success", "false");
+//                        ret.put("msg", "手机号已经被注册过");
+//                        return ret;
+//                    }
+//                }
+//                else {
+//                    ret.put("success", "false");
+//                    ret.put("msg", "用户名重复");
+//                    return ret;
+//                }
+//            }
+//            else {
+//                ret.put("success", "false");
+//                ret.put("msg", "发生未知错误，找不到当前用户");
+//                return ret;
+//            }
+            // 登录状态下才能修改个人信息
             String origin_username = (String) session.getAttribute("username");
+            if(origin_username == null) {
+                ret.put("success", "false");
+                ret.put("msg1", "发生未知错误，找不到当前用户");
+                return ret;
+            }
+
             String username = (String) arg.get("username");
             String phoneNumber = (String) arg.get("phoneNum");
             User user = userRepository.findByUsername(origin_username);
@@ -70,37 +120,37 @@ public class RegisterController {
                         if(username != null && username.length() > 0 || phoneNumber != null && phoneNumber.length() > 0) {
                             if(username != null && username.equals(user.getUsername())) {
                                 ret.put("success", "warning");
-                                ret.put("msg", "确定将用户名修改为原来的用户名？");
+                                ret.put("msg1", "405");//未修改用户名
                             }
                             if(phoneNumber != null && phoneNumber.equals(user.getPhoneNumber())) {
                                 ret.put("success", "warning");
                                 if(ret.get("msg") != null)
                                     ret.put("msg", ret.get("msg") + " 确定将手机号修改为原来的手机号？");
                                 else
-                                    ret.put("msg", " 确定将手机号修改为原来的手机号？");
+                                    ret.put("msg1", "401");//未修改手机号
                             }
                             emailAddress = user.getEmailAddress();
                         }
                         else {
                             ret.put("success", "warning");
-                            ret.put("msg", "用户未修改任何信息");
+                            ret.put("msg1", "402");//未修改任何信息
                         }
                     }
                     else {
                         ret.put("success", "false");
-                        ret.put("msg", "手机号已经被注册过");
+                        ret.put("msg1", "403");//手机号被注册过
                         return ret;
                     }
                 }
                 else {
                     ret.put("success", "false");
-                    ret.put("msg", "用户名重复");
+                    ret.put("msg1", "404");//用户名重复
                     return ret;
                 }
             }
             else {
                 ret.put("success", "false");
-                ret.put("msg", "发生未知错误，找不到当前用户");
+                ret.put("msg1", "发生未知错误，找不到当前用户");
                 return ret;
             }
         }
@@ -218,8 +268,52 @@ public class RegisterController {
         return ret;
     }
 
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody Map<String, Object> loginMap) {
+
+        System.out.println("someone try to login");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        System.out.println(session.getId());
+        Map<String, Object> map = new HashMap<>();
+        if(session.getAttribute("userID") != null){
+            map.put("message", "用户已登录！");
+        }
+        else{
+            String username = (String) loginMap.get("username");
+            String password = (String) loginMap.get("password");
+            try {
+                User user = userRepository.findByUsername(username);
+                if (user != null) {
+                    if(user.getPassword().equals(password)){
+                        session.setAttribute("userID", user.getUserID());
+                        session.setAttribute("username", username);
+                        session.setAttribute("password", password);
+                        session.setAttribute("isBanned", user.getIsBanned());
+                        map.put("success", true);
+                        map.put("message", "用户登录成功！");
+                    }
+                    else {
+                        map.put("success", false);
+                        map.put("message", "403"); // 密码错误
+                    }
+                }
+                else {
+                    map.put("success", false);
+                    map.put("message", "404"); // 不存在的用户名，是否注册？
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                map.put("success", false);
+                map.put("message", "405"); // 未知错误
+            }
+        }
+        return map;
+    }
+
     private String generateVC() {
-        char[] dic = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
+        char[] dic = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
         char[] vc = new char[6];
         SecureRandom sr = new SecureRandom();
         for(int i = 0; i < 6; i++) {
