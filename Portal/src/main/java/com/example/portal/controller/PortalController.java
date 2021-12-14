@@ -79,7 +79,7 @@ public class PortalController {
                         author_.add(temp);
                     }
                     essayList.add(new Essay((String)elem.get("id") ,(String)elem.get("title"), author_, (String)elem.get("abstract"),
-                            (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
+                            (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("name"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
                 }
                 essayList.sort((o1, o2) -> o2.getYear() - o1.getYear());
                 List<String> fields = new LinkedList<>(hype.keySet());
@@ -90,23 +90,46 @@ public class PortalController {
                 });
                 ret.put("fields", (T) fields.subList(0, (5 > fields.size()? fields.size() : 5)));
                 ret.put("essayList", (T) essayList);
-                ret.put("relevantAuthor", (T) essayList.get(0).author);
+
+                List<Map<String, Object>> rela = new LinkedList<>();
+                for(Map<String, String> a : essayList.get(0).author) {
+                    Optional<Author> tag = authorRepository.findById(a.get("id"));
+                    Map<String, Object> temp = new HashMap<>();
+                    temp.put("name", a.get("name"));
+                    temp.put("id", a.get("id"));
+                    if(tag.isPresent()) {
+                        temp.put("unit", Arrays.asList(tag.get().getOrg().split(",\\s+")));
+                        BoolQueryBuilder boolQueryBuilder_ = QueryBuilders.boolQuery();
+                        SearchRequest searchRequest_ = new SearchRequest("paper");
+                        SearchSourceBuilder searchSourceBuilder_ = new SearchSourceBuilder();
+                        boolQueryBuilder_.must(QueryBuilders.matchPhraseQuery("authors.id", a.get("id")));
+                        searchSourceBuilder_.query(boolQueryBuilder);
+                        searchSourceBuilder_.size(10000);
+                        searchRequest_.source(searchSourceBuilder);
+                        SearchResponse searchResponse_ = restHighLevelClient.search(searchRequest_, RequestOptions.DEFAULT);
+                        SearchHits searchHits_ = searchResponse_.getHits();
+
+                        Map<String, Integer> hype_ = new HashMap<>();
+                        for(SearchHit sh : searchHits_) {
+                            Map<?,?> elem = sh.getSourceAsMap();
+                            List<String> keywords = (List<String>) elem.get("keywords");
+                            for(String k : keywords) {
+                                if(null != hype.get(k))
+                                    hype_.replace(k, hype.get(k) + 1);
+                                else
+                                    hype_.put(k, 1);
+                            }
+                        }
+                        List<String> fields_ = new ArrayList<>(hype_.keySet());
+                        fields_.sort((o1, o2) -> hype_.get(o2) - hype_.get(o1));
+                        temp.put("fields", fields.subList(0, (3 > fields.size()? fields.size() : 3)));
+                    }
+                    rela.add(temp);
+                }
+                ret.put("relevantAuthor", (T) rela);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-
-
-//            List<Paper> paperList = paperRepository.findAllByAuthorOrderByNCitationDesc(id);
-//            List<Essay> essayList = new LinkedList<>();
-//            for(Paper p : paperList) {
-//                List<Map<?,?>> all = p.getAuthors();
-//                List<String> authors = new LinkedList<>();
-//                for(Map<?,?> cur: all)
-//                    authors.add((String)cur.get("name"));
-//                essayList.add(new Essay(p.getTitle(), authors, p.getAbstract_(), p.getYear(), (String) p.getVenue().get("raw"),
-//                       p.getKeywords()));
-//            }
-//            ret.put("essayList", (T) essayList);
 
         }
         else {
@@ -152,14 +175,9 @@ public class PortalController {
                     author.add(temp);
                 }
                 essayList.add(new Essay((String)elem.get("id") ,(String)elem.get("title"), author, (String)elem.get("abstract"),
-                        (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
+                        (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("name"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
             }
-            essayList.sort(new Comparator<Essay>() {
-                @Override
-                public int compare(Essay o1, Essay o2) {
-                    return o2.getNc() - o1.getNc();
-                }
-            });
+            essayList.sort((o1, o2) -> o2.getNc() - o1.getNc());
             List<String> fields = new LinkedList<>(hype.keySet());
             fields.sort((o1, o2) -> {
                 int i1 = hype.get(o1);
@@ -168,7 +186,42 @@ public class PortalController {
             });
             ret.put("fields", (T) fields.subList(0, (5 > fields.size()? fields.size() : 5)));
             ret.put("essayList", (T) essayList);
-            ret.put("relevantAuthor", (T) essayList.get(0).author);
+            List<Map<String, Object>> rela = new LinkedList<>();
+            for(Map<String, String> a : essayList.get(0).author) {
+                Optional<Author> tag = authorRepository.findById(a.get("id"));
+                Map<String, Object> temp = new HashMap<>();
+                temp.put("name", a.get("name"));
+                temp.put("id", a.get("id"));
+                if(tag.isPresent()) {
+                    temp.put("unit", Arrays.asList(tag.get().getOrg().split(",\\s+")));
+                    BoolQueryBuilder boolQueryBuilder_ = QueryBuilders.boolQuery();
+                    SearchRequest searchRequest_ = new SearchRequest("paper");
+                    SearchSourceBuilder searchSourceBuilder_ = new SearchSourceBuilder();
+                    boolQueryBuilder_.must(QueryBuilders.matchPhraseQuery("authors.id", a.get("id")));
+                    searchSourceBuilder_.query(boolQueryBuilder);
+                    searchSourceBuilder_.size(10000);
+                    searchRequest_.source(searchSourceBuilder);
+                    SearchResponse searchResponse_ = restHighLevelClient.search(searchRequest_, RequestOptions.DEFAULT);
+                    SearchHits searchHits_ = searchResponse_.getHits();
+
+                    Map<String, Integer> hype_ = new HashMap<>();
+                    for(SearchHit sh : searchHits_) {
+                        Map<?,?> elem = sh.getSourceAsMap();
+                        List<String> keywords = (List<String>) elem.get("keywords");
+                        for(String k : keywords) {
+                            if(null != hype.get(k))
+                                hype_.replace(k, hype.get(k) + 1);
+                            else
+                                hype_.put(k, 1);
+                        }
+                    }
+                    List<String> fields_ = new ArrayList<>(hype_.keySet());
+                    fields_.sort((o1, o2) -> hype_.get(o2) - hype_.get(o1));
+                    temp.put("fields", fields.subList(0, (3 > fields.size()? fields.size() : 3)));
+                }
+                rela.add(temp);
+            }
+            ret.put("relevantAuthor", (T) rela);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -211,7 +264,7 @@ public class PortalController {
                     author.add(temp);
                 }
                 essayList.add(new Essay((String)elem.get("id"), (String)elem.get("title"), author, (String)elem.get("abstract"),
-                        (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("raw"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
+                        (Integer) elem.get("year"), (String) ((Map<?,?>)elem.get("venue")).get("name"), (List<String>) elem.get("keywords"), (Integer) elem.get("n_citation")));
             }
             essayList.sort(new Comparator<Essay>() {
                 @Override
@@ -234,7 +287,44 @@ public class PortalController {
                 if(temp.getNc() > target.getNc())
                     target = temp;
             }
-            ret.put("relevantAuthor", (T) target.getAuthor());
+
+            List<Map<String, Object>> rela = new LinkedList<>();
+            for(Map<String, String> a : target.getAuthor()) {
+                Optional<Author> tag = authorRepository.findById(a.get("id"));
+                Map<String, Object> temp = new HashMap<>();
+                temp.put("name", a.get("name"));
+                temp.put("id", a.get("id"));
+                if(tag.isPresent()) {
+                    temp.put("unit", Arrays.asList(tag.get().getOrg().split(",\\s+")));
+                    BoolQueryBuilder boolQueryBuilder_ = QueryBuilders.boolQuery();
+                    SearchRequest searchRequest_ = new SearchRequest("paper");
+                    SearchSourceBuilder searchSourceBuilder_ = new SearchSourceBuilder();
+                    boolQueryBuilder_.must(QueryBuilders.matchPhraseQuery("authors.id", a.get("id")));
+                    searchSourceBuilder_.query(boolQueryBuilder);
+                    searchSourceBuilder_.size(10000);
+                    searchRequest_.source(searchSourceBuilder);
+                    SearchResponse searchResponse_ = restHighLevelClient.search(searchRequest_, RequestOptions.DEFAULT);
+                    SearchHits searchHits_ = searchResponse_.getHits();
+
+                    Map<String, Integer> hype_ = new HashMap<>();
+                    for(SearchHit sh : searchHits_) {
+                        Map<?,?> elem = sh.getSourceAsMap();
+                        List<String> keywords = (List<String>) elem.get("keywords");
+                        for(String k : keywords) {
+                            if(null != hype.get(k))
+                                hype_.replace(k, hype.get(k) + 1);
+                            else
+                                hype_.put(k, 1);
+                        }
+                    }
+                    List<String> fields_ = new ArrayList<>(hype_.keySet());
+                    fields_.sort((o1, o2) -> hype_.get(o2) - hype_.get(o1));
+                    temp.put("fields", fields.subList(0, (3 > fields.size()? fields.size() : 3)));
+                }
+                rela.add(temp);
+            }
+            ret.put("relevantAuthor", (T) rela);
+
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
