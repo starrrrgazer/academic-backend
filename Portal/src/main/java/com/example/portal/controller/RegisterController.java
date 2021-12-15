@@ -291,6 +291,7 @@ public class RegisterController {
                         session.setAttribute("username", username);
                         session.setAttribute("password", password);
                         session.setAttribute("isBanned", user.getIsBanned());
+                        map.put("uid", user.getUserID());
                         map.put("success", true);
                         map.put("message", "用户登录成功！");
                     }

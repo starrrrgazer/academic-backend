@@ -227,7 +227,10 @@ public class PersonalCenterController {
             ret.put("msg", "found no user login");
         }
         else {
+            session.removeAttribute("userID");
             session.removeAttribute("username");
+            session.removeAttribute("isBanned");
+            session.removeAttribute("password");
             ret.put("success", "true");
         }
         return ret;
