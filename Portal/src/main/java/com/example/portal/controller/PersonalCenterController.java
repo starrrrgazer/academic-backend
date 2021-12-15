@@ -214,4 +214,22 @@ public class PersonalCenterController {
         }
         return ret;
     }
+
+    @PostMapping("/logout")
+    public Map<String, Object> logout(@RequestBody Map<String, Object> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+
+        if(session.getAttribute("username") == null) {
+            ret.put("success", "false");
+            ret.put("msg", "found no user login");
+        }
+        else {
+            session.removeAttribute("username");
+            ret.put("success", "true");
+        }
+        return ret;
+    }
 }
