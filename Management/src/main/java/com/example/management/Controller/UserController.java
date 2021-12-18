@@ -40,4 +40,8 @@ public class UserController {
     public Map<String,Object> resetAuthorID(@RequestBody Map<String,Object> map){
         return userService.resetAuthorID(map);
     }
+    @PostMapping("/getAuthor")
+    public Map<String,Object>getAuthor(@RequestBody Map<String,Object> map){
+        return userService.getAuthor(map);
+    }
 }
