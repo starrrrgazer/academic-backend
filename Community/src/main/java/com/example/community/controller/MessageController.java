@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,12 +27,38 @@ public class MessageController {
     MessageRepository messageRepository;
     @Autowired
     UserRepository userRepository;
+
+    public void checkResponseMap(Map<String,Object> response)throws Exception{
+        if(response.containsKey("status") && (int)response.get("status") != 1){
+            throw new Exception("status is " + response.get("status"));
+        }
+    }
+
+    public Map<String,Object> getUserByLogin(Map<String,Object> response){
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+
+        if(session.getAttribute("userID") == null){
+            response.put("status",3);
+        }
+        else{
+            String userID = (String) session.getAttribute("userID");
+            response.put("userID",userID);
+        }
+        return response;
+    }
+
+
     @PostMapping("/sendMessage")
     public Map<String, Object> deleteFollowQuestion(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
+
             String message = (String) req.get("Message");
             String receiverId = (String) req.get("receiverId");
             Message message1 = new Message();
@@ -43,6 +73,9 @@ public class MessageController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -89,7 +122,9 @@ public class MessageController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             List<Map<String,Object>> personList = new ArrayList<>();
             //先根据userID，找到与这个人相关的收发信息
             //作为发送者发送的huo作为接收者收到的
@@ -131,6 +166,9 @@ public class MessageController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -141,7 +179,9 @@ public class MessageController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             String contactID = (String) req.get("personId");
             List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
             for(Message message : messageContactList){
@@ -152,6 +192,9 @@ public class MessageController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
