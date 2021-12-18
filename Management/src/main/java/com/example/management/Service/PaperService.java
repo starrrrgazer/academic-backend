@@ -1,11 +1,7 @@
 package com.example.management.Service;
 
-import com.example.management.Entity.AuthorList;
 import com.example.management.Entity.Paper;
-import com.example.management.Entity.Venue;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;

@@ -25,4 +25,10 @@
         from User
         where authorID = #{authorId}
     </select>
+
+    <update id="deleteAuthorID" parameterType="java.lang.String">
+        update User
+        set authorID = NULL
+        where userID=#{id}
+    </update>
 </mapper>

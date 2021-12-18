@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.management.mapper.QuestionMapper">
+    <select id="getQuestion" parameterType="java.lang.String" resultType="Question">
+        select * from Question
+        where questionID = #{id}
+    </select>
+
+    <delete id="deleteQuestion" parameterType="java.lang.String">
+        delete
+        from Question
+        where questionID=#{id}
+    </delete>
+</mapper>
