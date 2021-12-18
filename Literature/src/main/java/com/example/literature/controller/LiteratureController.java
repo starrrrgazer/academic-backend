@@ -210,12 +210,103 @@ public class LiteratureController {
                 List<String> languageSortList = new ArrayList<String>();
                 List<String> authorSortList = new ArrayList<String>();
                 List<String> organizationSortList = new ArrayList<String>();
-                yearSortList.add("1999(100)");
-                yearSortList.add("2000(100)");
-                authorSortList.add("john(10)");
-                authorSortList.add("jack(32)");
-                organizationSortList.add("buaa(3)");
-                languageSortList.add("English(10)");
+                languageSortList.add("English("+num+")");
+                Map<Integer,Integer> yearmap = new HashMap<>();
+                Map<String,Integer> authormap = new HashMap<>();
+                Map<String,Integer> orgnizationmap = new HashMap<>();
+                for (SearchHit hit:Hits) {
+                    if(!yearmap.containsKey((Integer) hit.getSourceAsMap().get("year"))){
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), 1);
+                    }
+                    else
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), yearmap.get((Integer) hit.getSourceAsMap().get("year"))+1);
+                    List<Map<String,Object>> authorlist = (List<Map<String,Object>>)hit.getSourceAsMap().get("authors");
+                    for (Map<String,Object>author:authorlist) {
+                        if(!authormap.containsKey((String) author.get("name"))){
+                            authormap.put((String) author.get("name"),1);
+                        }
+                        else
+                            authormap.put((String) author.get("name"), authormap.get((String) author.get("name"))+1);
+                    }
+                    for (Map<String,Object>author:authorlist) {
+                        if(!orgnizationmap.containsKey((String) author.get("org"))){
+                            orgnizationmap.put((String) author.get("org"),1);
+                        }
+                        else
+                            orgnizationmap.put((String) author.get("org"), orgnizationmap.get((String) author.get("org"))+1);
+                    }
+                }
+                authormap.remove(null);
+                orgnizationmap.remove(null);
+                int i=0;
+                for(Integer year:yearmap.keySet()){
+                    yearSortList.add(year+"("+yearmap.get(year)+")");
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>10) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>5) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>3) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    authorSortList.add(name + "(" + authormap.get(name) + ")");
+                    i++;
+                }
+                i=0;
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>100) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>30) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>10) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                    i++;
+                }
                 int control = pageNum * pageSize;
                 while (control < pageNum * pageSize + pageSize) {
                     SearchHit hit = Hits[control++];
@@ -670,12 +761,103 @@ public class LiteratureController {
                 List<String> languageSortList = new ArrayList<String>();
                 List<String> authorSortList = new ArrayList<String>();
                 List<String> organizationSortList = new ArrayList<String>();
-                yearSortList.add("1999(100)");
-                yearSortList.add("2000(100)");
-                authorSortList.add("john(10)");
-                authorSortList.add("jack(32)");
-                organizationSortList.add("buaa(3)");
-                languageSortList.add("English(10)");
+                languageSortList.add("English("+num+")");
+                Map<Integer,Integer> yearmap = new HashMap<>();
+                Map<String,Integer> authormap = new HashMap<>();
+                Map<String,Integer> orgnizationmap = new HashMap<>();
+                for (SearchHit hit:Hits) {
+                    if(!yearmap.containsKey((Integer) hit.getSourceAsMap().get("year"))){
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), 1);
+                    }
+                    else
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), yearmap.get((Integer) hit.getSourceAsMap().get("year"))+1);
+                    List<Map<String,Object>> authorlist = (List<Map<String,Object>>)hit.getSourceAsMap().get("authors");
+                    for (Map<String,Object>author:authorlist) {
+                        if(!authormap.containsKey((String) author.get("name"))){
+                            authormap.put((String) author.get("name"),1);
+                        }
+                        else
+                            authormap.put((String) author.get("name"), authormap.get((String) author.get("name"))+1);
+                    }
+                    for (Map<String,Object>author:authorlist) {
+                        if(!orgnizationmap.containsKey((String) author.get("org"))){
+                            orgnizationmap.put((String) author.get("org"),1);
+                        }
+                        else
+                            orgnizationmap.put((String) author.get("org"), orgnizationmap.get((String) author.get("org"))+1);
+                    }
+                }
+                authormap.remove(null);
+                orgnizationmap.remove(null);
+                int i=0;
+                for(Integer year:yearmap.keySet()){
+                    yearSortList.add(year+"("+yearmap.get(year)+")");
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>10) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>5) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>3) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    authorSortList.add(name + "(" + authormap.get(name) + ")");
+                    i++;
+                }
+                i=0;
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>100) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>30) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>10) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                    i++;
+                }
                 int control = pageNum * pageSize;
                 while (control < pageNum * pageSize + pageSize) {
                     SearchHit hit = Hits[control++];
@@ -704,10 +886,10 @@ public class LiteratureController {
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
-                /*map.put("yearSortList",yearSortList);
+                map.put("yearSortList",yearSortList);
                 map.put("languageSortList",languageSortList);
                 map.put("authorSortList",authorSortList);
-                map.put("organizationSortList",organizationSortList);*/
+                map.put("organizationSortList",organizationSortList);
 
             } else {
                 map.put("status", 441);
@@ -992,12 +1174,103 @@ public class LiteratureController {
                 List<String> languageSortList = new ArrayList<String>();
                 List<String> authorSortList = new ArrayList<String>();
                 List<String> organizationSortList = new ArrayList<String>();
-                yearSortList.add("1999(100)");
-                yearSortList.add("2000(100)");
-                authorSortList.add("john(10)");
-                authorSortList.add("jack(32)");
-                organizationSortList.add("buaa(3)");
-                languageSortList.add("English(10)");
+                languageSortList.add("English("+num+")");
+                Map<Integer,Integer> yearmap = new HashMap<>();
+                Map<String,Integer> authormap = new HashMap<>();
+                Map<String,Integer> orgnizationmap = new HashMap<>();
+                for (SearchHit hit:Hits) {
+                    if(!yearmap.containsKey((Integer) hit.getSourceAsMap().get("year"))){
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), 1);
+                    }
+                    else
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), yearmap.get((Integer) hit.getSourceAsMap().get("year"))+1);
+                    List<Map<String,Object>> authorlist = (List<Map<String,Object>>)hit.getSourceAsMap().get("authors");
+                    for (Map<String,Object>author:authorlist) {
+                        if(!authormap.containsKey((String) author.get("name"))){
+                            authormap.put((String) author.get("name"),1);
+                        }
+                        else
+                            authormap.put((String) author.get("name"), authormap.get((String) author.get("name"))+1);
+                    }
+                    for (Map<String,Object>author:authorlist) {
+                        if(!orgnizationmap.containsKey((String) author.get("org"))){
+                            orgnizationmap.put((String) author.get("org"),1);
+                        }
+                        else
+                            orgnizationmap.put((String) author.get("org"), orgnizationmap.get((String) author.get("org"))+1);
+                    }
+                }
+                authormap.remove(null);
+                orgnizationmap.remove(null);
+                int i=0;
+                for(Integer year:yearmap.keySet()){
+                    yearSortList.add(year+"("+yearmap.get(year)+")");
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>10) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>5) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>3) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    authorSortList.add(name + "(" + authormap.get(name) + ")");
+                    i++;
+                }
+                i=0;
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>100) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>30) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>10) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                    i++;
+                }
                 int control = pageNum * pageSize;
                 while (control < pageNum * pageSize + pageSize) {
                     SearchHit hit = Hits[control++];
@@ -1336,12 +1609,103 @@ public class LiteratureController {
                 List<String> languageSortList = new ArrayList<String>();
                 List<String> authorSortList = new ArrayList<String>();
                 List<String> organizationSortList = new ArrayList<String>();
-                yearSortList.add("1999(100)");
-                yearSortList.add("2000(100)");
-                authorSortList.add("john(10)");
-                authorSortList.add("jack(32)");
-                organizationSortList.add("buaa(3)");
-                languageSortList.add("English(10)");
+                languageSortList.add("English("+num+")");
+                Map<Integer,Integer> yearmap = new HashMap<>();
+                Map<String,Integer> authormap = new HashMap<>();
+                Map<String,Integer> orgnizationmap = new HashMap<>();
+                for (SearchHit hit:Hits) {
+                    if(!yearmap.containsKey((Integer) hit.getSourceAsMap().get("year"))){
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), 1);
+                    }
+                    else
+                        yearmap.put((Integer)hit.getSourceAsMap().get("year"), yearmap.get((Integer) hit.getSourceAsMap().get("year"))+1);
+                    List<Map<String,Object>> authorlist = (List<Map<String,Object>>)hit.getSourceAsMap().get("authors");
+                    for (Map<String,Object>author:authorlist) {
+                        if(!authormap.containsKey((String) author.get("name"))){
+                            authormap.put((String) author.get("name"),1);
+                        }
+                        else
+                            authormap.put((String) author.get("name"), authormap.get((String) author.get("name"))+1);
+                    }
+                    for (Map<String,Object>author:authorlist) {
+                        if(!orgnizationmap.containsKey((String) author.get("org"))){
+                            orgnizationmap.put((String) author.get("org"),1);
+                        }
+                        else
+                            orgnizationmap.put((String) author.get("org"), orgnizationmap.get((String) author.get("org"))+1);
+                    }
+                }
+                authormap.remove(null);
+                orgnizationmap.remove(null);
+                int i=0;
+                for(Integer year:yearmap.keySet()){
+                    yearSortList.add(year+"("+yearmap.get(year)+")");
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>10) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>5) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    if(authormap.get(name)>3) {
+                        authorSortList.add(name + "(" + authormap.get(name) + ")");
+                        i++;
+                    }
+                }
+                for(String name:authormap.keySet()){
+                    if(i>100)
+                        break;
+                    authorSortList.add(name + "(" + authormap.get(name) + ")");
+                    i++;
+                }
+                i=0;
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>100) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>30) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    if(orgnizationmap.get(org)>10) {
+                        organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                        i++;
+                    }
+                }
+                for (String org:orgnizationmap.keySet()) {
+                    if(i>100){
+                        break;
+                    }
+                    organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
+                    i++;
+                }
                 int control = pageNum * pageSize;
                 while (control < pageNum * pageSize + pageSize) {
                     SearchHit hit = Hits[control++];
@@ -1370,10 +1734,10 @@ public class LiteratureController {
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
-                /*map.put("yearSortList",yearSortList);
+                map.put("yearSortList",yearSortList);
                 map.put("languageSortList",languageSortList);
                 map.put("authorSortList",authorSortList);
-                map.put("organizationSortList",organizationSortList);*/
+                map.put("organizationSortList",organizationSortList);
 
             } else {
                 map.put("status", 441);
