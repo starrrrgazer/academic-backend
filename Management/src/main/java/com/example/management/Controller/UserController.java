@@ -30,4 +30,14 @@ public class UserController {
     public Map<String,Object> getResearcherList(@RequestBody Map<String,Object> map){
         return userService.getResearcherList(map);
     }
+
+    @PostMapping("/deleteAuthorID")
+    public Map<String,Object> deleteAuthorID(@RequestBody Map<String,Object> map){
+        return userService.deleteAuthorID(map);
+    }
+
+    @PostMapping("/resetAuthorID")
+    public Map<String,Object> resetAuthorID(@RequestBody Map<String,Object> map){
+        return userService.resetAuthorID(map);
+    }
 }

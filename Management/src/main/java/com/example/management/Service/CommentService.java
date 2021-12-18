@@ -18,21 +18,20 @@ public class CommentService {
     private CommentMapper commentMapper;
 
 
-    public Map<String,Object> getCommentList(){
+    public Map<String,Object> getCommentList(Map<String,Object> map){
         Map<String,Object> returnObject = new HashMap<>();
         List<Map<String,Object>> comments= new ArrayList<>();
+        String id = (String) map.get("id");
         try {
-            List<Comment> tmpComments = commentMapper.getCommentList();
-            for (Comment tmpComment : tmpComments){
-                Map<String,Object> tmp = new HashMap<>();
-                tmp.put("commentID",tmpComment.getCommentID());
-                tmp.put("content",tmpComment.getContent());
-                tmp.put("toID",tmpComment.getToID());
-                tmp.put("userID",tmpComment.getUserID());
-                tmp.put("toType",tmpComment.getToType());
-                tmp.put("commentTime",tmpComment.getCommentTime());
-                comments.add(tmp);
-            }
+            Comment tmpComment = commentMapper.getCommentById(id);
+            Map<String,Object> tmp = new HashMap<>();
+            tmp.put("commentID",tmpComment.getCommentID());
+            tmp.put("content",tmpComment.getContent());
+            tmp.put("toID",tmpComment.getToID());
+            tmp.put("userID",tmpComment.getUserID());
+            tmp.put("toType",tmpComment.getToType());
+            tmp.put("commentTime",tmpComment.getCommentTime());
+            comments.add(tmp);
         }catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");

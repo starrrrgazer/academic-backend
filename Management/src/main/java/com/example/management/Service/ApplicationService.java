@@ -92,13 +92,14 @@ public class ApplicationService {
         Map<String,Object> returnObject = new HashMap<>();
         try {
             String applyId = (String) map.get("applyId");
+            String reason = (String) map.get("reason");
             Application a = applicationMapper.getApplicationByID(applyId);
             if (a==null){
                 returnObject.put("status","403");
                 returnObject.put("result","申请不存在");
                 return returnObject;
             }
-            applicationMapper.acceptApply(applyId);
+            applicationMapper.acceptApply(applyId,reason);
         } catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
@@ -114,13 +115,14 @@ public class ApplicationService {
         Map<String,Object> returnObject = new HashMap<>();
         try {
             String applyId = (String) map.get("applyId");
+            String reason = (String) map.get("reason");
             Application a = applicationMapper.getApplicationByID(applyId);
             if (a==null){
                 returnObject.put("status","403");
                 returnObject.put("result","申请不存在");
                 return returnObject;
             }
-            applicationMapper.rejectApply(applyId);
+            applicationMapper.rejectApply(applyId,reason);
         } catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");

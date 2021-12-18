@@ -15,8 +15,8 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/getCommentList")
-    public Map<String,Object> getCommentList(){
-        return commentService.getCommentList();
+    public Map<String,Object> getCommentList(@RequestBody Map<String,Object>map){
+        return commentService.getCommentList(map);
     }
 
     @PostMapping("/deleteComment")

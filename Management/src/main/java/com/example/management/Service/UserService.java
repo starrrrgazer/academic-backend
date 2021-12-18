@@ -6,8 +6,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -111,6 +114,69 @@ public class UserService {
         returnObject.put("status","200");
         returnObject.put("result","成功");
         returnObject.put("researcherList",researcher);
+        return returnObject;
+    }
+
+    public Map<String,Object> deleteAuthorID(Map<String,Object> map){
+        Map<String,Object> returnObject = new HashMap<>();
+        try {
+            String id = (String) map.get("id");
+            userMapper.deleteAuthorID(id);
+        }catch (Exception e) {
+            returnObject.put("status","403");
+            returnObject.put("result","未知错误");
+        }
+        returnObject.put("status","200");
+        returnObject.put("result","成功");
+        return returnObject;
+    }
+
+    public Map<String,Object> resetAuthorID(Map<String,Object> map){
+        Map<String,Object> returnObject = new HashMap<>();
+        try{
+            String authorID = (String) map.get("authorID");
+            String userID = (String) map.get("userID");
+            UpdateRequest updateRequest = new UpdateRequest();
+            updateRequest.index("author").id(authorID);
+            updateRequest.doc(XContentType.JSON,"userID",userID);
+            restHighLevelClient.update(updateRequest,RequestOptions.DEFAULT);
+
+        }catch (Exception e){
+            returnObject.put("status","403");
+            returnObject.put("result","未知错误");
+        }
+        returnObject.put("status","200");
+        returnObject.put("result","成功");
+        return returnObject;
+    }
+
+    public Map<String,Object> getAuthor(Map<String,Object> map){
+        String id = (String) map.get("id");
+        Map<String,Object> returnObject = new HashMap<>();
+        List<Map<String,Object>> authors = new ArrayList<>();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        SearchRequest searchRequest = new SearchRequest("author");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        boolQueryBuilder.must(QueryBuilders.matchPhraseQuery("id", id));
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.size(10000);
+        searchRequest.source(searchSourceBuilder);
+        try{
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchHit[] Hits = searchHits.getHits();
+            SearchHit hit = Hits[0];
+            Map<String,Object> tmp = new HashMap<>();
+            tmp.put("name",hit.getSourceAsMap().get("name"));
+            tmp.put("orgs",hit.getSourceAsMap().get("orgs"));
+            authors.add(tmp);
+        } catch (Exception e) {
+            returnObject.put("status","403");
+            returnObject.put("result","未知错误");
+        }
+        returnObject.put("status","200");
+        returnObject.put("result","处理成功");
+        returnObject.put("author",authors);
         return returnObject;
     }
 }

@@ -10,7 +10,7 @@ public interface ApplicationMapper {
     int setAuthorUser(String AuthorId,String userID);
     Application getApplicationByAuthorID(String authorId);
     List<Application> getApplyList();
-    void acceptApply(String applyId);
+    void acceptApply(String applyId,String reason);
     Application getApplicationByID(String applicationID);
-    void rejectApply(String applyId);
+    void rejectApply(String applyId,String reason);
 }

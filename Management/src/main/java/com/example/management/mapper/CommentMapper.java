@@ -7,7 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface CommentMapper {
-    List<Comment> getCommentList();
     void deleteComment(String commentId);
     Comment getCommentById(String commentId);
 }
