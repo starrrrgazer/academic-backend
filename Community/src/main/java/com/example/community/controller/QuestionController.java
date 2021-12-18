@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -37,6 +38,20 @@ public class QuestionController {
     @Autowired
     UserRepository userRepository;
 
+    public Map<String,Object> getUserByLogin(Map<String,Object> response){
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+
+        if(session.getAttribute("userID") == null){
+            response.put("status",3);
+        }
+        else{
+            String userID = (String) session.getAttribute("userID");
+            response.put("userID",userID);
+        }
+        return response;
+    }
 
     @PostMapping("/getSocietyInformation")
     public Map<String, Object> getSocietyInformation(@RequestBody Map<String,Object> req){
@@ -55,6 +70,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -112,6 +130,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -119,8 +140,8 @@ public class QuestionController {
     }
 
     public void checkResponseMap(Map<String,Object> response)throws Exception{
-        if((int)response.get("status") != 1){
-            throw new Exception("status is not 1");
+        if(response.containsKey("status") && (int)response.get("status") != 1){
+            throw new Exception("status is " + response.get("status"));
         }
     }
 
@@ -141,7 +162,9 @@ public class QuestionController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try{
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             response = putUserInfoToResponseMap(response,userID);
             checkResponseMap(response);
 
@@ -166,7 +189,11 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
+
             return response;
         }
     }
@@ -176,7 +203,9 @@ public class QuestionController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try{
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             response = putUserInfoToResponseMap(response,userID);
             checkResponseMap(response);
 
@@ -191,6 +220,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -201,7 +233,9 @@ public class QuestionController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try{
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             response = putUserInfoToResponseMap(response,userID);
             checkResponseMap(response);
 
@@ -221,6 +255,11 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+//            System.out.println("here2");
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+//                System.out.println("here");
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -231,7 +270,9 @@ public class QuestionController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try{
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             response = putUserInfoToResponseMap(response,userID);
             checkResponseMap(response);
 
@@ -251,6 +292,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -303,7 +347,6 @@ public class QuestionController {
             * searchText,如果为关键词搜索，此处为关键词
             * searchListType,Int,是在哪个列表进行搜索，1为allQuestionList，2为recommendedQuestionList，3为askedQuestionList，4为answeredQuestionList，5为followQuestionList
             * */
-            String userID = (String) req.get("userID");
             int searchType = (int) req.get("searchType");
             int searchListType = (int) req.get("searchListType");
             String searchText = null;
@@ -320,6 +363,9 @@ public class QuestionController {
                 questions = questionRepository.findAll();
             }
             else if (searchListType == 2){
+                response = getUserByLogin(response);
+                checkResponseMap(response);
+                String userID = (String) response.get("userID");
                 List<UserTags> userTags = userTagRepository.findAllByUserID(userID);
                 for(UserTags userTag : userTags){
                     int tagsID = userTag.getTagsID();
@@ -331,12 +377,18 @@ public class QuestionController {
                     }
                 }
                 questions = sortQuestionsByTime(questions);
-                searchInQuestionList(questions,searchType,searchText);
+//                searchInQuestionList(questions,searchType,searchText);
             }
             else if (searchListType == 3){
+                response = getUserByLogin(response);
+                checkResponseMap(response);
+                String userID = (String) response.get("userID");
                 questions = questionRepository.findAllByUserID(userID);
             }
             else if (searchListType == 4){
+                response = getUserByLogin(response);
+                checkResponseMap(response);
+                String userID = (String) response.get("userID");
                 List<QuestionAnswer> questionAnswers = questionAnswerRepository.findAllByUserID(userID);
                 questions = new ArrayList<>();
                 for(QuestionAnswer questionAnswer : questionAnswers){
@@ -345,6 +397,9 @@ public class QuestionController {
                 }
             }
             else if (searchListType == 5){
+                response = getUserByLogin(response);
+                checkResponseMap(response);
+                String userID = (String) response.get("userID");
                 List<QuestionFollow> questionFollows = questionFollowRepository.findAllByUserID(userID);
                 questions = new ArrayList<>();
                 for(QuestionFollow questionFollow : questionFollows){
@@ -360,13 +415,16 @@ public class QuestionController {
             List<Map<String,Object>> questionList = new ArrayList<>();
             questions = sortQuestionsByTime(questions);
             for(Question question:questions){
-                questionList.add(putQuestionMap(question,userID));
+                questionList.add(putQuestionMap(question,"userID"));
             }
             response.put("status",1);
             response.put("questionList",questionList);
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -374,7 +432,10 @@ public class QuestionController {
 
     public Question createQuestion(Map<String,Object> req)throws Exception{
         try {
-            String userID = (String) req.get("userID");
+            Map<String,Object> response = new HashMap<>();
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             String questionTitle = (String) req.get("questionTitle");
             String questionInformation = (String) req.get("questionInformation");
 
@@ -427,6 +488,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -438,7 +502,9 @@ public class QuestionController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             List<Integer> skillList = (List<Integer>) req.get("skillList");
             int deleteNum = userTagRepository.deleteAllByUserID(userID);
             System.out.println("deleteNum is : " + deleteNum);
@@ -454,6 +520,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -503,6 +572,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -510,7 +582,10 @@ public class QuestionController {
 
     public QuestionAnswer createQuestionAnswer(Map<String,Object> req)throws Exception{
         try {
-            String userID = (String) req.get("userID");
+            Map<String,Object> response = new HashMap<>();
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             int questionID = (int) req.get("questionId");
             String answerContent = (String) req.get("answer");
 
@@ -549,6 +624,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -570,6 +648,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -587,6 +668,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -598,7 +682,9 @@ public class QuestionController {
         Map<String,Object> response = new HashMap<>();
         try {
             int questionID = (int) req.get("questionId");
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             QuestionFollow questionFollow = new QuestionFollow();
             questionFollow.setQuestionID(questionID);
             questionFollow.setUserID(userID);
@@ -607,6 +693,9 @@ public class QuestionController {
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
@@ -620,13 +709,18 @@ public class QuestionController {
         Map<String,Object> response = new HashMap<>();
         try {
             int questionID = (int) req.get("questionId");
-            String userID = (String) req.get("userID");
+            response = getUserByLogin(response);
+            checkResponseMap(response);
+            String userID = (String) response.get("userID");
             QuestionFollow questionFollow = questionFollowRepository.findByQuestionIDAndUserID(questionID,userID);
             questionFollowRepository.deleteById(questionFollow.getId());
             response.put("status",1);
             return response;
         }catch (Exception e){
             e.printStackTrace();
+            if( response.containsKey("status") && (int)response.get("status") == 3){
+                return response;
+            }
             response.put("status",2);
             return response;
         }
