@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface AuthorRepository extends ElasticsearchRepository<Author, String> {
     Optional<Author> findById(String id);
+    List<Author> findAllByName(String name);
 }

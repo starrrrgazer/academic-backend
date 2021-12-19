@@ -8,11 +8,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, String> {
     User findByUsername(String username);
-    User findByEmailAddress(String emailAdress);
+    User findByEmailAddress(String emailAddress);
     User findByUserID(String uid);
     User findByPhoneNumber(String phoneNum);
+    User findByAuthorID(String authorID);
 
     @Transactional
     @Modifying
@@ -28,4 +29,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying
     @Query(value = "update User set phoneNumber=?2 where username=?1",nativeQuery = true)
     void updatePhoneNumber(String username, String phoneNumber);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update User set authorID=?2 where userID=?1", nativeQuery = true)
+    void updateAuthorID(String userID, String authorID);
 }
