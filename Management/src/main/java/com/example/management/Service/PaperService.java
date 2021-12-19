@@ -162,6 +162,7 @@ public class PaperService {
             tmp.put("doi",hit.getSourceAsMap().get("doi"));
             tmp.put("pdf", hit.getSourceAsMap().get("pdf"));
             tmp.put("venue", hit.getSourceAsMap().get("venue"));
+            tmp.put("url", hit.getSourceAsMap().get("url"));
             papers.add(tmp);
         } catch (Exception e) {
             returnObject.put("status","403");
