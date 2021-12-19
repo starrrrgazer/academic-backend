@@ -1369,10 +1369,11 @@ public class LiteratureController {
         int type = (int) params.get("type");
         String id = (String) params.get("paperid");
         Report rep = new Report();
-        rep.setProcesserID(userid);
+//        rep.setProcesserID(userid);
         rep.setContent(context);
         rep.setType(type);
         rep.setReporteeID12(id);
+        rep.setUserID(userid);
         rep.setReportTime(new Timestamp (new Date().getTime()));
         map.put("status", 200);
         reportRepository.save(rep);

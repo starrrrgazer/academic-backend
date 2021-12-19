@@ -239,6 +239,7 @@ public class PersonalCenterController {
             session.removeAttribute("username");
             session.removeAttribute("isBanned");
             session.removeAttribute("password");
+            session.invalidate();
             ret.put("success", "true");
         }
         return ret;
