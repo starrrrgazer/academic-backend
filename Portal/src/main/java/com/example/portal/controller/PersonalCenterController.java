@@ -93,6 +93,13 @@ public class PersonalCenterController {
                                 userRepository.updatePhoneNumber(origin_username, phoneNumber);
                                 ret.put("msg", " 手机号修改成功");
                             }
+                            if(arg.get("organization") != null) {
+                                userRepository.updateOrganization(origin_username, (String) arg.get("organization"));
+                                if(ret.get("msg") != null)
+                                    ret.put("msg", ret.get("msg") + " 所属机构修改成功");
+                                else
+                                    ret.put("msg", "所属机构修改成功");
+                            }
                             if(username.length() > 0) {
                                 userRepository.updateUsername(origin_username, username);
                                 session.setAttribute("username", username);
