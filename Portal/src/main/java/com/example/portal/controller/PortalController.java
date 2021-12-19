@@ -1,7 +1,13 @@
 package com.example.portal.controller;
 
+import com.example.portal.dao.ApplicationRepository;
 import com.example.portal.dao.AuthorRepository;
+import com.example.portal.dao.PaperRepository;
+import com.example.portal.dao.UserRepository;
+import com.example.portal.entity.Application;
 import com.example.portal.entity.Author;
+import com.example.portal.entity.Paper;
+import com.example.portal.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.tomcat.util.collections.ManagedConcurrentWeakHashMap;
@@ -16,9 +22,15 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.DelegatingServerHttpResponse;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -32,6 +44,14 @@ public class PortalController {
     @Autowired
     RestHighLevelClient restHighLevelClient;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
+
+    @Autowired
+    PaperRepository paperRepository;
 
     @PostMapping("/getUserInfo")
     public <T extends Object> Map<String, T> getUserInfo(@RequestBody Map<String, String> remap) {
@@ -127,6 +147,21 @@ public class PortalController {
                     rela.add(temp);
                 }
                 ret.put("relevantAuthor", (T) rela);
+
+                RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+                HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+                HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+                String username = (String) session.getAttribute("username");
+
+                if(username == null)
+                    ret.put("ifself", (T) "-1");
+                else {
+                    User user = userRepository.findByUsername(username);
+                    if(user.getAuthorID() == author.getId())
+                        ret.put("ifself", (T) "1");
+                    else
+                        ret.put("ifself", (T) "0");
+                }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -138,7 +173,6 @@ public class PortalController {
         }
         return ret;
     }
-
 
     @PostMapping("/getHighCiteList/{aid}")
     public <T extends Object> Map<String, T> getHighCiteList(HttpServletRequest request, @PathVariable("aid") String aid) {
@@ -331,6 +365,204 @@ public class PortalController {
         return ret;
     }
 
+    @PostMapping("/ifCertificate")
+    public Map<String, Object> checkCertification(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String userID = arg.get("uid");
+        User user = userRepository.findByUserID(userID);
+        if(user.getAuthorID() ==  null)
+            ret.put("msg", "200");
+        else{
+            ret.put("msg", "201");
+            ret.put("authorid", user.getAuthorID());
+        }
+        return ret;
+    }
+
+    @PostMapping("/applycertificate")
+    public Map<String, Object> applyCertification(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String uid = arg.get("uid");
+        String aid = arg.get("authorid");
+
+        if(arg.get("workCard1") !=  null) {
+            String image_base64 = arg.get("workCard1").trim();
+            int index = image_base64.indexOf("base64,") + 7;
+            String newImage = image_base64.substring(index);
+            Base64.Decoder decoder = Base64.getDecoder();
+            byte[] imageBuf = decoder.decode(newImage);
+
+            String path = "/static/certification";
+            String name = path + "/workcard" + uid + ".jpg";
+            File workCard = new File(name);
+            File workCardPath = new File(path);
+            if(!workCardPath.exists())
+                workCardPath.mkdirs();
+            try {
+                if(!workCard.exists())
+                    workCard.createNewFile();
+                FileOutputStream out = new FileOutputStream(workCard);
+                out.write(imageBuf);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        User user = userRepository.findByUserID(uid);
+        User origin = userRepository.findByAuthorID(aid);
+        if(user != null && origin == null) {
+            userRepository.updateAuthorID(uid, aid);
+            ret.put("msg", "200");
+        }
+        else {
+            ret.put("msg", "201");
+            if(user == null)
+                ret.put("warning", "Unknown Error");
+        }
+        return ret;
+    }
+
+    @PostMapping("/portalCert")
+    public Map<String, Object> checkPortalCertification(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String authorID = arg.get("authorid");
+        User user = userRepository.findByAuthorID(authorID);
+        if(user == null)
+            ret.put("msg", "200");
+        else
+            ret.put("msg", "201");
+        return  ret;
+    }
+
+    @PostMapping("/applyconflict")
+    public Map<String, Object> applyConflict(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String uid = arg.get("uid");
+        String emailAddress = arg.get("emailAddress");
+        String phoneNumber = arg.get("phoneNumber2");
+        String authorID = arg.get("authorid");
+
+        if(arg.get("workCard2") !=  null) {
+            String image_base64 = arg.get("workCard2").trim();
+            int index = image_base64.indexOf("base64,") + 7;
+            String newImage = image_base64.substring(index);
+            Base64.Decoder decoder = Base64.getDecoder();
+            byte[] imageBuf = decoder.decode(newImage);
+
+            String path = "/static/certification";
+            String name = path + "/workcard" + uid + ".jpg";
+            File workCard = new File(name);
+            File workCardPath = new File(path);
+            if(!workCardPath.exists())
+                workCardPath.mkdirs();
+            try {
+                if(!workCard.exists())
+                    workCard.createNewFile();
+                FileOutputStream out = new FileOutputStream(workCard);
+                out.write(imageBuf);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            ret.put("msg", "201");
+            return ret;
+        }
+
+        User origin = userRepository.findByAuthorID(authorID);
+        User applier = userRepository.findByUserID(uid);
+        if(origin == null || applier == null) {
+            ret.put("msg", "201");
+            return ret;
+        }
+        Application application = new Application();
+        application.setEmailAddress(emailAddress);
+        application.setAuthorID(authorID);
+        application.setPhoneNumber1(phoneNumber);
+        application.setPhoneNumber2(origin.getPhoneNumber());
+        application.setType(2);
+        application.setWorkCard1("/static/certification/workcard" + uid + ".jpg");
+        application.setWorkCard2("/static/certification/workcard" + origin.getUserID() + ".jpg");
+        application.setApplicationTime(new java.sql.Date(new Date().getTime()));
+
+        applicationRepository.save(application);
+
+        ret.put("msg", "200");
+        return ret;
+    }
+
+    @PostMapping("/addarticle")
+    public Map<String, Object> addArticle(@RequestBody Map<String, Object> arg) {
+        Map<String, Object> ret = new HashMap<>();
+
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String username = (String) session.getAttribute("username");
+
+        User current = userRepository.findByUsername(username);
+        if(current == null || !current.getAuthorID().equals(arg.get("authorid"))) {
+            ret.put("msg", "201");
+            return ret;
+        }
+        Paper paper = new Paper();
+        paper.setTitle((String) arg.get("title"));
+        paper.setKeywords((ArrayList<String>) arg.get("keywords"));
+        paper.setYear((int) arg.get("year"));
+        paper.setAbstract_((String) arg.get("abstract"));
+        Map<String, String> venue = new HashMap<>();
+        venue.put("name", (String) arg.get("source"));
+        List<String> authors = (List<String>) arg.get("name");
+        ArrayList<Map<?,?>> authors_ = new ArrayList<>();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        SearchRequest searchRequest = new SearchRequest("paper");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        boolQueryBuilder.must(QueryBuilders.matchPhraseQuery("venue.name", arg.get("name")));
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.size(10000);
+        searchRequest.source(searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchHit sh = searchHits.getAt(0);
+            Map<?,?> elem = sh.getSourceAsMap();
+            Map<?,?> venue_ = (Map<?,?>) elem.get("venue");
+            venue.put("id", (String) venue_.get("id"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        paper.setVenue(venue);
+
+        for(String name : authors) {
+            List<Author> result = authorRepository.findAllByName(name);
+            if(result.size() == 1) {
+                Map<String, String> info = new HashMap<>();
+                info.put("name", name);
+                info.put("id", result.get(0).getId());
+                authors_.add(info);
+            }
+            else {
+                Map<String, String> info = new HashMap<>();
+                info.put("name", name);
+                info.put("id", null);
+                authors_.add(info);
+            }
+        }
+        paper.setAuthors(authors_);
+        paperRepository.save(paper);
+        ret.put("msg", "200");
+        return ret;
+    }
+
+//    @PostMapping("/ifShow")
+//    public Map<String, Object> hideOrShow(@RequestBody Map<String, String> arg) {
+//
+//    }
 }
 
 @Data

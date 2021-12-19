@@ -6,6 +6,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import java.util.Map;
 @Document(indexName = "paper")
 public class Paper {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Field(name = "id", type = FieldType.Keyword)
     private String id;
 
