@@ -44,4 +44,8 @@ public class UserController {
     public Map<String,Object>getAuthor(@RequestBody Map<String,Object> map){
         return userService.getAuthor(map);
     }
+    @PostMapping("/getOrganization")
+    public Map<String,Object> getOrganization(@RequestBody Map<String,Object> map){
+        return userService.getOrganization(map);
+    }
 }

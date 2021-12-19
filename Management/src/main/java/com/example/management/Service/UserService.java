@@ -179,4 +179,21 @@ public class UserService {
         returnObject.put("author",authors);
         return returnObject;
     }
+
+
+    public Map<String,Object> getOrganization(Map<String,Object> map){
+        Map<String,Object> returnObject = new HashMap<>();
+        try {
+            String id = (String) map.get("id");
+            String organization = userMapper.getOrganization(id);
+            returnObject.put("organization",organization);
+        }catch (Exception e){
+            e.printStackTrace();
+            returnObject.put("status","403");
+            returnObject.put("result","未知错误");
+        }
+        returnObject.put("status","200");
+        returnObject.put("result","处理成功");
+        return returnObject;
+    }
 }
