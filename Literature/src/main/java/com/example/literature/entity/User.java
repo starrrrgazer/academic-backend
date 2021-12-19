@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "User")
@@ -51,7 +52,7 @@ public class User {
     private int isBanned;
 
     @Column(name = "unblockTime")
-    private DateTime unblockTime;
+    private Timestamp unblockTime;
 
     public String getUserID() {
         return userID;
@@ -157,11 +158,11 @@ public class User {
         this.isBanned = isBanned;
     }
 
-    public DateTime getUnblockTime() {
+    public Timestamp getUnblockTime() {
         return unblockTime;
     }
 
-    public void setUnblockTime(DateTime unblockTime) {
+    public void setUnblockTime(Timestamp unblockTime) {
         this.unblockTime = unblockTime;
     }
 }

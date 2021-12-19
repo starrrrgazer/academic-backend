@@ -2,16 +2,15 @@ package com.example.literature.entity;
 
 import org.joda.time.DateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Comment")
 public class Comment {
     @Id
     @Column(name = "commentID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String commentID;
 
     @Column(name = "content")
@@ -27,7 +26,7 @@ public class Comment {
     private int toType;
 
     @Column(name = "commentTime")
-    private DateTime commentTime;
+    private Timestamp commentTime;
 
     @Column(name = "commentTitle")
     private String commentTitle;
@@ -80,11 +79,11 @@ public class Comment {
         this.toType = toType;
     }
 
-    public DateTime getCommentTime() {
+    public Timestamp getCommentTime() {
         return commentTime;
     }
 
-    public void setCommentTime(DateTime commentTime) {
+    public void setCommentTime(Timestamp commentTime) {
         this.commentTime = commentTime;
     }
 }

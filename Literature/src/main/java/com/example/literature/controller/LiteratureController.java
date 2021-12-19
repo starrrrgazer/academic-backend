@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
@@ -340,6 +341,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
@@ -501,9 +504,12 @@ public class LiteratureController {
                 for (Comment com:commentList) {
                     Map<String,Object> map1 = new HashMap<>();
                     map1.put("context",com.getContent());
-                    map1.put("time",com.getCommentTime());
+                    String strDateFormat = "yyyy-MM-dd HH:mm";
+                    SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+                    map1.put("time",sdf.format(com.getCommentTime()));
                     map1.put("id",com.getCommentID());
-                    map1.put("name",(userRepository.findByUserID(com.getUserID())).getUsername());
+                    User user = (userRepository.findByUserID(com.getUserID()));
+                    map1.put("name",user.getUsername());
                     list.add(map1);
                 }
                 map.put("commentList",list);
@@ -907,6 +913,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
@@ -1326,6 +1334,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
@@ -1350,7 +1360,7 @@ public class LiteratureController {
        // HttpSession session = request.getSession();
         String context = (String) params.get("context");
         int type = (int) params.get("type");
-        String id = (String) params.get("id");
+        String id = (String) params.get("paperid");
         Report rep = new Report();
         rep.setContent(context);
         rep.setType(type);
@@ -1364,14 +1374,16 @@ public class LiteratureController {
     @PostMapping("/writeComment")
     public Map<String, Object> writeComment(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
+        System.out.println(params);
         String context = (String) params.get("context");
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request1 = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
-        String userid = (String) session.getAttribute("id");
+        String userid = (String) session.getAttribute("userID");
+        System.out.println("userID is :" + userid + "/n session id is: " + session.getId());
         String paperid = (String) params.get("paperid");
         Comment comment = new Comment();
-        comment.setCommentTime(new DateTime(new Date().getTime()));
+        comment.setCommentTime(new Timestamp(System.currentTimeMillis()));
         comment.setContent(context);
         comment.setUserID(userid);
         comment.setToID(paperid);
@@ -1769,6 +1781,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
