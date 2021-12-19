@@ -1823,7 +1823,10 @@ public class LiteratureController {
                 author.put("id",(String)Hits[i].getSourceAsMap().get("id"));
                 author.put("org",(String)Hits[i].getSourceAsMap().get("org"));
                 author.put("position",(String)Hits[i].getSourceAsMap().get("position"));
+                if(Hits[i].getSourceAsMap().get("n_citation")!=null)
                 author.put("citation",(int)Hits[i].getSourceAsMap().get("n_citation"));
+                else
+                    author.put("citation",0);
                 ArrayList<String> skills  = new ArrayList<>();
                 ArrayList<Map<String,Object>> tags = (ArrayList<Map<String,Object>>)Hits[i].getSourceAsMap().get("tags");
                 int p = 0;
