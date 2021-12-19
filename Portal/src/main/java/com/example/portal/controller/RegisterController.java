@@ -50,12 +50,12 @@ public class RegisterController {
             String username = (String) arg.get("username");
             if(userRepository.findByUsername(username) != null) {
                 ret.put("success", "false");
-                ret.put("msg", "用户名已被注册");
+                ret.put("msg", "201");// 用户名已被注册
                 return ret;
             }
             else if(userRepository.findByEmailAddress(emailAddress) != null) {
                 ret.put("success", "false");
-                ret.put("msg", "邮箱已被注册");
+                ret.put("msg", "202");//邮箱已被注册
                 return ret;
             }
         }
@@ -249,21 +249,21 @@ public class RegisterController {
                     userRepository.save(newUser);
 
                     ret.put("success", "true");
-                    ret.put("msg", "注册成功，即将转到登陆页面");
+                    ret.put("msg", "201"); // 注册成功
                 }
                 else {
                     ret.put("success", "false");
-                    ret.put("msg", "邮箱重复");
+                    ret.put("msg", "202"); // 验证码错误
                 }
             }
             else {
                 ret.put("success", "false");
-                ret.put("msg", "验证码错误");
+                ret.put("msg", "203"); // 邮箱重复
             }
         }
         else {
             ret.put("success", "false");
-            ret.put("msg", "用户名重复");
+            ret.put("msg", "204"); // 用户名重复
         }
         return ret;
     }
