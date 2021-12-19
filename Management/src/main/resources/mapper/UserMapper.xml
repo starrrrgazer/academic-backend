@@ -29,7 +29,7 @@
     <update id="deleteAuthorID" parameterType="java.lang.String">
         update User
         set authorID = NULL
-        where userID=#{id}
+        where authorID=#{id}
     </update>
 
     <select id="getOrganization" parameterType="java.lang.String" resultType="java.lang.String">

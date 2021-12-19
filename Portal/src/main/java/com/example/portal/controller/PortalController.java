@@ -495,6 +495,7 @@ public class PortalController {
         return ret;
     }
 
+    // An aborted api
     @PostMapping("/addarticle")
     public Map<String, Object> addArticle(@RequestBody Map<String, Object> arg) {
         Map<String, Object> ret = new HashMap<>();
@@ -559,10 +560,29 @@ public class PortalController {
         return ret;
     }
 
-//    @PostMapping("/ifShow")
-//    public Map<String, Object> hideOrShow(@RequestBody Map<String, String> arg) {
-//
-//    }
+    @PostMapping("/ifShow")
+    public Map<String, Object> hideOrShow(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String essayID = arg.get("articleid");
+        Optional<Paper> paper_ = paperRepository.findById(essayID);
+        if(!paper_.isPresent()) {
+            ret.put("msg", "201");
+            return ret;
+        }
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String username = (String) session.getAttribute("username");
+
+        User current = userRepository.findByUsername(username);
+        if(current == null || !current.getAuthorID().equals(paper_.get().getAuthors().get(0).get("id"))) {
+            ret.put("msg", "201");
+            return ret;
+        }
+        paperRepository.deleteById(essayID);
+        ret.put("msg", "200");
+        return ret;
+    }
 }
 
 @Data
