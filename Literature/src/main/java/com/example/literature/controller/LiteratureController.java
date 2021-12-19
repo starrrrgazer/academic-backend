@@ -341,6 +341,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
@@ -911,6 +913,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
@@ -1330,6 +1334,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
@@ -1775,6 +1781,8 @@ public class LiteratureController {
                     map1.put("venue", hit.getSourceAsMap().get("venue"));
                     map1.put("id", hit.getSourceAsMap().get("id"));
                     map1.put("year", hit.getSourceAsMap().get("year"));
+                    //update here
+                    map1.put("citation",hit.getSourceAsMap().get("n_citation"));
                     paperList.add(map1);
                 }
                 map.put("paperList", paperList);
