@@ -20,6 +20,8 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -1362,8 +1364,10 @@ public class LiteratureController {
     @PostMapping("/writeComment")
     public Map<String, Object> writeComment(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
-        HttpSession session = request.getSession();
         String context = (String) params.get("context");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request1 = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
         String userid = (String) session.getAttribute("id");
         String paperid = (String) params.get("paperid");
         Comment comment = new Comment();
@@ -1783,14 +1787,15 @@ public class LiteratureController {
     }
     @PostMapping("/searchAuthor")
     public Map<String, Object> searchAuthor(@RequestBody Map<String, Object> params) {
-        String condition = (String)params.get("condition");
+        String condition = "*"+(String)params.get("condition")+"*";
         int pageNum = (int)params.get("pageNum");
+        System.out.println(condition+pageNum);
         Map<String, Object> map = new HashMap<String, Object>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         //建空查询
         SearchRequest searchRequest = new SearchRequest("author");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        boolQueryBuilder.must(QueryBuilders.termQuery("name", condition));
+        boolQueryBuilder.should(QueryBuilders.wildcardQuery("name",condition));
         //增加查询条件
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -1812,7 +1817,7 @@ public class LiteratureController {
             else{
                 allpage = allnum/20 + 1;
             }
-              for(int i = (pageNum-1)*20;i<pageNum*20;i++) {
+              for(int i = (pageNum-1)*20;i<pageNum*20&&i<allnum;i++) {
                 Map<String,Object> author = new HashMap<>();
                 author.put("name",(String)Hits[i].getSourceAsMap().get("name"));
                 author.put("id",(String)Hits[i].getSourceAsMap().get("id"));
