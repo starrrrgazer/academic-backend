@@ -359,13 +359,20 @@ public class LiteratureController {
 
 
     @PostMapping("/recommendPaper")
-    public Map<String, Object> recommendPaper() {
+    public Map<String, Object> recommendPaper(@RequestBody Map<String, Object> params) {
+        int type = (int)params.get("type");
         Map<String, Object> map = new HashMap<String, Object>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         //建空查询
         SearchRequest searchRequest = new SearchRequest("paper");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        if(type == 1)
         boolQueryBuilder.must(QueryBuilders.termQuery("year", 2020));
+        else{
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("n_citation")
+                    .gte(10000)
+                    .lte(100000));
+        }
         //增加查询条件
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(300);
@@ -1774,7 +1781,65 @@ public class LiteratureController {
         }
         return map;
     }
+    @PostMapping("/searchAuthor")
+    public Map<String, Object> searchAuthor(@RequestBody Map<String, Object> params) {
+        String condition = (String)params.get("condition");
+        int pageNum = (int)params.get("pageNum");
+        Map<String, Object> map = new HashMap<String, Object>();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        //建空查询
+        SearchRequest searchRequest = new SearchRequest("author");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        boolQueryBuilder.must(QueryBuilders.termQuery("name", condition));
+        //增加查询条件
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.size(10000);
+        searchRequest.source(searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchHit[] Hits = searchHits.getHits();
+            int allnum = Hits.length;
+            if(allnum==0){
+                map.put("status",441);
+                return map;
+            }
+            ArrayList<Map<String,Object>> authorlist = new ArrayList<>();
+            int allpage;
+            if(allnum%20==0){
+                allpage = allnum/20;
+            }
+            else{
+                allpage = allnum/20 + 1;
+            }
+              for(int i = (pageNum-1)*20;i<pageNum*20;i++) {
+                Map<String,Object> author = new HashMap<>();
+                author.put("name",(String)Hits[i].getSourceAsMap().get("name"));
+                author.put("id",(String)Hits[i].getSourceAsMap().get("id"));
+                author.put("org",(String)Hits[i].getSourceAsMap().get("org"));
+                author.put("position",(String)Hits[i].getSourceAsMap().get("position"));
+                author.put("citation",(int)Hits[i].getSourceAsMap().get("n_citation"));
+                ArrayList<String> skills  = new ArrayList<>();
+                ArrayList<Map<String,Object>> tags = (ArrayList<Map<String,Object>>)Hits[i].getSourceAsMap().get("tags");
+                int p = 0;
+                  for (Map<String,Object> tag:tags) {
+                      if(p++>2)
+                          break;
+                      skills.add((String) tag.get("t"));
+                  }
+                  author.put("skills",skills);
+                  authorlist.add(author);
+              }
+              map.put("status",200);
+              map.put("authorList",authorlist);
+              map.put("pageNum",pageNum);
+              map.put("allNum",allnum);
 
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return map;
+    }
     @PostMapping("/test")
     public Map<String, Object> test() {
         Map<String, Object> map = new HashMap<String, Object>();
