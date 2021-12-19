@@ -31,4 +31,10 @@
         set authorID = NULL
         where userID=#{id}
     </update>
+
+    <select id="getOrganization" parameterType="java.lang.String" resultType="java.lang.String">
+        select organization
+        from User
+        where authorID = #{id}
+    </select>
 </mapper>
