@@ -33,6 +33,7 @@ public class CommentService {
             tmp.put("commentTime",tmpComment.getCommentTime());
             comments.add(tmp);
         }catch (Exception e) {
+            System.out.println(e);
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;

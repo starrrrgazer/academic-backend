@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Community/Community.iml" filepath="$PROJECT_DIR$/Community/Community.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Community/Community (1).iml" filepath="$PROJECT_DIR$/Community/Community (1).iml" />
+      <module fileurl="file://$PROJECT_DIR$/Management/Community (2).iml" filepath="$PROJECT_DIR$/Management/Community (2).iml" />
       <module fileurl="file://$PROJECT_DIR$/Literature/Literature.iml" filepath="$PROJECT_DIR$/Literature/Literature.iml" />
       <module fileurl="file://$PROJECT_DIR$/Management/Management.iml" filepath="$PROJECT_DIR$/Management/Management.iml" />
       <module fileurl="file://$PROJECT_DIR$/Portal/Portal.iml" filepath="$PROJECT_DIR$/Portal/Portal.iml" />

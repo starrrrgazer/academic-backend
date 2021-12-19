@@ -20,6 +20,8 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -47,7 +49,12 @@ public class LiteratureController {
         Map<String, Object> map = new HashMap<String, Object>();
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
-        ArrayList date = (ArrayList) params.get("date");
+        boolean f =true;
+        ArrayList date = null;
+        if(params.get("date").getClass()==String.class)
+            f =false;
+        else
+            date = (ArrayList) params.get("date");
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> conditionlist = (List<Map<String, Object>>) params.get("conditionList");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -91,6 +98,7 @@ public class LiteratureController {
                 } else if (relationship == 2) {//或
                     if (isCurrent) {//精确
                         boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+
                     } else {//模糊
                         boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
                     }
@@ -183,7 +191,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.size()!=0)
+        if(f&&date.size()!=0)
         boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -307,8 +315,8 @@ public class LiteratureController {
                     organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
                     i++;
                 }
-                int control = pageNum * pageSize;
-                while (control < pageNum * pageSize + pageSize) {
+                int control = (pageNum-1) * pageSize;
+                while (control < pageNum * pageSize && control<num) {
                     SearchHit hit = Hits[control++];
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
@@ -339,7 +347,9 @@ public class LiteratureController {
                 map.put("languageSortList", languageSortList);
                 map.put("authorSortList", authorSortList);
                 map.put("organizationSortList", organizationSortList);
-
+                System.out.println(123);
+                System.out.println(map.get("paperList"));
+                System.out.println(456);
             } else {
                 map.put("status", 441);
             }
@@ -351,13 +361,20 @@ public class LiteratureController {
 
 
     @PostMapping("/recommendPaper")
-    public Map<String, Object> recommendPaper() {
+    public Map<String, Object> recommendPaper(@RequestBody Map<String, Object> params) {
+        int type = (int)params.get("type");
         Map<String, Object> map = new HashMap<String, Object>();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         //建空查询
         SearchRequest searchRequest = new SearchRequest("paper");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        if(type == 1)
         boolQueryBuilder.must(QueryBuilders.termQuery("year", 2020));
+        else{
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("n_citation")
+                    .gte(10000)
+                    .lte(100000));
+        }
         //增加查询条件
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(300);
@@ -492,6 +509,8 @@ public class LiteratureController {
                 map.put("commentList",list);
                 map.put("id",id);
                 map.put("status", 200);
+                System.out.println(map.get("relevantSchoolars"));
+                System.out.println(map.get("citation"));
             } else
                 map.put("status", 441);
         } catch (IOException ioException) {
@@ -504,7 +523,12 @@ public class LiteratureController {
     public Map<String, Object> classificationPaper(@RequestBody Map<String, Object> params) {
         System.out.println(params);
         Map<String, Object> map = new HashMap<String, Object>();
-        ArrayList date = (ArrayList) params.get("date");
+        boolean f =true;
+        ArrayList date = null;
+        if(params.get("date").getClass()==String.class)
+            f =false;
+        else
+            date = (ArrayList) params.get("date");
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
         @SuppressWarnings("unchecked")
@@ -734,7 +758,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.size()!=0)
+        if(f&&date.size()!=0)
             boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -858,8 +882,8 @@ public class LiteratureController {
                     organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
                     i++;
                 }
-                int control = pageNum * pageSize;
-                while (control < pageNum * pageSize + pageSize) {
+                int control = (pageNum-1) * pageSize;
+                while (control < pageNum * pageSize && control<num) {
                     SearchHit hit = Hits[control++];
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
@@ -907,7 +931,12 @@ public class LiteratureController {
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
         int rankWay = (int) params.get("rankWay");
-        ArrayList date = (ArrayList) params.get("date");
+        boolean f =true;
+        ArrayList date = null;
+        if(params.get("date").getClass()==String.class)
+            f =false;
+        else
+            date = (ArrayList) params.get("date");
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> conditionlist = (List<Map<String, Object>>) params.get("conditionList");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -918,7 +947,8 @@ public class LiteratureController {
             int type = (int) condition.get("type");
             String context = (String) condition.get("context");
             int relationship = (int) condition.get("relationship");
-            Boolean isCurrent ;
+            System.out.println(condition.get("isCurrent"));
+            Boolean isCurrent;
             if((int) condition.get("isCurrent")==1){
                 isCurrent =true;
             }
@@ -1135,7 +1165,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.size()!=0)
+        if(f&&date.size()!=0)
             boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -1271,8 +1301,8 @@ public class LiteratureController {
                     organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
                     i++;
                 }
-                int control = pageNum * pageSize;
-                while (control < pageNum * pageSize + pageSize) {
+                int control = (pageNum-1) * pageSize;
+                while (control < pageNum * pageSize && control<num) {
                     SearchHit hit = Hits[control++];
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
@@ -1303,6 +1333,7 @@ public class LiteratureController {
                 map.put("languageSortList", languageSortList);
                 map.put("authorSortList", authorSortList);
                 map.put("organizationSortList", organizationSortList);
+                System.out.println(map);
 
             } else {
                 map.put("status", 441);
@@ -1316,7 +1347,7 @@ public class LiteratureController {
     @PostMapping("/getInform")
     public Map<String, Object> getInform(@RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
-
+       // HttpSession session = request.getSession();
         String context = (String) params.get("context");
         int type = (int) params.get("type");
         String id = (String) params.get("id");
@@ -1333,8 +1364,10 @@ public class LiteratureController {
     @PostMapping("/writeComment")
     public Map<String, Object> writeComment(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
-        HttpSession session = request.getSession();
         String context = (String) params.get("context");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request1 = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
         String userid = (String) session.getAttribute("id");
         String paperid = (String) params.get("paperid");
         Comment comment = new Comment();
@@ -1354,7 +1387,12 @@ public class LiteratureController {
         Map<String, Object> map = new HashMap<String, Object>();
         int pageSize = (int) params.get("pageSize");
         int pageNum = (int) params.get("pageNum");
-        ArrayList date = (ArrayList) params.get("date");
+        boolean f =true;
+        ArrayList date = null;
+        if(params.get("date").getClass()==String.class)
+            f =false;
+        else
+            date = (ArrayList) params.get("date");
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> conditionlist = (List<Map<String, Object>>) params.get("conditionList");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -1582,7 +1620,7 @@ public class LiteratureController {
                 }
             }
         }
-        if(date.size()!=0)
+        if(f&&date.size()!=0)
             boolQueryBuilder.must(QueryBuilders.rangeQuery("year").from(date.get(0)).to(date.get(1)));
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.size(10000);
@@ -1706,8 +1744,8 @@ public class LiteratureController {
                     organizationSortList.add(org + "(" + orgnizationmap.get(org) + ")");
                     i++;
                 }
-                int control = pageNum * pageSize;
-                while (control < pageNum * pageSize + pageSize) {
+                int control = (pageNum-1) * pageSize;
+                while (control < pageNum * pageSize && control<num) {
                     SearchHit hit = Hits[control++];
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("title", hit.getSourceAsMap().get("title"));
@@ -1747,7 +1785,73 @@ public class LiteratureController {
         }
         return map;
     }
+    @PostMapping("/searchAuthor")
+    public Map<String, Object> searchAuthor(@RequestBody Map<String, Object> params) {
+        String condition = "*"+(String)params.get("condition")+"*";
+        int pageNum = (int)params.get("pageNum");
+        System.out.println(condition+pageNum);
+        Map<String, Object> map = new HashMap<String, Object>();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        //建空查询
+        SearchRequest searchRequest = new SearchRequest("author");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        boolQueryBuilder.should(QueryBuilders.wildcardQuery("name",condition));
+        //增加查询条件
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.size(10000);
+        searchRequest.source(searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchHit[] Hits = searchHits.getHits();
+            int allnum = Hits.length;
+            if(allnum==0){
+                map.put("status",441);
+                return map;
+            }
+            ArrayList<Map<String,Object>> authorlist = new ArrayList<>();
+            int allpage;
+            if(allnum%20==0){
+                allpage = allnum/20;
+            }
+            else{
+                allpage = allnum/20 + 1;
+            }
+              for(int i = (pageNum-1)*20;i<pageNum*20&&i<allnum;i++) {
+                Map<String,Object> author = new HashMap<>();
+                author.put("name",(String)Hits[i].getSourceAsMap().get("name"));
+                author.put("id",(String)Hits[i].getSourceAsMap().get("id"));
+                author.put("org",(String)Hits[i].getSourceAsMap().get("org"));
+                author.put("position",(String)Hits[i].getSourceAsMap().get("position"));
+                if(Hits[i].getSourceAsMap().get("n_citation")!=null)
+                author.put("citation",(int)Hits[i].getSourceAsMap().get("n_citation"));
+                else
+                    author.put("citation",0);
+                  if(Hits[i].getSourceAsMap().get("n_pubs")!=null)
+                      author.put("publish",(int)Hits[i].getSourceAsMap().get("n_pubs"));
+                  else
+                      author.put("publish",0);
+                ArrayList<String> skills  = new ArrayList<>();
+                ArrayList<Map<String,Object>> tags = (ArrayList<Map<String,Object>>)Hits[i].getSourceAsMap().get("tags");
+                int p = 0;
+                  for (Map<String,Object> tag:tags) {
+                      if(p++>2)
+                          break;
+                      skills.add((String) tag.get("t"));
+                  }
+                  author.put("skills",skills);
+                  authorlist.add(author);
+              }
+              map.put("status",200);
+              map.put("authorList",authorlist);
+              map.put("pageNum",allpage);
+              map.put("allNum",allnum);
 
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return map;
+    }
     @PostMapping("/test")
     public Map<String, Object> test() {
         Map<String, Object> map = new HashMap<String, Object>();

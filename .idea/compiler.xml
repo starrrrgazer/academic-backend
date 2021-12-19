@@ -8,13 +8,17 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Portal" />
-        <module name="Literature" />
         <module name="Management" />
+        <module name="Literature" />
         <module name="Community" />
+        <module name="Community (1)" />
+        <module name="Community (2)" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
       <module name="Community" target="1.8" />
+      <module name="Community (1)" target="1.8" />
+      <module name="Community (2)" target="1.8" />
       <module name="Literature" target="1.8" />
       <module name="Management" target="1.8" />
       <module name="Portal" target="1.8" />
@@ -23,6 +27,8 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Community" options="-parameters" />
+      <module name="Community (1)" options="-parameters" />
+      <module name="Community (2)" options="-parameters" />
       <module name="Literature" options="-parameters" />
       <module name="Management" options="-parameters" />
       <module name="Portal" options="-parameters" />
