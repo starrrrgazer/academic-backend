@@ -1840,7 +1840,7 @@ public class LiteratureController {
               }
               map.put("status",200);
               map.put("authorList",authorlist);
-              map.put("pageNum",pageNum);
+              map.put("pageNum",allpage);
               map.put("allNum",allnum);
 
         } catch (IOException ioException) {
