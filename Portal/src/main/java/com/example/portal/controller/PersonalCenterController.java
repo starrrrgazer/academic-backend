@@ -44,6 +44,7 @@ public class PersonalCenterController {
             ret.put("username", target.getUsername());
             ret.put("phoneNum", target.getPhoneNumber());
             ret.put("email", target.getEmailAddress());
+            ret.put("organization",target.getOrganization());
 
             File avatar = new File(target.getImage());
             if(avatar.exists() && avatar.canRead()) {
