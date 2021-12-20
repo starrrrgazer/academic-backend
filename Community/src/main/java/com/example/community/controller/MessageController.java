@@ -86,10 +86,14 @@ public class MessageController {
         try {
             response = getUserByLogin(response);
             checkResponseMap(response);
-
             String userID = (String) response.get("userID");
             String message = (String) req.get("Message");
             String receiverId = (String) req.get("receiverId");
+            if(receiverId == null){
+                String receiverName = (String) req.get("receiverName");
+                User user = userRepository.findByUsername(receiverName);
+                receiverId = user.getUserID();
+            }
             Message message1 = new Message();
             message1.setContent(message);
             message1.setReceiverID(receiverId);
