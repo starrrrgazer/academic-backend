@@ -558,6 +558,8 @@ public class QuestionController {
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {
+            response = getUserByLogin(response);
+            checkResponseMap(response);
             int questionID = (int) req.get("questionId");
             Question question = questionRepository.findByQuestionID(questionID);
             response = putQuestionMap(question,question.getUserID());

@@ -1357,14 +1357,23 @@ public class LiteratureController {
     @PostMapping("/getInform")
     public Map<String, Object> getInform(@RequestBody Map<String, Object> params) {
         Map<String, Object> map = new HashMap<String, Object>();
-       // HttpSession session = request.getSession();
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request1 = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        if(session.getAttribute("userID")==null){
+            map.put("status",442);
+            return map;
+        }
+        String userid = (String) session.getAttribute("userID");
         String context = (String) params.get("context");
         int type = (int) params.get("type");
         String id = (String) params.get("paperid");
         Report rep = new Report();
+//        rep.setProcesserID(userid);
         rep.setContent(context);
         rep.setType(type);
         rep.setReporteeID12(id);
+        rep.setUserID(userid);
         rep.setReportTime(new Timestamp (new Date().getTime()));
         map.put("status", 200);
         reportRepository.save(rep);
@@ -1379,6 +1388,10 @@ public class LiteratureController {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request1 = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        if(session.getAttribute("userID")==null){
+            map.put("status",442);
+            return map;
+        }
         String userid = (String) session.getAttribute("userID");
         System.out.println("userID is :" + userid + "/n session id is: " + session.getId());
         String paperid = (String) params.get("paperid");
