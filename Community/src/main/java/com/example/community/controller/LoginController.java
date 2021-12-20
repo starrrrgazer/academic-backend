@@ -19,6 +19,26 @@ public class LoginController {
     @Autowired
     UserRepository userRepository;
 
+    @PostMapping("/changeUserIdentity")
+    public Map<String,Object> changeUserIdentity(@RequestBody Map<String, Object> req){
+        Map<String,Object> response = new HashMap<>();
+        try {
+            String userID = (String) req.get("userID");
+            User user = userRepository.findByUserID(userID);
+            if(user.getUserIdentity() == 1){
+                response.put("status",300);
+                return response;
+            }
+            user.setUserIdentity(3);
+            response.put("status",200);
+            return response;
+        }catch (Exception e){
+            e.printStackTrace();
+            response.put("status",301);
+            return response;
+        }
+    }
+
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, Object> loginMap) {
 
