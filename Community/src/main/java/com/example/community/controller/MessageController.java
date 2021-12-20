@@ -198,7 +198,7 @@ public class MessageController {
                 personMap.put("messageList",messageList);
                 personList.add(personMap);
             }
-            List<Message> systemMessageList = messageRepository.findAllByTypeNot(3);
+            List<Message> systemMessageList = messageRepository.findAllByTypeNotAndReceiverID(3,userID);
             List<Map<String,Object>> messageList = new ArrayList<>();
             boolean isRead = true;
             for (Message sys : systemMessageList){
@@ -243,7 +243,7 @@ public class MessageController {
             String contactID = (String) req.get("personId");
             List<Message> messageContactList = new ArrayList<>();
             if(contactID == null){
-                messageContactList = messageRepository.findAllByTypeNot(3);
+                messageContactList = messageRepository.findAllByTypeNotAndReceiverID(3,userID);
             }
             else {
                 messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
