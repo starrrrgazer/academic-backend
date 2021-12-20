@@ -44,10 +44,12 @@ public class QuestionController {
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
 
         if(session.getAttribute("userID") == null){
+            System.out.println("you donnt login");
             response.put("status",3);
         }
         else{
             String userID = (String) session.getAttribute("userID");
+            System.out.println("now userId IS :" + userID);
             response.put("userID",userID);
         }
         return response;
@@ -562,7 +564,7 @@ public class QuestionController {
 //            checkResponseMap(response);
             int questionID = (int) req.get("questionId");
             Question question = questionRepository.findByQuestionID(questionID);
-            response = putQuestionMap(question,question.getUserID());
+            response.putAll(putQuestionMap(question,question.getUserID()));
             List<Map<String,Object>> answerList = new ArrayList<>();
             List<QuestionAnswer> questionAnswers = questionAnswerRepository.findAllByQuestionID(questionID);
             questionAnswers = sortQuestionsAnswerByTime(questionAnswers);
@@ -570,10 +572,15 @@ public class QuestionController {
                 answerList.add(putQuestionAnswerMap(questionAnswer));
             }
             response.put("answerList",answerList);
+            System.out.println(response);
             if(response.containsKey("status")){
+                System.out.println("here1");
                 return response;
             }
-            response.put("status",1);
+            else {
+                System.out.println("here2");
+                response.put("status",1);
+            }
             return response;
         }catch (Exception e){
             e.printStackTrace();
