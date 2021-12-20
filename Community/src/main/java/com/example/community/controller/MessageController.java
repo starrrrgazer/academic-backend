@@ -86,8 +86,8 @@ public class MessageController {
         try {
             response = getUserByLogin(response);
             checkResponseMap(response);
-            String userID = (String) response.get("userID");
 
+            String userID = (String) response.get("userID");
             String message = (String) req.get("Message");
             String receiverId = (String) req.get("receiverId");
             Message message1 = new Message();
@@ -95,7 +95,12 @@ public class MessageController {
             message1.setReceiverID(receiverId);
             message1.setSenderID(userID);
             message1.setViewed(false);
-            message1.setType(3);
+            if(req.containsKey("type")&& (int)req.get("type") != 3 ){
+                message1.setType((int)req.get("type"));
+            }
+            else {
+                message1.setType(3);
+            }
             message1.setSendTime(new Timestamp(System.currentTimeMillis()));
             messageRepository.save(message1);
             response.put("status",1);
