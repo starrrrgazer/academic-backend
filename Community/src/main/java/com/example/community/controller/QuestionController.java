@@ -559,7 +559,7 @@ public class QuestionController {
         Map<String,Object> response = new HashMap<>();
         try {
             response = getUserByLogin(response);
-            checkResponseMap(response);
+//            checkResponseMap(response);
             int questionID = (int) req.get("questionId");
             Question question = questionRepository.findByQuestionID(questionID);
             response = putQuestionMap(question,question.getUserID());
@@ -570,13 +570,13 @@ public class QuestionController {
                 answerList.add(putQuestionAnswerMap(questionAnswer));
             }
             response.put("answerList",answerList);
+            if(response.containsKey("status")){
+                return response;
+            }
             response.put("status",1);
             return response;
         }catch (Exception e){
             e.printStackTrace();
-            if( response.containsKey("status") && (int)response.get("status") == 3){
-                return response;
-            }
             response.put("status",2);
             return response;
         }
