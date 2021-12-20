@@ -198,8 +198,7 @@ public class MessageController {
                 personMap.put("messageList",messageList);
                 personList.add(personMap);
             }
-            List<Message> systemMessageList = messageRepository.findAllByType(2);
-            systemMessageList.addAll(messageRepository.findAllByType(1));
+            List<Message> systemMessageList = messageRepository.findAllByTypeNot(3);
             List<Map<String,Object>> messageList = new ArrayList<>();
             boolean isRead = true;
             for (Message sys : systemMessageList){
@@ -208,11 +207,15 @@ public class MessageController {
                 }
                 Map<String,Object> tmp = new HashMap<>();
                 tmp.put("message",sys.getContent());
+                String strDateFormat = "yyyy-MM-dd HH:mm";
+                SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+                tmp.put("time",sdf.format(sys.getSendTime()));
                 messageList.add(tmp);
             }
             Map<String,Object> systemMessage = new HashMap<>();
             systemMessage.put("messageList",messageList);
             systemMessage.put("isRead",isRead);
+
             response.put("systemMessage",systemMessage);
             response.put("personList",personList);
             User me = userRepository.findByUserID(userID);
@@ -238,7 +241,13 @@ public class MessageController {
             checkResponseMap(response);
             String userID = (String) response.get("userID");
             String contactID = (String) req.get("personId");
-            List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+            List<Message> messageContactList = new ArrayList<>();
+            if(contactID == null){
+                messageContactList = messageRepository.findAllByTypeNot(3);
+            }
+            else {
+                messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+            }
             for(Message message : messageContactList){
                 message.setViewed(true);
                 messageRepository.save(message);
