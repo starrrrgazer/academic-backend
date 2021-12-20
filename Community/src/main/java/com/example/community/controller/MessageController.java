@@ -166,7 +166,7 @@ public class MessageController {
             List<Map<String,Object>> personList = new ArrayList<>();
             //先根据userID，找到与这个人相关的收发信息
             //作为发送者发送的huo作为接收者收到的
-            List<Message> mList = messageRepository.findAllBySenderIDOrReceiverID(userID,userID);
+            List<Message> mList = messageRepository.findAllBySenderIDOrReceiverIDAndType(userID,userID,3);
             mList = sortMessagesByTimeDesc(mList);
             List<String> contactPersonID = new ArrayList<>();
             for (Message message : mList){
@@ -182,7 +182,7 @@ public class MessageController {
                 Map<String,Object> personMap = new HashMap<>();
                 List<Map<String,Object>> messageList = new ArrayList<>();
                 boolean isRead = true;
-                List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+                List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderIDAndType(userID,contactID,userID,contactID,3);
                 messageContactList = sortMessagesByTime(messageContactList);
                 for(Message m : messageContactList){
                     if(!m.getViewed()){
@@ -198,8 +198,25 @@ public class MessageController {
                 personMap.put("messageList",messageList);
                 personList.add(personMap);
             }
-
+            List<Message> systemMessageList = messageRepository.findAllByType(2);
+            systemMessageList.addAll(messageRepository.findAllByType(1));
+            List<Map<String,Object>> messageList = new ArrayList<>();
+            boolean isRead = true;
+            for (Message sys : systemMessageList){
+                if(!sys.getViewed()){
+                    isRead = false;
+                }
+                Map<String,Object> tmp = new HashMap<>();
+                tmp.put("message",sys.getContent());
+                messageList.add(tmp);
+            }
+            Map<String,Object> systemMessage = new HashMap<>();
+            systemMessage.put("messageList",messageList);
+            systemMessage.put("isRead",isRead);
+            response.put("systemMessage",systemMessage);
             response.put("personList",personList);
+            User me = userRepository.findByUserID(userID);
+            response.put("avatar",getUserAvatar(me.getImage()));
             response.put("status",1);
             return response;
         }catch (Exception e){
