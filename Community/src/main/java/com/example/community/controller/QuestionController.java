@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,6 +39,32 @@ public class QuestionController {
     QuestionFollowRepository questionFollowRepository;
     @Autowired
     UserRepository userRepository;
+
+    public byte[] getUserAvatar(String image){
+        try {
+            File avatar = new File(image);
+            if(avatar.exists() && avatar.canRead()) {
+                byte[] buffer = new byte[(int) avatar.length()];
+                InputStream in = new FileInputStream(avatar);
+                in.read(buffer);
+                return buffer;
+            }
+            else {
+                File dft = new File("./static/image/default.jpg");
+                if(dft.exists()) {
+                    byte[] buffer = new byte[(int) dft.length()];
+                    InputStream in = new FileInputStream(dft);
+                    in.read(buffer);
+                    return buffer;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("getUserImage error");
+            return new byte[0];
+        }
+        return new byte[0];
+    }
 
     public Map<String,Object> getUserByLogin(Map<String,Object> response){
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -102,7 +130,7 @@ public class QuestionController {
         Map<String,Object> questionMap = new HashMap<>();
         questionMap.put("proposerId",question.getUserID());
         questionMap.put("proposer",question.getUsername());
-        questionMap.put("avatar",question.getAvatar());
+        questionMap.put("avatar", getUserAvatar(question.getAvatar()));
         questionMap.put("questionId",question.getQuestionID());
         questionMap.put("questionTitle",question.getQuestionTitle());
         questionMap.put("questionInformation",question.getQuestionContent());
@@ -120,7 +148,7 @@ public class QuestionController {
     public Map<String,Object> putUserInfoToResponseMap(Map<String,Object> response, String userID){
         try {
             User user = userRepository.findByUserID(userID);
-            response.put("avatar",user.getImage());
+            response.put("avatar", getUserAvatar(user.getImage()));
             response.put("userName",user.getUsername());
             List<UserTags> userTags = userTagRepository.findAllByUserID(userID);
             List<Integer> skillList = new ArrayList<>();
@@ -536,7 +564,7 @@ public class QuestionController {
         questionAnswerMap.put("answerId",questionAnswer.getId());
         questionAnswerMap.put("answererId",questionAnswer.getUserID());
         questionAnswerMap.put("answerer",questionAnswer.getUsername());
-        questionAnswerMap.put("avatar",questionAnswer.getAvatar());
+        questionAnswerMap.put("avatar", getUserAvatar(questionAnswer.getAvatar()));
         questionAnswerMap.put("answer",questionAnswer.getAnswerContent());
         String strDateFormat = "yyyy-MM-dd HH:mm";
         SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
@@ -574,11 +602,9 @@ public class QuestionController {
             response.put("answerList",answerList);
             System.out.println(response);
             if(response.containsKey("status")){
-                System.out.println("here1");
                 return response;
             }
             else {
-                System.out.println("here2");
                 response.put("status",1);
             }
             return response;

@@ -16,6 +16,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,6 +30,32 @@ public class MessageController {
     MessageRepository messageRepository;
     @Autowired
     UserRepository userRepository;
+
+    public byte[] getUserAvatar(String image){
+        try {
+            File avatar = new File(image);
+            if(avatar.exists() && avatar.canRead()) {
+                byte[] buffer = new byte[(int) avatar.length()];
+                InputStream in = new FileInputStream(avatar);
+                in.read(buffer);
+                return buffer;
+            }
+            else {
+                File dft = new File("./static/image/default.jpg");
+                if(dft.exists()) {
+                    byte[] buffer = new byte[(int) dft.length()];
+                    InputStream in = new FileInputStream(dft);
+                    in.read(buffer);
+                    return buffer;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("getUserImage error");
+            return new byte[0];
+        }
+        return new byte[0];
+    }
 
     public void checkResponseMap(Map<String,Object> response)throws Exception{
         if(response.containsKey("status") && (int)response.get("status") != 1){
@@ -155,7 +184,7 @@ public class MessageController {
                 User user = userRepository.findByUserID(contactID);
                 personMap.put("personId",user.getUserID());
                 personMap.put("personName",user.getUsername());
-                personMap.put("avatar",user.getImage());
+                personMap.put("avatar",getUserAvatar(user.getImage()));
                 personMap.put("isRead",isRead);
                 personMap.put("messageList",messageList);
                 personList.add(personMap);
