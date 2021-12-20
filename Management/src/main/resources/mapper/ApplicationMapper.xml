@@ -31,4 +31,10 @@
         where applicationID = #{applicationID}
     </select>
 
+    <select id="getTime" parameterType="java.lang.String" resultType="java.sql.Date">
+        select applicationTime
+        from Application
+        where applicationID = #{id}
+    </select>
+
 </mapper>

@@ -1,9 +1,12 @@
 package com.example.management.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.repository.Temporal;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.sql.Date;
 
 @Entity
 @Table(name = "Application")
@@ -16,7 +19,9 @@ public class Application {
     private String userID;
 
     @Column(name = "applicationTime")
-    private DateTime applicationTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date applicationTime;
 
     @Column(name = "type")
     private int type;
@@ -70,11 +75,11 @@ public class Application {
         this.userID = userID;
     }
 
-    public DateTime getApplicationTime() {
+    public Date getApplicationTime() {
         return applicationTime;
     }
 
-    public void setApplicationTime(DateTime applicationTime) {
+    public void setApplicationTime(Date applicationTime) {
         this.applicationTime = applicationTime;
     }
 
