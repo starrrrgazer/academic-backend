@@ -157,7 +157,7 @@ public class PortalController {
                     ret.put("ifself", (T) "-1");
                 else {
                     User user = userRepository.findByUsername(username);
-                    if(user.getAuthorID() == author.getId())
+                    if(user.getAuthorID() == author.getId() && user.getUserIdentity() == 3)
                         ret.put("ifself", (T) "1");
                     else
                         ret.put("ifself", (T) "0");
@@ -368,7 +368,10 @@ public class PortalController {
     @PostMapping("/ifCertificate")
     public Map<String, Object> checkCertification(@RequestBody Map<String, String> arg) {
         Map<String, Object> ret = new HashMap<>();
-        String userID = arg.get("uid");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String userID = (String) session.getAttribute("userID");
         User user = userRepository.findByUserID(userID);
         if(user.getAuthorID() ==  null)
             ret.put("msg", "200");
@@ -382,17 +385,59 @@ public class PortalController {
     @PostMapping("/applycertificate")
     public Map<String, Object> applyCertification(@RequestBody Map<String, String> arg) {
         Map<String, Object> ret = new HashMap<>();
-        String uid = arg.get("uid");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
         String aid = arg.get("authorid");
 
-        if(arg.get("workCard1") !=  null) {
-            String image_base64 = arg.get("workCard1").trim();
+        User user = userRepository.findByUserID(uid);
+        User origin = userRepository.findByAuthorID(aid);
+        if(user != null && origin == null) {
+            userRepository.updateAuthorID(uid, aid);
+            userRepository.updateUserIdentity(uid, 2);
+            //userRepository.updateWorkCard(uid, "./static/certification/workcard" + uid + ".jpg");
+            ret.put("msg", "200");
+        }
+        else {
+            ret.put("msg", "201");
+            if(user == null)
+                ret.put("warning", "Unknown Error");
+        }
+        return ret;
+    }
+
+    @PostMapping("/identification")
+    public Map<String, Object> identification(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        Application application = new Application();
+
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
+
+        User applier = userRepository.findByUserID(uid);
+        if(applier.getUserIdentity() != 2) {
+            ret.put("success", "false");
+            ret.put("msg", "201");
+            return ret;
+        }
+        String phone = arg.get("phoneNumber");
+        String mail = arg.get("emailAddress");
+        if(applier.getPhoneNumber() != null && !phone.equals(applier.getPhoneNumber())
+                || applier.getEmailAddress() != null && !mail.equals(applier.getEmailAddress())) {
+            ret.put("msg", "202");
+        }
+
+        if(arg.get("workCard") !=  null) {
+            String image_base64 = arg.get("workCard").trim();
             int index = image_base64.indexOf("base64,") + 7;
             String newImage = image_base64.substring(index);
             Base64.Decoder decoder = Base64.getDecoder();
             byte[] imageBuf = decoder.decode(newImage);
 
-            String path = "/static/certification";
+            String path = "./static/certification";
             String name = path + "/workcard" + uid + ".jpg";
             File workCard = new File(name);
             File workCardPath = new File(path);
@@ -405,22 +450,30 @@ public class PortalController {
                 out.write(imageBuf);
                 out.flush();
                 out.close();
+                applier.setRealName(workCard.getAbsolutePath());
             } catch (Exception e) {
                 e.printStackTrace();
+                ret.put("success", "false");
+                ret.put("msg", "203");
+                return ret;
             }
         }
-
-        User user = userRepository.findByUserID(uid);
-        User origin = userRepository.findByAuthorID(aid);
-        if(user != null && origin == null) {
-            userRepository.updateAuthorID(uid, aid);
-            ret.put("msg", "200");
-        }
         else {
-            ret.put("msg", "201");
-            if(user == null)
-                ret.put("warning", "Unknown Error");
+            ret.put("success", "false");
+            ret.put("msg", "203");
+            return ret;
         }
+
+        application.setApplicationTime(new java.sql.Date(new Date().getTime()));
+        application.setType(4);
+        application.setPhoneNumber1(phone);
+        application.setEmailAddress(mail);
+        application.setAuthorID(applier.getAuthorID());
+        application.setWorkCard1(applier.getRealName());
+        applicationRepository.save(application);
+        ret.put("success", "true");
+        if(null == ret.get("msg"))
+            ret.put("msg", "200");
         return ret;
     }
 
@@ -439,11 +492,18 @@ public class PortalController {
     @PostMapping("/applyconflict")
     public Map<String, Object> applyConflict(@RequestBody Map<String, String> arg) {
         Map<String, Object> ret = new HashMap<>();
-        String uid = arg.get("uid");
+
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
+
         String emailAddress = arg.get("emailAddress");
         String phoneNumber = arg.get("phoneNumber2");
         String authorID = arg.get("authorid");
 
+        User origin = userRepository.findByAuthorID(authorID);
+        User applier = userRepository.findByUserID(uid);
         if(arg.get("workCard2") !=  null) {
             String image_base64 = arg.get("workCard2").trim();
             int index = image_base64.indexOf("base64,") + 7;
@@ -451,7 +511,7 @@ public class PortalController {
             Base64.Decoder decoder = Base64.getDecoder();
             byte[] imageBuf = decoder.decode(newImage);
 
-            String path = "/static/certification";
+            String path = "./static/certification";
             String name = path + "/workcard" + uid + ".jpg";
             File workCard = new File(name);
             File workCardPath = new File(path);
@@ -464,6 +524,7 @@ public class PortalController {
                 out.write(imageBuf);
                 out.flush();
                 out.close();
+                userRepository.updateWorkCard(uid, name);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -473,8 +534,6 @@ public class PortalController {
             return ret;
         }
 
-        User origin = userRepository.findByAuthorID(authorID);
-        User applier = userRepository.findByUserID(uid);
         if(origin == null || applier == null) {
             ret.put("msg", "201");
             return ret;
@@ -485,8 +544,8 @@ public class PortalController {
         application.setPhoneNumber1(phoneNumber);
         application.setPhoneNumber2(origin.getPhoneNumber());
         application.setType(2);
-        application.setWorkCard1("/static/certification/workcard" + uid + ".jpg");
-        application.setWorkCard2("/static/certification/workcard" + origin.getUserID() + ".jpg");
+        application.setWorkCard1("./static/certification/workcard" + uid + ".jpg");
+        application.setWorkCard2("./static/certification/workcard" + origin.getUserID() + ".jpg");
         application.setApplicationTime(new java.sql.Date(new Date().getTime()));
 
         applicationRepository.save(application);
@@ -575,7 +634,7 @@ public class PortalController {
         String username = (String) session.getAttribute("username");
 
         User current = userRepository.findByUsername(username);
-        if(current == null || !current.getAuthorID().equals(paper_.get().getAuthors().get(0).get("id"))) {
+        if(current == null || !current.getAuthorID().equals(paper_.get().getAuthors().get(0).get("id")) || current.getUserIdentity() != 3) {
             ret.put("msg", "201");
             return ret;
         }
