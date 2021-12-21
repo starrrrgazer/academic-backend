@@ -37,4 +37,10 @@
         from User
         where authorID = #{id}
     </select>
+
+    <update id="updateUserIdentity" parameterType="java.lang.String">
+        update User
+        set userIdentity = 2
+        where userID = #{id}
+    </update>
 </mapper>

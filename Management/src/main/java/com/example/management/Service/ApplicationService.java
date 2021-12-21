@@ -101,7 +101,9 @@ public class ApplicationService {
                 returnObject.put("result","申请不存在");
                 return returnObject;
             }
+            String userId = a.getUserID();
             applicationMapper.acceptApply(applyId,reason);
+            userMapper.updateUserIdentity(userId);
         } catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");

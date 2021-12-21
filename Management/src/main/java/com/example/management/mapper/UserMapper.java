@@ -17,4 +17,5 @@ public interface UserMapper {
     User getUserByAuthorID(String authorId);
     void deleteAuthorID(String id);
     String getOrganization(String id);
+    void updateUserIdentity(String id);
 }
