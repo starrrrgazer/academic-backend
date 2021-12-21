@@ -657,7 +657,6 @@ public class PortalController {
             return ret;
         }
         paperRepository.deleteById(essayID);
-        paperRepository.refresh();
         ret.put("msg", "200");
         return ret;
     }
