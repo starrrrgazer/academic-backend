@@ -16,6 +16,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,6 +30,32 @@ public class MessageController {
     MessageRepository messageRepository;
     @Autowired
     UserRepository userRepository;
+
+    public byte[] getUserAvatar(String image){
+        try {
+            File avatar = new File(image);
+            if(avatar.exists() && avatar.canRead()) {
+                byte[] buffer = new byte[(int) avatar.length()];
+                InputStream in = new FileInputStream(avatar);
+                in.read(buffer);
+                return buffer;
+            }
+            else {
+                File dft = new File("./static/image/default.jpg");
+                if(dft.exists()) {
+                    byte[] buffer = new byte[(int) dft.length()];
+                    InputStream in = new FileInputStream(dft);
+                    in.read(buffer);
+                    return buffer;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("getUserImage error");
+            return new byte[0];
+        }
+        return new byte[0];
+    }
 
     public void checkResponseMap(Map<String,Object> response)throws Exception{
         if(response.containsKey("status") && (int)response.get("status") != 1){
@@ -58,15 +87,24 @@ public class MessageController {
             response = getUserByLogin(response);
             checkResponseMap(response);
             String userID = (String) response.get("userID");
-
             String message = (String) req.get("Message");
             String receiverId = (String) req.get("receiverId");
+            if(receiverId == null){
+                String receiverName = (String) req.get("receiverName");
+                User user = userRepository.findByUsername(receiverName);
+                receiverId = user.getUserID();
+            }
             Message message1 = new Message();
             message1.setContent(message);
             message1.setReceiverID(receiverId);
             message1.setSenderID(userID);
             message1.setViewed(false);
-            message1.setType(3);
+            if(req.containsKey("type")&& (int)req.get("type") != 3 ){
+                message1.setType((int)req.get("type"));
+            }
+            else {
+                message1.setType(3);
+            }
             message1.setSendTime(new Timestamp(System.currentTimeMillis()));
             messageRepository.save(message1);
             response.put("status",1);
@@ -128,7 +166,7 @@ public class MessageController {
             List<Map<String,Object>> personList = new ArrayList<>();
             //先根据userID，找到与这个人相关的收发信息
             //作为发送者发送的huo作为接收者收到的
-            List<Message> mList = messageRepository.findAllBySenderIDOrReceiverID(userID,userID);
+            List<Message> mList = messageRepository.findAllBySenderIDOrReceiverIDAndType(userID,userID,3);
             mList = sortMessagesByTimeDesc(mList);
             List<String> contactPersonID = new ArrayList<>();
             for (Message message : mList){
@@ -144,7 +182,7 @@ public class MessageController {
                 Map<String,Object> personMap = new HashMap<>();
                 List<Map<String,Object>> messageList = new ArrayList<>();
                 boolean isRead = true;
-                List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+                List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderIDAndType(userID,contactID,userID,contactID,3);
                 messageContactList = sortMessagesByTime(messageContactList);
                 for(Message m : messageContactList){
                     if(!m.getViewed()){
@@ -155,13 +193,33 @@ public class MessageController {
                 User user = userRepository.findByUserID(contactID);
                 personMap.put("personId",user.getUserID());
                 personMap.put("personName",user.getUsername());
-                personMap.put("avatar",user.getImage());
+                personMap.put("avatar",getUserAvatar(user.getImage()));
                 personMap.put("isRead",isRead);
                 personMap.put("messageList",messageList);
                 personList.add(personMap);
             }
+            List<Message> systemMessageList = messageRepository.findAllByTypeNotAndReceiverID(3,userID);
+            List<Map<String,Object>> messageList = new ArrayList<>();
+            boolean isRead = true;
+            for (Message sys : systemMessageList){
+                if(!sys.getViewed()){
+                    isRead = false;
+                }
+                Map<String,Object> tmp = new HashMap<>();
+                tmp.put("message",sys.getContent());
+                String strDateFormat = "yyyy-MM-dd HH:mm";
+                SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+                tmp.put("time",sdf.format(sys.getSendTime()));
+                messageList.add(tmp);
+            }
+            Map<String,Object> systemMessage = new HashMap<>();
+            systemMessage.put("messageList",messageList);
+            systemMessage.put("isRead",isRead);
 
+            response.put("systemMessage",systemMessage);
             response.put("personList",personList);
+            User me = userRepository.findByUserID(userID);
+            response.put("avatar",getUserAvatar(me.getImage()));
             response.put("status",1);
             return response;
         }catch (Exception e){
@@ -183,7 +241,13 @@ public class MessageController {
             checkResponseMap(response);
             String userID = (String) response.get("userID");
             String contactID = (String) req.get("personId");
-            List<Message> messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+            List<Message> messageContactList = new ArrayList<>();
+            if(contactID == null){
+                messageContactList = messageRepository.findAllByTypeNotAndReceiverID(3,userID);
+            }
+            else {
+                messageContactList = messageRepository.findAllBySenderIDAndReceiverIDOrReceiverIDAndSenderID(userID,contactID,userID,contactID);
+            }
             for(Message message : messageContactList){
                 message.setViewed(true);
                 messageRepository.save(message);
