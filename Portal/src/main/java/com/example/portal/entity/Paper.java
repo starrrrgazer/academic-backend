@@ -15,7 +15,6 @@ import java.util.Map;
 @Document(indexName = "paper")
 public class Paper {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Field(name = "id", type = FieldType.Keyword)
     private String id;
 

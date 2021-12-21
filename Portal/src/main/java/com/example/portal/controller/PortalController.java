@@ -4,11 +4,13 @@ import com.example.portal.dao.*;
 import com.example.portal.entity.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.http.HttpHost;
 import org.apache.tomcat.util.collections.ManagedConcurrentWeakHashMap;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -656,7 +658,17 @@ public class PortalController {
             ret.put("msg", "201");
             return ret;
         }
-        paperRepository.deleteById(essayID);
+        //paperRepository.deleteById(essayID);
+        RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("121.36.60.6", 9200, "http")));
+        try{
+            DeleteRequest request_ = new DeleteRequest("paper","_doc", essayID);
+            DeleteResponse response = client.delete(request_, RequestOptions.DEFAULT);
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            ret.put("msg", "201");
+            return ret;
+        }
         ret.put("msg", "200");
         return ret;
     }
