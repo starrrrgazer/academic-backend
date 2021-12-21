@@ -156,11 +156,37 @@ public class PortalController {
                 if(username == null)
                     ret.put("ifself", (T) "-1");
                 else {
-                    User user = userRepository.findByUsername(username);
-                    if(user.getAuthorID() == author.getId() && user.getUserIdentity() == 3)
-                        ret.put("ifself", (T) "1");
-                    else
+//                    User user = userRepository.findByUsername(username);
+//                    if(user.getAuthorID() == author.getId()) {
+//                        if(user.getUserIdentity() == 3)
+//                            ret.put("ifself", (T)"1");
+//                        else
+//                            ret.put("ifself", (T)"2");
+//                    }
+//                    else {
+//                        if(user.getUserIdentity() == 3)
+//                            ret.put("ifself", (T)"1");
+//                        else
+//                            ret.put("ifself", (T)"2");
+//                    }
+                    User owner = userRepository.findByAuthorID(id);
+                    if(owner == null)
                         ret.put("ifself", (T) "0");
+                    else {
+                        if(owner.getUserIdentity() == 3) {
+                            if(owner.getUsername().equals(username))
+                                ret.put("ifself", (T) "1");
+                            else
+                                ret.put("ifself", (T) "2");
+                        }
+                        else {
+                            if(owner.getUsername().equals(username))
+                                ret.put("ifself", (T) "3");
+                            else
+                                ret.put("ifself", (T) "4");
+                        }
+                    }
+
                 }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
