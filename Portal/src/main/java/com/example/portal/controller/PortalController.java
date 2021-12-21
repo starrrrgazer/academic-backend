@@ -470,6 +470,7 @@ public class PortalController {
         application.setEmailAddress(mail);
         application.setAuthorID(applier.getAuthorID());
         application.setWorkCard1(applier.getRealName());
+        application.setUserID(uid);
         applicationRepository.save(application);
         ret.put("success", "true");
         if(null == ret.get("msg"))
