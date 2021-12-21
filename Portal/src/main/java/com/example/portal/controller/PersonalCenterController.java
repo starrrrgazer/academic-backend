@@ -33,7 +33,10 @@ public class PersonalCenterController {
     @PostMapping("/showinfo")
     public Map<String, Object> getUseInfo(@RequestBody Map<String, Object> arg) throws IOException {
         Map<String, Object> ret = new HashMap<>();
-        String uid = (String) arg.get("uid");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
         User target = userRepository.findByUserID(uid);
         if(target == null) {
             ret.put("success", "false");
@@ -45,13 +48,27 @@ public class PersonalCenterController {
             ret.put("phoneNum", target.getPhoneNumber());
             ret.put("email", target.getEmailAddress());
             ret.put("organization",target.getOrganization());
+            ret.put("classification", target.getUserIdentity());
 
-            File avatar = new File(target.getImage());
-            if(avatar.exists() && avatar.canRead()) {
-                byte[] buffer = new byte[(int) avatar.length()];
-                InputStream in = new FileInputStream(avatar);
-                in.read(buffer);
-                ret.put("avatar", buffer);
+            if(target.getImage() != null) {
+                File avatar = new File(target.getImage());
+                if(avatar.exists() && avatar.canRead()) {
+                    byte[] buffer = new byte[(int) avatar.length()];
+                    InputStream in = new FileInputStream(avatar);
+                    in.read(buffer);
+                    ret.put("avatar", buffer);
+                }
+                else {
+                    File dft = new File("./static/image/default.jpg");
+                    if(dft.exists()) {
+                        byte[] buffer = new byte[(int) dft.length()];
+                        InputStream in = new FileInputStream(dft);
+                        in.read(buffer);
+                        ret.put("avatar", buffer);
+                    }
+                    else
+                        ret.put("avatar", null);
+                }
             }
             else {
                 File dft = new File("./static/image/default.jpg");
@@ -64,6 +81,8 @@ public class PersonalCenterController {
                 else
                     ret.put("avatar", null);
             }
+
+
             ret.put("success", "true");
             ret.put("msg", "找到该用户");
             return ret;
@@ -168,6 +187,7 @@ public class PersonalCenterController {
             out.write(imageBuf);
             out.flush();
             out.close();
+            userRepository.updateImage(user.getUserID(), avatar.getAbsolutePath());
             ret.put("status", "success");
         }
         else {
@@ -177,6 +197,51 @@ public class PersonalCenterController {
         return ret;
     }
 
+//    @PostMapping("/findpwd")
+//    public Map<String, Object> findPwd(@RequestBody Map<String, Object> arg) {
+//        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+//        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+//        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+//        String tc = (String) session.getAttribute("verification_code");
+//
+//
+//        Map<String, Object> ret = new HashMap<>();
+//
+//        String email = (String) arg.get("email");
+//        String code = (String) arg.get("testcode");
+//        String pwd = (String) arg.get("pwd");
+//        String pwd2 = (String) arg.get("confirmPwd");
+//
+//        User user = userRepository.findByEmailAddress(email);
+//        if(user != null) {
+//            String username = user.getUsername();
+//            if(user.getEmailAddress().equals(email)) {
+//                if(code.equals(tc)) {
+//                    if(pwd.equals(pwd2)) {
+//                        userRepository.updatePassword(username, pwd);
+//                        ret.put("status", "success");
+//                    }
+//                    else {
+//                        ret.put("status", "error");
+//                        ret.put("msg", "两次密码输入不一致");
+//                    }
+//                }
+//                else {
+//                    ret.put("status", "error");
+//                    ret.put("msg", "验证码填写错误");
+//                }
+//            }
+//            else {
+//                ret.put("status", "error");
+//                ret.put("msg", "请填写与账户绑定的邮箱");
+//            }
+//        }
+//        else {
+//            ret.put("status", "error");
+//            ret.put("msg", "发生未知错误：找不到该用户");
+//        }
+//        return ret;
+//    }
     @PostMapping("/findpwd")
     public Map<String, Object> findPwd(@RequestBody Map<String, Object> arg) {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -184,36 +249,21 @@ public class PersonalCenterController {
         HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
         String tc = (String) session.getAttribute("verification_code");
 
-
         Map<String, Object> ret = new HashMap<>();
-
         String email = (String) arg.get("email");
-        String code = (String) arg.get("testcode");
+        String oldpwd = (String) arg.get("oldpwd");
         String pwd = (String) arg.get("pwd");
-        String pwd2 = (String) arg.get("confirmPwd");
 
         User user = userRepository.findByEmailAddress(email);
         if(user != null) {
             String username = user.getUsername();
-            if(user.getEmailAddress().equals(email)) {
-                if(code.equals(tc)) {
-                    if(pwd.equals(pwd2)) {
-                        userRepository.updatePassword(username, pwd);
-                        ret.put("status", "success");
-                    }
-                    else {
-                        ret.put("status", "error");
-                        ret.put("msg", "两次密码输入不一致");
-                    }
-                }
-                else {
-                    ret.put("status", "error");
-                    ret.put("msg", "验证码填写错误");
-                }
+            if(user.getPassword().equals(oldpwd)) {
+                userRepository.updatePassword(username, pwd);
+                ret.put("status", "success");
             }
             else {
                 ret.put("status", "error");
-                ret.put("msg", "请填写与账户绑定的邮箱");
+                ret.put("msg", "404");//密码不正确
             }
         }
         else {
@@ -242,6 +292,26 @@ public class PersonalCenterController {
             session.invalidate();
             ret.put("success", "true");
         }
+        return ret;
+    }
+
+    @PostMapping("/getAuthor")
+    public Map<String, Object> getAuthor(@RequestBody Map<String, Object> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
+
+        User current = userRepository.findByUserID(uid);
+        assert current != null;
+        if(current.getAuthorID() != null) {
+            ret.put("success", "true");
+            ret.put("authorID", current.getAuthorID());
+            ret.put("classification", current.getUserIdentity());
+        }
+        else
+            ret.put("success", "false");
         return ret;
     }
 }

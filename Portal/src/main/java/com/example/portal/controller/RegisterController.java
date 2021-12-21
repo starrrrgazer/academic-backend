@@ -244,7 +244,7 @@ public class RegisterController {
                     if(arg.get("userPosition") != null)
                         newUser.setUserPosition(arg.get("userPosition"));
                     newUser.setUserIdentity(1);
-                    newUser.setImage("./static/image/" + newUser.getUserID() + ".jpg");
+                    newUser.setImage("./static/image/default.jpg");
 
                     userRepository.save(newUser);
 
