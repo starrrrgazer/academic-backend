@@ -40,7 +40,7 @@
 
     <update id="updateUserIdentity" parameterType="java.lang.String">
         update User
-        set userIdentity = 2
+        set userIdentity = 3
         where userID = #{id}
     </update>
 </mapper>
