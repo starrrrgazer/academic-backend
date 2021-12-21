@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
+@CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443"},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class LoginController {
     @Autowired

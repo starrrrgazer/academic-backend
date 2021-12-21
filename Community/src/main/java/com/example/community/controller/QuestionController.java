@@ -24,7 +24,7 @@ import java.util.*;
 *
 * */
 
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
+@CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443"},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class QuestionController {
     @Autowired
@@ -312,6 +312,7 @@ public class QuestionController {
                 int questionID = questionFollow.getQuestionID();
                 questions.add(questionRepository.findByQuestionID(questionID));
             }
+            System.out.println(questions);
             List<Map<String,Object>> followQuestionList = new ArrayList<>();
             questions = sortQuestionsByTime(questions);
             for(Question question:questions){
