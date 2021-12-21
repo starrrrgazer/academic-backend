@@ -30,6 +30,7 @@ public class LoginController {
                 return response;
             }
             user.setUserIdentity(3);
+            userRepository.save(user);
             response.put("status",200);
             return response;
         }catch (Exception e){
