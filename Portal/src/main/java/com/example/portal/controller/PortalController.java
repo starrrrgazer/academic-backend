@@ -1,13 +1,7 @@
 package com.example.portal.controller;
 
-import com.example.portal.dao.ApplicationRepository;
-import com.example.portal.dao.AuthorRepository;
-import com.example.portal.dao.PaperRepository;
-import com.example.portal.dao.UserRepository;
-import com.example.portal.entity.Application;
-import com.example.portal.entity.Author;
-import com.example.portal.entity.Paper;
-import com.example.portal.entity.User;
+import com.example.portal.dao.*;
+import com.example.portal.entity.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.tomcat.util.collections.ManagedConcurrentWeakHashMap;
@@ -53,6 +47,9 @@ public class PortalController {
 
     @Autowired
     PaperRepository paperRepository;
+
+    @Autowired
+    ReportRepository reportRepository;
 
     @PostMapping("/getUserInfo")
     public <T extends Object> Map<String, T> getUserInfo(@RequestBody Map<String, String> remap) {
@@ -157,19 +154,6 @@ public class PortalController {
                 if(username == null)
                     ret.put("ifself", (T) "-1");
                 else {
-//                    User user = userRepository.findByUsername(username);
-//                    if(user.getAuthorID() == author.getId()) {
-//                        if(user.getUserIdentity() == 3)
-//                            ret.put("ifself", (T)"1");
-//                        else
-//                            ret.put("ifself", (T)"2");
-//                    }
-//                    else {
-//                        if(user.getUserIdentity() == 3)
-//                            ret.put("ifself", (T)"1");
-//                        else
-//                            ret.put("ifself", (T)"2");
-//                    }
                     User owner = userRepository.findByAuthorID(id);
                     if(owner == null)
                         ret.put("ifself", (T) "0");
@@ -532,6 +516,7 @@ public class PortalController {
 
         User origin = userRepository.findByAuthorID(authorID);
         User applier = userRepository.findByUserID(uid);
+        String absPath = null;
         if(arg.get("workCard2") !=  null) {
             String image_base64 = arg.get("workCard2").trim();
             int index = image_base64.indexOf("base64,") + 7;
@@ -552,9 +537,12 @@ public class PortalController {
                 out.write(imageBuf);
                 out.flush();
                 out.close();
-                userRepository.updateWorkCard(uid, name);
+                absPath = workCardPath.getAbsolutePath();
+                userRepository.updateWorkCard(uid, absPath);
             } catch (Exception e) {
                 e.printStackTrace();
+                ret.put("msg", "201");
+                return ret;
             }
         }
         else {
@@ -569,11 +557,12 @@ public class PortalController {
         Application application = new Application();
         application.setEmailAddress(emailAddress);
         application.setAuthorID(authorID);
+        application.setUserID(uid);
         application.setPhoneNumber1(phoneNumber);
         application.setPhoneNumber2(origin.getPhoneNumber());
         application.setType(2);
-        application.setWorkCard1("./static/certification/workcard" + uid + ".jpg");
-        application.setWorkCard2("./static/certification/workcard" + origin.getUserID() + ".jpg");
+        application.setWorkCard1(absPath);
+        application.setWorkCard2(origin.getRealName());
         application.setApplicationTime(new java.sql.Date(new Date().getTime()));
 
         applicationRepository.save(application);
@@ -667,9 +656,47 @@ public class PortalController {
             return ret;
         }
         paperRepository.deleteById(essayID);
+        paperRepository.refresh();
         ret.put("msg", "200");
         return ret;
     }
+
+    @PostMapping("/portalReport")
+    public Map<String, Object> report(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String aid = arg.get("authorID");
+        String reason = arg.get("content");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
+        if(uid == null) {
+            ret.put("success", "false");
+            ret.put("msg", "201");
+            return ret;
+        }
+        User reporter = userRepository.findByUserID(uid);
+        assert reporter != null;
+        User reportee = userRepository.findByAuthorID(aid);
+        if(reportee == null) {
+            ret.put("success", "false");
+            ret.put("msg", "202");
+            return  ret;
+        }
+        Report report = new Report();
+        report.setContent(reason);
+        report.setReporterID(uid);
+        report.setReporteeID(reportee.getUserID());
+        report.setStatus(0);
+        report.setType(4);
+        reportRepository.save(report);
+
+        ret.put("success", "true");
+        ret.put("msg", "200");
+
+        return ret;
+    }
+
 }
 
 @Data

@@ -11,4 +11,6 @@ public interface PaperRepository extends ElasticsearchRepository<Paper, String> 
 
     @Transactional
     void deleteById(String id);
+
+    void refresh();
 }
