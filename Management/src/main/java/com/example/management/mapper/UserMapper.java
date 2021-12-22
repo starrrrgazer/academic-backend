@@ -16,6 +16,8 @@ public interface UserMapper {
     int unblockUser(String userID,Date nowDate);
     User getUserByAuthorID(String authorId);
     void deleteAuthorID(String id);
+    void deleteAuthorIdByUserId(String userid);
+    void setAuthorID(String userId,String authorId);
     String getOrganization(String id);
     void updateUserIdentity(String id);
     void resetUserIdentity(String id);

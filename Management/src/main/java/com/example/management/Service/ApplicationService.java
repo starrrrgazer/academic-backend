@@ -100,10 +100,13 @@ public class ApplicationService {
                 return returnObject;
             }
             String userId = a.getUserID();
+            String authorID = a.getAuthorID();
             applicationMapper.acceptApply(applyId,reason);
             userMapper.updateUserIdentity(userId);
-            String conflictId = userMapper.getUserByAuthorID(a.getAuthorID()).getUserID();
+            String conflictId = userMapper.getUserByAuthorID(authorID).getUserID();
             userMapper.resetUserIdentity(conflictId);
+            userMapper.deleteAuthorIdByUserId(conflictId);
+            userMapper.setAuthorID(userId,authorID);
 //            userMapper.resetUserIdentity(a.get);
         } catch (Exception e) {
             returnObject.put("status","401");

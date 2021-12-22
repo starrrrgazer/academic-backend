@@ -49,4 +49,16 @@
         set userIdentity = 1
         where userID = #{id}
     </update>
+
+    <update id="setAuthorID" parameterType="java.lang.String">
+        update User
+        set authorID = #{authorId}
+        where userID = #{userId};
+    </update>
+
+    <update id="deleteAuthorIdByUserId" parameterType="java.lang.String">
+        update User
+        set authorID = NULL
+        where userID=#{userid}
+    </update>
 </mapper>
