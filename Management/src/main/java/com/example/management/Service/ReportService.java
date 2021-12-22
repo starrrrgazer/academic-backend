@@ -2,6 +2,7 @@ package com.example.management.Service;
 
 import com.example.management.Entity.Report;
 import com.example.management.mapper.ReportMapper;
+import com.example.management.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,8 @@ public class ReportService {
 
     @Autowired
     private ReportMapper reportMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     public Map<String,Object> getCommentList(){
         Map<String,Object> returnObject = new HashMap<>();
@@ -62,6 +65,8 @@ public class ReportService {
                 return returnObject;
             }
             reportMapper.acceptReport(reportId,result);
+            Report tmpReport = reportMapper.getReportById(reportId);
+            userMapper.deleteAuthorIdByUserId(tmpReport.getReporteeID12());
         }catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
