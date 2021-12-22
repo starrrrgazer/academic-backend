@@ -1,6 +1,7 @@
 package com.example.management.Entity;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -30,7 +31,7 @@ public class Report {
     private int reporteeID34;
 
     @Column(name = "reportTime")
-    private Timestamp reportTime;
+    private Date reportTime;
 
     @Column(name = "result")
     private String result;
@@ -62,11 +63,11 @@ public class Report {
         this.userID = userID;
     }
 
-    public Timestamp getReportTime() {
+    public Date getReportTime() {
         return reportTime;
     }
 
-    public void setReportTime(Timestamp reportTime) {
+    public void setReportTime(Date reportTime) {
         this.reportTime = reportTime;
     }
 

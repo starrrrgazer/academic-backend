@@ -21,6 +21,7 @@ public class ReportService {
         List<Map<String,Object>> reportList = new ArrayList<>();
         try {
             List<Report> tmpReportList = reportMapper.getReportList();
+
             for (Report report : tmpReportList){
                 Map<String,Object> tmp = new HashMap<>();
                 tmp.put("reportID",report.getReportID());
@@ -30,12 +31,13 @@ public class ReportService {
                 tmp.put("processerID",report.getProcesserID());
                 tmp.put("reporteeID12",report.getReporteeID12());
                 tmp.put("reporteeID34",report.getReporteeID34());
-                tmp.put("reportTime",report.getReportTime().toString());
+                tmp.put("reportTime",report.getReportTime());
                 tmp.put("userID",report.getUserID());
                 tmp.put("result",report.getResult());
                 reportList.add(tmp);
             }
         }catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
