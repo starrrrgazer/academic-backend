@@ -161,6 +161,8 @@ public class PortalController {
                     if(owner == null)
                         ret.put("ifself", (T) "0");
                     else {
+                        ret.put("ownerName", (T) owner.getUsername());
+                        ret.put("ownerID", (T) owner.getUserID());
                         if(owner.getUserIdentity() == 3) {
                             if(owner.getUsername().equals(username))
                                 ret.put("ifself", (T) "1");
