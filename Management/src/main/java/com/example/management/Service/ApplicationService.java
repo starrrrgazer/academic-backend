@@ -61,8 +61,6 @@ public class ApplicationService {
                 Map<String,Object> tmp = new HashMap<>();
                 tmp.put("applicationID",tmpApplication.getApplicationID());
                 tmp.put("userID",tmpApplication.getUserID());
-//                System.out.println(tmpApplication.getApplicationTime());
-//                System.out.println(tmpApplication.getApplicationTime().toDate());
                 tmp.put("applicationTime",tmpApplication.getApplicationTime());
                 tmp.put("type",String.valueOf(tmpApplication.getType()));
                 tmp.put("emailAddress",tmpApplication.getEmailAddress());
@@ -104,6 +102,9 @@ public class ApplicationService {
             String userId = a.getUserID();
             applicationMapper.acceptApply(applyId,reason);
             userMapper.updateUserIdentity(userId);
+            String conflictId = userMapper.getUserByAuthorID(a.getAuthorID()).getUserID();
+            userMapper.resetUserIdentity(conflictId);
+//            userMapper.resetUserIdentity(a.get);
         } catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");

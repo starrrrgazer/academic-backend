@@ -140,7 +140,6 @@ public class UserService {
             updateRequest.index("author").id(authorID);
             updateRequest.doc(XContentType.JSON,"userID",userID);
             restHighLevelClient.update(updateRequest,RequestOptions.DEFAULT);
-
         }catch (Exception e){
             returnObject.put("status","403");
             returnObject.put("result","未知错误");

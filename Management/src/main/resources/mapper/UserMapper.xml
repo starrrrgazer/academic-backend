@@ -43,4 +43,10 @@
         set userIdentity = 3
         where userID = #{id}
     </update>
+
+    <update id="resetUserIdentity" parameterType="java.lang.String">
+        update User
+        set userIdentity = 1
+        where userID = #{id}
+    </update>
 </mapper>
