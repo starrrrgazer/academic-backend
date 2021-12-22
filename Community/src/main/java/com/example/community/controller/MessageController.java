@@ -23,7 +23,10 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge = 3600)
+@CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443",
+        "https://localhost:8000","https://localhost:80","https://localhost:443",
+        "http://121.36.60.6:8000","http://121.36.60.6:80","http://121.36.60.6:443",
+        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443"},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class MessageController {
     @Autowired

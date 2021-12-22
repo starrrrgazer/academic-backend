@@ -1,20 +1,16 @@
 package com.example.portal.controller;
 
-import com.example.portal.dao.ApplicationRepository;
-import com.example.portal.dao.AuthorRepository;
-import com.example.portal.dao.PaperRepository;
-import com.example.portal.dao.UserRepository;
-import com.example.portal.entity.Application;
-import com.example.portal.entity.Author;
-import com.example.portal.entity.Paper;
-import com.example.portal.entity.User;
+import com.example.portal.dao.*;
+import com.example.portal.entity.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.http.HttpHost;
 import org.apache.tomcat.util.collections.ManagedConcurrentWeakHashMap;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -34,8 +30,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:8000",allowCredentials = "true",maxAge =
-        3600)
+@CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443",
+        "https://localhost:8000","https://localhost:80","https://localhost:443",
+        "http://121.36.60.6:8000","http://121.36.60.6:80","http://121.36.60.6:443",
+        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443"},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class PortalController {
     @Autowired
@@ -52,6 +50,9 @@ public class PortalController {
 
     @Autowired
     PaperRepository paperRepository;
+
+    @Autowired
+    ReportRepository reportRepository;
 
     @PostMapping("/getUserInfo")
     public <T extends Object> Map<String, T> getUserInfo(@RequestBody Map<String, String> remap) {
@@ -156,11 +157,26 @@ public class PortalController {
                 if(username == null)
                     ret.put("ifself", (T) "-1");
                 else {
-                    User user = userRepository.findByUsername(username);
-                    if(user.getAuthorID() == author.getId() && user.getUserIdentity() == 3)
-                        ret.put("ifself", (T) "1");
-                    else
+                    User owner = userRepository.findByAuthorID(id);
+                    if(owner == null)
                         ret.put("ifself", (T) "0");
+                    else {
+                        ret.put("ownerName", (T) owner.getUsername());
+                        ret.put("ownerID", (T) owner.getUserID());
+                        if(owner.getUserIdentity() == 3) {
+                            if(owner.getUsername().equals(username))
+                                ret.put("ifself", (T) "1");
+                            else
+                                ret.put("ifself", (T) "2");
+                        }
+                        else {
+                            if(owner.getUsername().equals(username))
+                                ret.put("ifself", (T) "3");
+                            else
+                                ret.put("ifself", (T) "4");
+                        }
+                    }
+
                 }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
@@ -470,6 +486,7 @@ public class PortalController {
         application.setEmailAddress(mail);
         application.setAuthorID(applier.getAuthorID());
         application.setWorkCard1(applier.getRealName());
+        application.setUserID(uid);
         applicationRepository.save(application);
         ret.put("success", "true");
         if(null == ret.get("msg"))
@@ -504,6 +521,7 @@ public class PortalController {
 
         User origin = userRepository.findByAuthorID(authorID);
         User applier = userRepository.findByUserID(uid);
+        String absPath = null;
         if(arg.get("workCard2") !=  null) {
             String image_base64 = arg.get("workCard2").trim();
             int index = image_base64.indexOf("base64,") + 7;
@@ -524,9 +542,12 @@ public class PortalController {
                 out.write(imageBuf);
                 out.flush();
                 out.close();
-                userRepository.updateWorkCard(uid, name);
+                absPath = workCardPath.getAbsolutePath();
+                userRepository.updateWorkCard(uid, absPath);
             } catch (Exception e) {
                 e.printStackTrace();
+                ret.put("msg", "201");
+                return ret;
             }
         }
         else {
@@ -541,11 +562,12 @@ public class PortalController {
         Application application = new Application();
         application.setEmailAddress(emailAddress);
         application.setAuthorID(authorID);
+        application.setUserID(uid);
         application.setPhoneNumber1(phoneNumber);
         application.setPhoneNumber2(origin.getPhoneNumber());
         application.setType(2);
-        application.setWorkCard1("./static/certification/workcard" + uid + ".jpg");
-        application.setWorkCard2("./static/certification/workcard" + origin.getUserID() + ".jpg");
+        application.setWorkCard1(absPath);
+        application.setWorkCard2(origin.getRealName());
         application.setApplicationTime(new java.sql.Date(new Date().getTime()));
 
         applicationRepository.save(application);
@@ -638,10 +660,58 @@ public class PortalController {
             ret.put("msg", "201");
             return ret;
         }
-        paperRepository.deleteById(essayID);
+        //paperRepository.deleteById(essayID);
+        RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("121.36.60.6", 9200, "http")));
+        try{
+            DeleteRequest request_ = new DeleteRequest("paper","_doc", essayID);
+            DeleteResponse response = client.delete(request_, RequestOptions.DEFAULT);
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            ret.put("msg", "201");
+            return ret;
+        }
         ret.put("msg", "200");
         return ret;
     }
+
+    @PostMapping("/portalReport")
+    public Map<String, Object> report(@RequestBody Map<String, String> arg) {
+        Map<String, Object> ret = new HashMap<>();
+        String aid = arg.get("authorID");
+        String reason = arg.get("content");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
+        String uid = (String) session.getAttribute("userID");
+        if(uid == null) {
+            ret.put("success", "false");
+            ret.put("msg", "201");
+            return ret;
+        }
+        User reporter = userRepository.findByUserID(uid);
+        assert reporter != null;
+        User reportee = userRepository.findByAuthorID(aid);
+        if(reportee == null) {
+            ret.put("success", "false");
+            ret.put("msg", "202");
+            return  ret;
+        }
+        Report report = new Report();
+        report.setContent(reason);
+        report.setUserID(uid);
+        report.setReporteeID12(aid);
+        report.setStatus(0);
+        report.setReportTime(new java.sql.Date(new Date().getTime()));
+        report.setType(2);
+        reportRepository.save(report);
+
+        ret.put("success", "true");
+        ret.put("msg", "200");
+
+        return ret;
+    }
+
 }
 
 @Data
