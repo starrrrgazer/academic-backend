@@ -697,10 +697,10 @@ public class PortalController {
         }
         Report report = new Report();
         report.setContent(reason);
-        report.setReporterID(uid);
-        report.setReporteeID(aid);
+        report.setUserID(uid);
+        report.setReporteeID12(aid);
         report.setStatus(0);
-        report.setType(4);
+        report.setType(2);
         reportRepository.save(report);
 
         ret.put("success", "true");

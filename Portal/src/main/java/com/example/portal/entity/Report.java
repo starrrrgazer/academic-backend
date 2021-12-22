@@ -20,6 +20,9 @@ public class Report {
     @Column(name = "type")
     private int type;
 
+    @Column(name = "userID")
+    private String userID;
+
     @Column(name = "content")
     private String content;
 
@@ -31,4 +34,10 @@ public class Report {
 
     @Column(name = "reporteeID")
     private String reporteeID;
+
+    @Column(name = "reporteeID12")
+    private String reporteeID12;
+
+    @Column(name = "reporteeID34")
+    private int reporteeID34;
 }
