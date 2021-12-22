@@ -700,6 +700,7 @@ public class PortalController {
         report.setUserID(uid);
         report.setReporteeID12(aid);
         report.setStatus(0);
+        report.setReportTime(new java.sql.Date(new Date().getTime()));
         report.setType(2);
         reportRepository.save(report);
 

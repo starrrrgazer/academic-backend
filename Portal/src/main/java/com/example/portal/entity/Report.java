@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Date;
 
 @Entity
 @Data
@@ -22,6 +23,9 @@ public class Report {
 
     @Column(name = "userID")
     private String userID;
+
+    @Column(name = "reportTime")
+    private Date reportTime;
 
     @Column(name = "content")
     private String content;
