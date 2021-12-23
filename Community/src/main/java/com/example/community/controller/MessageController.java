@@ -199,6 +199,8 @@ public class MessageController {
                 personMap.put("avatar",getUserAvatar(user.getImage()));
                 personMap.put("isRead",isRead);
                 personMap.put("messageList",messageList);
+                personMap.put("userIdentity",user.getUserIdentity());
+                personMap.put("authorID",user.getAuthorID());
                 personList.add(personMap);
             }
             List<Message> systemMessageList = messageRepository.findAllByTypeNotAndReceiverID(3,userID);

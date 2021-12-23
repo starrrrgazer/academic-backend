@@ -153,6 +153,8 @@ public class QuestionController {
             User user = userRepository.findByUserID(userID);
             response.put("avatar", getUserAvatar(user.getImage()));
             response.put("userName",user.getUsername());
+            response.put("userIdentity",user.getUserIdentity());
+            response.put("authorID",user.getAuthorID());
             List<UserTags> userTags = userTagRepository.findAllByUserID(userID);
             List<Integer> skillList = new ArrayList<>();
             for(UserTags userTag : userTags){
