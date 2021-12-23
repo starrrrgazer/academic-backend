@@ -129,11 +129,13 @@ public class QuestionController {
         for(QuestionTag questionTag : questionTags){
             subjectList.add(questionTag.getTagsID());
         }
-
+        User user = userRepository.findByUserID(question.getUserID());
         Map<String,Object> questionMap = new HashMap<>();
         questionMap.put("proposerId",question.getUserID());
         questionMap.put("proposer",question.getUsername());
         questionMap.put("avatar", getUserAvatar(question.getAvatar()));
+        questionMap.put("userIdentity",user.getUserIdentity());
+        questionMap.put("authorID",user.getAuthorID());
         questionMap.put("questionId",question.getQuestionID());
         questionMap.put("questionTitle",question.getQuestionTitle());
         questionMap.put("questionInformation",question.getQuestionContent());
@@ -567,10 +569,13 @@ public class QuestionController {
     public Map<String,Object> putQuestionAnswerMap(QuestionAnswer questionAnswer){
 
         Map<String,Object> questionAnswerMap = new HashMap<>();
+        User user = userRepository.findByUserID(questionAnswer.getUserID());
         questionAnswerMap.put("answerId",questionAnswer.getId());
         questionAnswerMap.put("answererId",questionAnswer.getUserID());
         questionAnswerMap.put("answerer",questionAnswer.getUsername());
         questionAnswerMap.put("avatar", getUserAvatar(questionAnswer.getAvatar()));
+        questionAnswerMap.put("userIdentity",user.getUserIdentity());
+        questionAnswerMap.put("authorID",user.getAuthorID());
         questionAnswerMap.put("answer",questionAnswer.getAnswerContent());
         String strDateFormat = "yyyy-MM-dd HH:mm";
         SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
