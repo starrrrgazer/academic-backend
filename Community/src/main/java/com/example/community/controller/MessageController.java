@@ -83,7 +83,7 @@ public class MessageController {
 
 
     @PostMapping("/sendMessage")
-    public Map<String, Object> deleteFollowQuestion(@RequestBody Map<String,Object> req){
+    public Map<String, Object> sendMessage(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {

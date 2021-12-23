@@ -726,10 +726,13 @@ public class QuestionController {
             response = getUserByLogin(response);
             checkResponseMap(response);
             String userID = (String) response.get("userID");
-            QuestionFollow questionFollow = new QuestionFollow();
-            questionFollow.setQuestionID(questionID);
-            questionFollow.setUserID(userID);
-            questionFollowRepository.save(questionFollow);
+            QuestionFollow q = questionFollowRepository.findByQuestionIDAndUserID(questionID,userID);
+            if(q == null){
+                QuestionFollow questionFollow = new QuestionFollow();
+                questionFollow.setQuestionID(questionID);
+                questionFollow.setUserID(userID);
+                questionFollowRepository.save(questionFollow);
+            }
             response.put("status",1);
             return response;
         }catch (Exception e){
