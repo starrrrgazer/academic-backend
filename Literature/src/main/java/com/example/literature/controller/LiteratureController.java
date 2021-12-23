@@ -389,9 +389,9 @@ public class LiteratureController {
             SearchHits searchHits = searchResponse.getHits();
             SearchHit[] Hits = searchHits.getHits();
             int i = 0;
-            int num1 = (int) (Math.random() * 100);
-            int num2 = (int) (Math.random() * 100) + 100;
-            int num3 = (int) (Math.random() * 100) + 200;
+            int num1 = (int) 3;
+            int num2 = (int) 105;
+            int num3 = (int) 201;
             SearchHit hit1 = Hits[num1];
             SearchHit hit2 = Hits[num2];
             SearchHit hit3 = Hits[num3];
