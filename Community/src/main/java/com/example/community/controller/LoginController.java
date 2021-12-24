@@ -3,6 +3,7 @@ package com.example.community.controller;
 import com.example.community.dao.*;
 import com.example.community.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -65,6 +66,7 @@ public class LoginController {
         return response;
     }
 
+    @Transactional
     @PostMapping("/cancelAccount")
     public Map<String,Object> cancelAccount(@RequestBody Map<String,Object> req){
         Map<String,Object> response = new HashMap<>();
