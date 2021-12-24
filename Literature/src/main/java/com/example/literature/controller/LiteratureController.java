@@ -377,9 +377,9 @@ public class LiteratureController {
         SearchRequest searchRequest = new SearchRequest("paper");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         if(type == 1) {
-            boolQueryBuilder.must(QueryBuilders.termQuery("year", 2020));
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("year").gte(2018).lte(2020));
             boolQueryBuilder.must(QueryBuilders.rangeQuery("n_citation")
-                    .gte(1000)
+                    .gte(100)
                     .lte(100000));
         }
         else{
@@ -477,6 +477,8 @@ public class LiteratureController {
 
                 List<Map<String,Object>> authors = (List<Map<String,Object>>)searchHit.getSourceAsMap().get("authors");
                 String org = (String) authors.get(0).get("org");
+                String title = (String) searchHit.getSourceAsMap().get("title");
+                int lenth = title.length()%100;
                 //TODO 获取对应的相关学者
                 System.out.println(org);
 
@@ -496,9 +498,9 @@ public class LiteratureController {
                 SearchHit[] Hits1 = searchHits1.getHits();
                 System.out.println(Hits1.length);
                 int i = 0;
-                int num1 = (int)(Math.random()*100);
-                int num2 = (int)(Math.random()*100)+100;
-                int num3 = (int)(Math.random()*100)+200;
+                int num1 = lenth;
+                int num2 = lenth+100;
+                int num3 = lenth+200;
                     Map<String,Object> map4 = new HashMap<>();
                     map4.put("id",Hits1[num1].getSourceAsMap().get("id"));
                     map4.put("name",Hits1[num1].getSourceAsMap().get("name"));
