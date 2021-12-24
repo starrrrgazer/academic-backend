@@ -376,8 +376,12 @@ public class LiteratureController {
         //建空查询
         SearchRequest searchRequest = new SearchRequest("paper");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        if(type == 1)
-        boolQueryBuilder.must(QueryBuilders.termQuery("year", 2020));
+        if(type == 1) {
+            boolQueryBuilder.must(QueryBuilders.termQuery("year", 2020));
+            boolQueryBuilder.must(QueryBuilders.rangeQuery("n_citation")
+                    .gte(1000)
+                    .lte(100000));
+        }
         else{
             boolQueryBuilder.must(QueryBuilders.rangeQuery("n_citation")
                     .gte(10000)
@@ -485,23 +489,31 @@ public class LiteratureController {
                 boolQueryBuilder1.should(QueryBuilders.fuzzyQuery("org", "school"));
                 //增加查询条件
                 searchSourceBuilder1.query(boolQueryBuilder1);
-                searchSourceBuilder1.size(1000);
+                searchSourceBuilder1.size(310);
                 searchRequest1.source(searchSourceBuilder1);
                 SearchResponse searchResponse1 = restHighLevelClient.search(searchRequest1, RequestOptions.DEFAULT);
                 SearchHits searchHits1 = searchResponse1.getHits();
                 SearchHit[] Hits1 = searchHits1.getHits();
                 System.out.println(Hits1.length);
                 int i = 0;
-                for(SearchHit hit :Hits1){
-                    Map<String,Object> map1 = new HashMap<>();
-                    map1.put("id",hit.getSourceAsMap().get("id"));
-                    map1.put("name",hit.getSourceAsMap().get("name"));
-                    map1.put("org",hit.getSourceAsMap().get("org"));
-                    related_authors.add(map1);
-                    if(i++>5){
-                        break;
-                    }
-                }
+                int num1 = (int)(Math.random()*100);
+                int num2 = (int)(Math.random()*100)+100;
+                int num3 = (int)(Math.random()*100)+200;
+                    Map<String,Object> map4 = new HashMap<>();
+                    map4.put("id",Hits1[num1].getSourceAsMap().get("id"));
+                    map4.put("name",Hits1[num1].getSourceAsMap().get("name"));
+                    map4.put("org",Hits1[num1].getSourceAsMap().get("org"));
+                    related_authors.add(map4);
+                Map<String,Object> map2 = new HashMap<>();
+                map2.put("id",Hits1[num2].getSourceAsMap().get("id"));
+                map2.put("name",Hits1[num2].getSourceAsMap().get("name"));
+                map2.put("org",Hits1[num2].getSourceAsMap().get("org"));
+                related_authors.add(map2);
+                Map<String,Object> map3 = new HashMap<>();
+                map3.put("id",Hits1[num3].getSourceAsMap().get("id"));
+                map3.put("name",Hits1[num3].getSourceAsMap().get("name"));
+                map3.put("org",Hits1[num3].getSourceAsMap().get("org"));
+                related_authors.add(map3);
                 map.put("relevantSchoolars",related_authors);
 
                 List<Comment> commentList = commentRepository.findAllByToID(id);
