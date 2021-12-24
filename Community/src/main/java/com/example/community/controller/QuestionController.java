@@ -397,7 +397,6 @@ public class QuestionController {
                     throw new Exception("searchType is 9, but don't have searchText");
                 }
             }
-
             List<Question> questions = new ArrayList<>();
 
             if(searchListType == 1){
@@ -449,7 +448,7 @@ public class QuestionController {
                 }
             }
             else {
-                throw new Exception("searchType is not [1:5]");
+                throw new Exception("searchListType is not [1:5]");
             }
             questions = searchInQuestionList(questions,searchType,searchText);
 
