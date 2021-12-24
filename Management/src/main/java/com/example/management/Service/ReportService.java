@@ -1,6 +1,7 @@
 package com.example.management.Service;
 
 import com.example.management.Entity.Report;
+import com.example.management.Entity.User;
 import com.example.management.mapper.ReportMapper;
 import com.example.management.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,10 @@ public class ReportService {
             }
             reportMapper.acceptReport(reportId,result);
             Report tmpReport = reportMapper.getReportById(reportId);
-            userMapper.deleteAuthorIdByUserId(tmpReport.getReporteeID12());
+//            userMapper.deleteAuthorIdByUserId(tmpReport.getReporteeID12());
+            User a = userMapper.getUserByAuthorID(tmpReport.getReporteeID12());
+            userMapper.resetUserIdentity(a.getUserID());
+            userMapper.deleteAuthorID(tmpReport.getReporteeID12());
         }catch (Exception e) {
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
