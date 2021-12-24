@@ -472,7 +472,7 @@ public class PortalController {
                 out.write(imageBuf);
                 out.flush();
                 out.close();
-                applier.setRealName(workCard.getAbsolutePath());
+                userRepository.updateWorkCard(uid, workCard.getAbsolutePath());
             } catch (Exception e) {
                 e.printStackTrace();
                 ret.put("success", "false");
@@ -548,7 +548,7 @@ public class PortalController {
                 out.write(imageBuf);
                 out.flush();
                 out.close();
-                absPath = workCardPath.getAbsolutePath();
+                absPath = workCard.getAbsolutePath();
                 userRepository.updateWorkCard(uid, absPath);
             } catch (Exception e) {
                 e.printStackTrace();
