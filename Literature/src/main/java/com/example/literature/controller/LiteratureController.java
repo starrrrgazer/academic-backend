@@ -81,19 +81,17 @@ public class LiteratureController {
 
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
-                    /*boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));
                 } else {//模糊
-                    /*boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));
                 }
 
             } else if (type == 1) {//题目检索
@@ -577,19 +575,17 @@ public class LiteratureController {
             }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
-                    /*boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));
                 } else {//模糊
-                    /*boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));
                 }
 
             } else if (type == 1) {//题目检索
@@ -988,19 +984,17 @@ public class LiteratureController {
             }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
-                    /*boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));
                 } else {//模糊
-                    /*boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));
                 }
 
             } else if (type == 1) {//题目检索
@@ -1462,19 +1456,17 @@ public class LiteratureController {
             }
             if (type == 0) {//全部检索
                 if (isCurrent) {//精确
-                    /*boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.termQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.termQuery("keywords", context));
                 } else {//模糊
-                    /*boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("title", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.name", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("authors.org", context));
                     boolQueryBuilder.should(QueryBuilders.fuzzyQuery("abstracts", context));
-                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));*/
-                    boolQueryBuilder.must(QueryBuilders.fuzzyQuery("abstracts", context));
+                    boolQueryBuilder.should(QueryBuilders.fuzzyQuery("keywords", context));
                 }
 
             } else if (type == 1) {//题目检索
