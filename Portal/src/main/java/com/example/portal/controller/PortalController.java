@@ -446,6 +446,7 @@ public class PortalController {
 //        }
         String phone = arg.get("phoneNumber");
         String mail = arg.get("emailAddress");
+        String aid = arg.get("authorID");
         if(applier.getPhoneNumber() != null && !phone.equals(applier.getPhoneNumber())
                 || applier.getEmailAddress() != null && !mail.equals(applier.getEmailAddress())) {
             ret.put("msg", "202");
@@ -489,7 +490,7 @@ public class PortalController {
         application.setType(4);
         application.setPhoneNumber1(phone);
         application.setEmailAddress(mail);
-        application.setAuthorID(applier.getAuthorID());
+        application.setAuthorID(aid);
         application.setWorkCard1(applier.getRealName());
         application.setUserID(uid);
         applicationRepository.save(application);
@@ -661,7 +662,7 @@ public class PortalController {
         String username = (String) session.getAttribute("username");
 
         User current = userRepository.findByUsername(username);
-        if(current == null || !current.getAuthorID().equals(paper_.get().getAuthors().get(0).get("id")) || current.getUserIdentity() != 3) {
+        if(current == null /*|| !contains(paper_.get().getAuthors(), current.getAuthorID()) */|| current.getUserIdentity() != 3) {
             ret.put("msg", "201");
             return ret;
         }
@@ -729,6 +730,15 @@ public class PortalController {
         return ret;
     }
 
+
+//    private boolean contains(List<Map<?,?>> list, String target) {
+//        for(Map<?,?> m : list) {
+//            String get = (String) m.get("id");
+//            if(target.equals(get))
+//                return true;
+//        }
+//        return false;
+//    }
 }
 
 @Data

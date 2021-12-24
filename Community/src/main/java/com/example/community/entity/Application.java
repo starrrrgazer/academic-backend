@@ -4,19 +4,21 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.repository.Temporal;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Application")
 public class Application {
     @Id
     @Column(name = "applicationID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int applicationID;
 
     @Column(name = "userID")
     private String userID;
 
     @Column(name = "applicationTime")
-    private DateTime applicationTime;
+    private Timestamp applicationTime;
 
     @Column(name = "type")
     private int type;
@@ -70,11 +72,11 @@ public class Application {
         this.userID = userID;
     }
 
-    public DateTime getApplicationTime() {
+    public Timestamp getApplicationTime() {
         return applicationTime;
     }
 
-    public void setApplicationTime(DateTime applicationTime) {
+    public void setApplicationTime(Timestamp applicationTime) {
         this.applicationTime = applicationTime;
     }
 
