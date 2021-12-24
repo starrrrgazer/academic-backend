@@ -66,6 +66,26 @@ public class LoginController {
         return response;
     }
 
+    @PostMapping("/getUserIDByAuthorID")
+    public Map<String,Object> getUserIDByAuthorID(@RequestBody Map<String, Object> req){
+        Map<String,Object> response = new HashMap<>();
+        try {
+            String authorID = (String) req.get("id");
+            User user = userRepository.findByAuthorID(authorID);
+            if(user == null){
+                response.put("status",2);
+                return response;
+            }
+            response.put("userID",user.getUserID());
+            response.put("status",1);
+            return response;
+        }catch (Exception e){
+            e.printStackTrace();
+            response.put("status",2);
+            return response;
+        }
+    }
+
     @Transactional
     @PostMapping("/cancelAccount")
     public Map<String,Object> cancelAccount(@RequestBody Map<String,Object> req){
