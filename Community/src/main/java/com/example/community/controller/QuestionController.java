@@ -27,7 +27,10 @@ import java.util.*;
 @CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443",
         "https://localhost:8000","https://localhost:80","https://localhost:443",
         "http://121.36.60.6:8000","http://121.36.60.6:80","http://121.36.60.6:443",
-        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443"},allowCredentials = "true",maxAge = 3600)
+        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443",
+        "https://doorscholar.cn.","https://www.doorscholar.cn.","https://doorscholar.cn","https://doorscholar.cn"
+
+},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class QuestionController {
     @Autowired
@@ -129,11 +132,13 @@ public class QuestionController {
         for(QuestionTag questionTag : questionTags){
             subjectList.add(questionTag.getTagsID());
         }
-
+        User user = userRepository.findByUserID(question.getUserID());
         Map<String,Object> questionMap = new HashMap<>();
         questionMap.put("proposerId",question.getUserID());
         questionMap.put("proposer",question.getUsername());
         questionMap.put("avatar", getUserAvatar(question.getAvatar()));
+        questionMap.put("userIdentity",user.getUserIdentity());
+        questionMap.put("authorID",user.getAuthorID());
         questionMap.put("questionId",question.getQuestionID());
         questionMap.put("questionTitle",question.getQuestionTitle());
         questionMap.put("questionInformation",question.getQuestionContent());
@@ -567,10 +572,13 @@ public class QuestionController {
     public Map<String,Object> putQuestionAnswerMap(QuestionAnswer questionAnswer){
 
         Map<String,Object> questionAnswerMap = new HashMap<>();
+        User user = userRepository.findByUserID(questionAnswer.getUserID());
         questionAnswerMap.put("answerId",questionAnswer.getId());
         questionAnswerMap.put("answererId",questionAnswer.getUserID());
         questionAnswerMap.put("answerer",questionAnswer.getUsername());
         questionAnswerMap.put("avatar", getUserAvatar(questionAnswer.getAvatar()));
+        questionAnswerMap.put("userIdentity",user.getUserIdentity());
+        questionAnswerMap.put("authorID",user.getAuthorID());
         questionAnswerMap.put("answer",questionAnswer.getAnswerContent());
         String strDateFormat = "yyyy-MM-dd HH:mm";
         SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
@@ -726,10 +734,13 @@ public class QuestionController {
             response = getUserByLogin(response);
             checkResponseMap(response);
             String userID = (String) response.get("userID");
-            QuestionFollow questionFollow = new QuestionFollow();
-            questionFollow.setQuestionID(questionID);
-            questionFollow.setUserID(userID);
-            questionFollowRepository.save(questionFollow);
+            QuestionFollow q = questionFollowRepository.findByQuestionIDAndUserID(questionID,userID);
+            if(q == null){
+                QuestionFollow questionFollow = new QuestionFollow();
+                questionFollow.setQuestionID(questionID);
+                questionFollow.setUserID(userID);
+                questionFollowRepository.save(questionFollow);
+            }
             response.put("status",1);
             return response;
         }catch (Exception e){
