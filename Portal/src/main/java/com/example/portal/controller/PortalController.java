@@ -28,12 +28,17 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443",
         "https://localhost:8000","https://localhost:80","https://localhost:443",
         "http://121.36.60.6:8000","http://121.36.60.6:80","http://121.36.60.6:443",
-        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443"},allowCredentials = "true",maxAge = 3600)
+        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443",
+        "https://doorscholar.cn.","https://www.doorscholar.cn.","https://doorscholar.cn","https://doorscholar.cn"
+
+},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class PortalController {
     @Autowired
@@ -434,11 +439,11 @@ public class PortalController {
         String uid = (String) session.getAttribute("userID");
 
         User applier = userRepository.findByUserID(uid);
-        if(applier.getUserIdentity() != 2) {
-            ret.put("success", "false");
-            ret.put("msg", "201");
-            return ret;
-        }
+//        if(applier.getUserIdentity() != 2) {
+//            ret.put("success", "false");
+//            ret.put("msg", "201");
+//            return ret;
+//        }
         String phone = arg.get("phoneNumber");
         String mail = arg.get("emailAddress");
         if(applier.getPhoneNumber() != null && !phone.equals(applier.getPhoneNumber())
@@ -702,7 +707,19 @@ public class PortalController {
         report.setUserID(uid);
         report.setReporteeID12(aid);
         report.setStatus(0);
-        report.setReportTime(new java.sql.Date(new Date().getTime()));
+
+//        Date now = new Date(System.currentTimeMillis());
+//        try {
+//            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-ss HH:mm:ss");
+//            String date = format.format(now);
+//            java.util.Date d = format.parse(date);
+//            java.sql.Timestamp ts = new Timestamp(d.getTime());
+//            report.setReportTime(ts);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            report.setReportTime(new java.sql.Timestamp(System.currentTimeMillis()));
+//        }
+        report.setReportTime(new java.sql.Timestamp(new Date().getTime()));
         report.setType(2);
         reportRepository.save(report);
 

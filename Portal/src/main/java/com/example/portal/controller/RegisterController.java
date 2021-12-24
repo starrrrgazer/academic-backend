@@ -25,7 +25,10 @@ import java.util.UUID;
 @CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443",
         "https://localhost:8000","https://localhost:80","https://localhost:443",
         "http://121.36.60.6:8000","http://121.36.60.6:80","http://121.36.60.6:443",
-        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443"},allowCredentials = "true",maxAge = 3600)
+        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443",
+        "https://doorscholar.cn.","https://www.doorscholar.cn.","https://doorscholar.cn","https://doorscholar.cn"
+
+},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class RegisterController {
     @Autowired
@@ -246,7 +249,7 @@ public class RegisterController {
                     if(arg.get("userPosition") != null)
                         newUser.setUserPosition(arg.get("userPosition"));
                     newUser.setUserIdentity(1);
-                    newUser.setImage("./static/image/default.jpg");
+                    newUser.setImage("./static/image/" + newUser.getUserID() + ".jpg");
 
                     userRepository.save(newUser);
 

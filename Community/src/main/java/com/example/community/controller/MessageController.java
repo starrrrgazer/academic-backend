@@ -26,7 +26,10 @@ import java.util.*;
 @CrossOrigin(origins = {"http://localhost:8000","http://localhost:80","http://localhost:443",
         "https://localhost:8000","https://localhost:80","https://localhost:443",
         "http://121.36.60.6:8000","http://121.36.60.6:80","http://121.36.60.6:443",
-        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443"},allowCredentials = "true",maxAge = 3600)
+        "https://121.36.60.6:8000","https://121.36.60.6:80","https://121.36.60.6:443",
+        "https://doorscholar.cn.","https://www.doorscholar.cn.","https://doorscholar.cn","https://doorscholar.cn"
+
+},allowCredentials = "true",maxAge = 3600)
 @RestController
 public class MessageController {
     @Autowired
@@ -83,7 +86,7 @@ public class MessageController {
 
 
     @PostMapping("/sendMessage")
-    public Map<String, Object> deleteFollowQuestion(@RequestBody Map<String,Object> req){
+    public Map<String, Object> sendMessage(@RequestBody Map<String,Object> req){
         System.out.println("request body is:" + req);
         Map<String,Object> response = new HashMap<>();
         try {
@@ -199,6 +202,8 @@ public class MessageController {
                 personMap.put("avatar",getUserAvatar(user.getImage()));
                 personMap.put("isRead",isRead);
                 personMap.put("messageList",messageList);
+                personMap.put("userIdentity",user.getUserIdentity());
+                personMap.put("authorID",user.getAuthorID());
                 personList.add(personMap);
             }
             List<Message> systemMessageList = messageRepository.findAllByTypeNotAndReceiverID(3,userID);

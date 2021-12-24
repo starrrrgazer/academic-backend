@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +54,32 @@ public class ApplicationService {
         return returnObject;
     }
 
+    public byte[] getUserAvatar(String image){
+        try {
+            File avatar = new File(image);
+            if(avatar.exists() && avatar.canRead()) {
+                byte[] buffer = new byte[(int) avatar.length()];
+                InputStream in = new FileInputStream(avatar);
+                in.read(buffer);
+                return buffer;
+            }
+            else {
+                File dft = new File("./static/image/default.jpg");
+                if(dft.exists()) {
+                    byte[] buffer = new byte[(int) dft.length()];
+                    InputStream in = new FileInputStream(dft);
+                    in.read(buffer);
+                    return buffer;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("getUserImage error");
+            return new byte[0];
+        }
+        return new byte[0];
+    }
+
     public Map<String,Object> getApplyList(){
         Map<String,Object> returnObject = new HashMap<>();
         List<Map<String,Object>> applications = new ArrayList<>();
@@ -70,10 +99,10 @@ public class ApplicationService {
                 tmp.put("title",tmpApplication.getTitle());
                 tmp.put("url",tmpApplication.getUrl());
                 tmp.put("phoneNumber1",tmpApplication.getPhoneNumber1());
-                tmp.put("workCard1",tmpApplication.getWorkCard1());
+                tmp.put("workCard1",getUserAvatar(tmpApplication.getWorkCard1()));
                 tmp.put("authorId",tmpApplication.getAuthorID());
                 tmp.put("phoneNumber2",tmpApplication.getPhoneNumber2());
-                tmp.put("workCard2",tmpApplication.getWorkCard2());
+                tmp.put("workCard2",getUserAvatar(tmpApplication.getWorkCard2()));
                 applications.add(tmp);
             }
         } catch (Exception e) {

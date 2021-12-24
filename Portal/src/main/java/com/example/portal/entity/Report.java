@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Data
@@ -25,7 +26,7 @@ public class Report {
     private String userID;
 
     @Column(name = "reportTime")
-    private Date reportTime;
+    private Timestamp reportTime;
 
     @Column(name = "content")
     private String content;
