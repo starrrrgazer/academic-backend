@@ -102,13 +102,19 @@ public class ApplicationService {
             String userId = a.getUserID();
             String authorID = a.getAuthorID();
             applicationMapper.acceptApply(applyId,reason);
+            User conflictUser = userMapper.getUserByAuthorID(authorID);
+            String conflictId = "";
+            if (conflictUser!=null){
+                conflictId = conflictUser.getUserID();
+            }
             userMapper.updateUserIdentity(userId);
-            String conflictId = userMapper.getUserByAuthorID(authorID).getUserID();
-            userMapper.resetUserIdentity(conflictId);
-            userMapper.deleteAuthorIdByUserId(conflictId);
+            if (conflictUser!=null&&!conflictId.equals(userId)){
+                userMapper.resetUserIdentity(conflictId);
+                userMapper.deleteAuthorIdByUserId(conflictId);
+            }
             userMapper.setAuthorID(userId,authorID);
-//            userMapper.resetUserIdentity(a.get);
         } catch (Exception e) {
+            e.printStackTrace();
             returnObject.put("status","401");
             returnObject.put("result","未知错误");
             return returnObject;
